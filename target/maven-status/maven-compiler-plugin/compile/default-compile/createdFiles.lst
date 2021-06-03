@@ -1,0 +1,11 @@
+com\as400datamigration\config\DatasourceConfiguration.class
+com\as400datamigration\model\SQLColumn.class
+com\as400datamigration\reposistory\PostgresDao.class
+com\as400datamigration\service\As400DataMigrationService.class
+com\as400datamigration\common\Utility.class
+com\as400datamigration\reposistory\As400Dao$1.class
+com\as400datamigration\As400DataMigrationApplication.class
+com\as400datamigration\reposistory\As400Dao.class
+com\as400datamigration\runner\As400DataMigrationRunner.class
+com\as400datamigration\common\Constant.class
+META-INF\spring-configuration-metadata.json
