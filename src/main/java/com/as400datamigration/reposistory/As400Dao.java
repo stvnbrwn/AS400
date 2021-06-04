@@ -26,6 +26,9 @@ public class As400Dao {
 	@Autowired
 	@Qualifier("As400JdbcTemplate")
 	private JdbcTemplate as400Template;
+	
+	@Autowired
+	Utility utility;
 
 	@Autowired
 	PostgresDao postgresDao;
@@ -49,18 +52,19 @@ public class As400Dao {
 					SQLColumn column = new SQLColumn();
 					column.setName(rsmd.getColumnName(i));
 					column.setColumnType(rsmd.getColumnTypeName(i));
-					column.setColumnSize(rsmd.getColumnDisplaySize(columnCount));
+					column.setColumnSize(rsmd.getColumnDisplaySize(i));
+					//rsmd.get
 					columns.add(column);
 				}
 
 				if (!columns.isEmpty()) {
-					String crtQuery = Utility.getCreateQuery(tableName, columns);
+					String crtQuery = utility.getCreateQuery(tableName, columns);
 					log.info("create Query : " + crtQuery);
 					postgresDao.createTable(crtQuery);
 					As400Dao.getAllData(rs, columns,totalRecords ,tableDataList);
 					
 					if (!tableDataList.isEmpty()) {
-						String insertQuery = Utility.getInsertQuery(tableName, columns);
+						String insertQuery = utility.getInsertQuery(tableName, columns);
 						log.info("Insert Query : " + insertQuery);
 						postgresDao.insertBatchInTable(insertQuery, tableDataList);
 					}
@@ -123,7 +127,7 @@ public class As400Dao {
 		long totalRecords = 0;
 		try {
 			log.info("Get Total records for table : " + tableName + " time    : " + LocalDateTime.now());
-			totalRecords = as400Template.queryForObject(Utility.getRowCount(tableName), Long.class);
+			totalRecords = as400Template.queryForObject(utility.getRowCount(tableName), Long.class);
 			log.info("Total records in the table  : " + totalRecords + " time : " + LocalDateTime.now());
 		} catch (Exception e) {
 			// TODO: handle exception

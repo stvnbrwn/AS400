@@ -3,15 +3,18 @@ package com.as400datamigration.common;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import com.as400datamigration.model.SQLColumn;
 
+@Component
 public class Utility {
 
 	@Value("${postgres.schema}")
-	private static int schema;
-
-	public static String getRowCount(String tableName) {
+	private String schema;
+	
+	public  String getRowCount(String tableName) {
 		return Constant.AS400_SELECT_TOTAL_ROW + tableName;
 	}
 
@@ -19,13 +22,13 @@ public class Utility {
 		return Constant.AS400_SELECT_ALL_FROM + tableName;
 	}
 
-	public static String getCreateQuery(String tableName, List<SQLColumn> columns) {
+	public String getCreateQuery(String tableName, List<SQLColumn> columns) {
 
 		/*
 		 * CREATE TABLE public.d ( a character(8), b numeric(6) );
 		 */
 
-		String crtQuery = String.format(Constant.POSTGRES_CREATE_TABLE, schema) + tableName + " ( ";
+		String crtQuery = String.format(Constant.POSTGRES_CREATE_TABLE, schema) + tableName.substring(tableName.lastIndexOf(".")+1) + " ( ";
 
 		for (SQLColumn sqlColumn : columns) {
 			crtQuery += sqlColumn.getCreateString(); // override SQLColumn toString method
@@ -38,9 +41,9 @@ public class Utility {
 
 	}
 
-	public static String getInsertQuery(String tableName, List<SQLColumn> columns) {
+	public  String getInsertQuery(String tableName, List<SQLColumn> columns) {
 
-		String insertQuery = String.format(Constant.POSTGRES_INSERT_INTO, schema) + " ( ";
+		String insertQuery = String.format(Constant.POSTGRES_INSERT_INTO, schema) + tableName.substring(tableName.lastIndexOf(".")+1) +" ( ";
 		String aftrValues = "values ( ";
 
 		for (SQLColumn sqlColumn : columns) {

@@ -10,7 +10,7 @@ public class Constant {
 	// offset 5 rows fetch next 5 rows only
 
 	// postgres Query
-	public static final String POSTGRES_CREATE_TABLE = "CREATE TABLE %s.";
+	public static final String POSTGRES_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %s.";
 
 	public static final String POSTGRES_INSERT_INTO = "INSERT INTO %s.";
 
