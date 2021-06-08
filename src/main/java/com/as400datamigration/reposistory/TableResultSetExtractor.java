@@ -17,24 +17,25 @@ import lombok.extern.slf4j.Slf4j;
 public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]>>{
 	
 	List<SQLColumn> columns;
-	int totalRecords;
+	//int totalRecords;
 	
 	@Override
 	public List<Object[]> extractData(ResultSet rs) throws SQLException, DataAccessException {
 		
 		List<Object[]> tableDataList=new ArrayList<>();
-		log.info("Get all data form table starts : \n Total Columns " + columns.size() +
-				"Total records in table : "+ totalRecords + "Time : " + LocalDateTime.now());
+		log.info("Get all data form table starts , Total Columns " + columns.size() +
+				 "Time : " + LocalDateTime.now());
 		try {
 			while (rs.next()) {
 				List<Object> objList = new ArrayList<>();
 				for (int j = 0; j < columns.size(); j++) {
-					objList.add(getColumnValue(rs, columns,j));
+					objList.add(getColumnValue(rs, columns.get(j).getColumnType(),columns.get(j).getName(),
+							columns.get(j).getScale()));
 				}
 				// SQLColumn.setColumnvalues();
 				tableDataList.add(objList.toArray());
 			}
-			log.info("Get all data form table ENDS   : \n Total Columns " + columns.size() +
+			log.info("Get all data form table ENDS   , Total Columns " + columns.size() +
 					"Total  fetch  records : "+ tableDataList.size() + "Time : " + LocalDateTime.now());
 		} catch (Exception e) {
 			log.error("getAllData from table fails !!!");
@@ -43,51 +44,42 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 		return tableDataList;
 	}
 
-	public TableResultSetExtractor(List<SQLColumn> columns,int totalRecords) {
+	/*
+	 * public TableResultSetExtractor(List<SQLColumn> columns,int totalRecords) {
+	 * super(); this.columns=columns; this.totalRecords=totalRecords;
+	 * 
+	 * }
+	 */
+	
+	public TableResultSetExtractor(List<SQLColumn> columns) {
 		super();
 		this.columns=columns;
-		this.totalRecords=totalRecords;
-
 	}
-	
-	private static Object getColumnValue(ResultSet rs, List<SQLColumn> columns, int j) {
-		String columnType = columns.get(j).getColumnType(), colName = columns.get(j).getName();
+
+	private static Object getColumnValue(ResultSet rs,String columnType, String ColumnName, int scale) {
+		
 		try {
 			switch (columnType) {
 
 			case "CHAR":
-				// columns.get(j).setColumnType("character varying");
-				return rs.getString(colName);
+				return rs.getString(ColumnName);
+			
+			case "DECIMAL": // P -> decimal  // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
+			case "NUMERIC": // S -> decimal  // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
+				if(scale>0) 
+					return rs.getBigDecimal(ColumnName);
+				return rs.getLong(ColumnName);
+		
+			case "INTEGER":  //B //only zero 4 digit
+				return rs.getInt(ColumnName);
 
-			case "CHAR () FOR BIT DATA":
-				// columns.get(j).setColumnType("character varying");
-				System.out.println("char bit");
-				System.out.println(columns.get(j).getColumnSize());
-				// String s=Base64.getEncoder().encodeToString(rs.getBytes(j));
-				return rs.getString(colName);
-
-			case "NUMERIC": // decimal
-				System.out.println("numeric");
-				System.out.println(columns.get(j).getColumnSize());
-				return rs.getLong(colName);
-			// scale > 0 // vikas sir scale=6 or 2 // only 4 fields
-			// then rs.getBigDecimal(colName);
-
-			case "INTEGER":
-				// B
-				// LPBUFO, columnType=INTEGER,
-				// columnSize=4, <-------- imp
-				// scale=0,
-				// ColumnHeading= Buffer Offset
-				System.out.println(columns.get(j).getColumnSize());
-				return rs.getLong(colName);
-
-			case "DECIMAL":
-				return rs.getBigDecimal(colName);
+			/*
+			 * case "DECIMAL": // P -> decimal // scale > 0 // vikas sir scale=6 or 2 //
+			 * only 4 fields return rs.getBigDecimal(ColumnName);
+			 */
 
 			default:
-				System.out.println("no data type");
-				// throw new Exception(columnType);
+				throw new Exception(columnType);
 
 			}
 		} catch (Exception e) {
