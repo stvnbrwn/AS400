@@ -33,6 +33,8 @@ public class As400DataMigrationService {
 				if (!tableName.isEmpty()) {
 					
 					long totalRecords = as400Dao.gettotalRecords(tableName);
+					
+					as400Dao.getTableDesc(tableName);
 					/*
 					 * (if totalRecords is greater than batch size then --> noraml select query with
 					 * fetch clause else use fetch and create new method for thread )

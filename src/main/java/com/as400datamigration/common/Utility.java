@@ -1,5 +1,6 @@
 package com.as400datamigration.common;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -15,11 +16,11 @@ public class Utility {
 	private String schema;
 	
 	public  String getRowCount(String tableName) {
-		return Constant.AS400_SELECT_TOTAL_ROW + tableName;
+		return String.format(Constant.AS400_SELECT_TOTAL_ROW , tableName);
 	}
 
 	public static String getSelectQuery(String tableName) {
-		return Constant.AS400_SELECT_ALL_FROM + tableName;
+		return String.format(Constant.AS400_SELECT_ALL_FROM, tableName);
 	}
 
 	public String getCreateQuery(String tableName, List<SQLColumn> columns) {
@@ -56,6 +57,19 @@ public class Utility {
 		aftrValues = aftrValues.substring(0, aftrValues.lastIndexOf(",")) + " ) ";
 
 		return insertQuery + aftrValues;
+	}
+
+	public static String fatchTableDesc(String tableName) {
+		int index=tableName.indexOf(".");
+		String tschema=tableName.substring(0,index);
+		String tname=tableName.substring(index+1);
+		
+		return String.format(Constant.AS400_SELECT_TABLE_DESC,tschema,tname);
+	}
+
+	public static String getSelectQueryFor5Records(String tableName) {
+		
+		return  String.format(Constant.AS400_SELECT_FIRST_5_ROW, tableName);
 	}
 
 }
