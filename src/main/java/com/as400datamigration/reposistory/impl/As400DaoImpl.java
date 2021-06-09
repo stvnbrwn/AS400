@@ -1,21 +1,18 @@
 package com.as400datamigration.reposistory.impl;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
 import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.SQLColumn;
+import com.as400datamigration.model.TableMetaData;
 import com.as400datamigration.reposistory.As400Dao;
 import com.as400datamigration.reposistory.PostgresDao;
 
@@ -31,9 +28,6 @@ public class As400DaoImpl implements As400Dao {
 
 	@Autowired
 	Utility utility;
-
-	@Autowired
-	As400Dao as400Dao;
 
 	@Autowired
 	PostgresDao postgresDao;
@@ -54,14 +48,16 @@ public class As400DaoImpl implements As400Dao {
 	// 1) Full insertion 4)TEST
 	public List<SQLColumn> getTableDesc(String tableName) {
 
-		String tableDescQuery = Utility.fetchTableDesc(tableName);
+		String tableDescQuery = utility.fetchTableDesc(tableName);
 		List<SQLColumn> columns = new ArrayList<>();
 		try {
 			log.info("Get table desc start !!!");
 			columns = as400Template.query(tableDescQuery,
 					(rs, num) -> new SQLColumn(rs.getString("NAME"), rs.getString("DATA_TYPE"), rs.getInt("LENGTH"),
 							rs.getInt("SCALE"), rs.getString("COLUMN_HEADING")));
-
+			
+			//name=RRN, columnType=DECIMAL, columnSize=17
+			columns.add(0,new SQLColumn("RRN","DECIMAL",17,0,"RRN Number"));
 		} catch (Exception e) {
 			log.error("Exception at getTableDesc !!!");
 		}
@@ -73,7 +69,7 @@ public class As400DaoImpl implements As400Dao {
 		List<Object[]> tableDataList = null;
 		try {
 			log.info("Start fetchTable5Records for table : " + tableName);
-			String sqlData = Utility.getSelectQueryFor5Records(tableName);
+			String sqlData = utility.getSelectQueryFor5Records(tableName);
 			tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(columns));
 		} catch (Exception e) {
 			log.error("Exception at fetchFirst5RecordsFromTable !!!");
@@ -85,7 +81,7 @@ public class As400DaoImpl implements As400Dao {
 	// 1) full insertion -> get as400 data from tables
 	public List<Object[]> performOprationOnTable(String tableName, List<SQLColumn> columns) {
 		log.info("Start performOprationOnTable for table : " + tableName + "Time : "+ LocalDateTime.now());
-		String sqlData = Utility.getSelectQuery(tableName);
+		String sqlData = utility.getSelectQuery(tableName);
 		List<Object[]> tableDataList = new ArrayList<>();
 		try {
 			if (!columns.isEmpty()) {
@@ -99,64 +95,43 @@ public class As400DaoImpl implements As400Dao {
 		return tableDataList;
 	}
 
-	public void performOprationOnTable(String tableName, long totalRecords) {
+	public List<Object[]> performOprationOnTable(String tableName,long offset, long totalRecords,List<SQLColumn> columns) {
 
 		log.info("Start performOprationOnTable for table : " + tableName);
-		String sqlData = Utility.getSelectQuery(tableName);
-
-		List<SQLColumn> columns = new ArrayList<>();
-		List<Object[]> tableDataList = new ArrayList<>();
-
-		as400Template.query(sqlData, new ResultSetExtractor<Object>() {
-
-			@Override
-			public Integer extractData(ResultSet rs) throws SQLException, DataAccessException {
-				ResultSetMetaData rsmd = rs.getMetaData();
-
-				int columnCount = rsmd.getColumnCount();
-				for (int i = 1; i <= columnCount; i++) {
-					SQLColumn column = new SQLColumn();
-					column.setName(rsmd.getColumnName(i));
-					column.setColumnType(rsmd.getColumnTypeName(i));
-					column.setColumnSize(rsmd.getColumnDisplaySize(i));
-
-					// json-> mapping
-
-					// System.out.println(rsmd.get); columns.add(column);
-				}
-
-				if (!columns.isEmpty()) {
-
-					String crtQuery = utility.getCreateQuery(tableName, columns);
-					log.info("create Query : " + crtQuery);
-					postgresDao.createTable(crtQuery);
-					//As400Dao.getAllData(rs, columns, totalRecords, tableDataList);
-
-					if (!tableDataList.isEmpty()) {
-						String insertQuery = utility.getInsertQuery(tableName, columns);
-						log.info("Insert Query : " + insertQuery);
-						postgresDao.insertBatchInTable(insertQuery, tableDataList);
-					}
-
-				}
-				return columnCount;
-
-			}
-
-		});
-
-		// return tableDataList;
+		String sqlData;
+		// improve
+		/*
+		 * if(offset==0) sqlData= utility.getSelectQuery(tableName); else
+		 */
+		sqlData = utility.getSelectQueryForBatch(tableName, offset, totalRecords);
+		List<Object[]> tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(columns));
+		System.out.println();
+		return tableDataList;
 
 	}
 
-		
-		
-	
+	@Override
+	public List<Object[]> performOprationOnTable(String tableName, long totalRecords) {
+		log.info("Start performOprationOnTable for table : " + tableName);
+		String sqlData = utility.getSelectQuery(tableName);
 
-	protected static void getAllData(ResultSet rs, List<SQLColumn> columns, long totalRecords,
-			List<Object[]> tableDataList) {
-		// TODO Auto-generated method stub
-		
+		List<Object[]> tableDataList = as400Template.query(sqlData, new TableResultSetExtractor());
+		return tableDataList;
+	}
+
+	
+	
+	public TableMetaData getTableMetaData(String tableName) {
+		TableMetaData tableMetaData = null;
+		try {
+			log.info("Get Total records for table : " + tableName + " time    : " + LocalDateTime.now());
+			tableMetaData = (TableMetaData) as400Template.queryForObject(utility.getTableMetaData(tableName), new BeanPropertyRowMapper<TableMetaData>(TableMetaData.class));
+			//System.out.println("totalrecords : " + totalRecords);
+		} catch (Exception e) {
+			log.error("Exception at gettotalRecords !!!");
+			e.printStackTrace();
+		}
+		return tableMetaData;
 	}
 
 }

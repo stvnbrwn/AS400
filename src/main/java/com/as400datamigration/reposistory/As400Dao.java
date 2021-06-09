@@ -1,24 +1,11 @@
 package com.as400datamigration.reposistory;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.SQLColumn;
-
-import lombok.extern.slf4j.Slf4j;
+import com.as400datamigration.model.TableMetaData;
 
 @Repository
 public interface As400Dao {
@@ -33,10 +20,16 @@ public interface As400Dao {
 	// 4)TEST
 	public List<Object[]> fetchFirst5RecordsFromTable(String tableName, List<SQLColumn> columns) ;
 	
-	// 1) full insertion -> get as400 data from tables
+	// 1) full insertion -> get as400 data from tables --> previously get columns data
 	public List<Object[]> performOprationOnTable(String tableName, List<SQLColumn> columns);
 
-	public void performOprationOnTable(String tableName, long totalRecords) ;
+	// get all records in
+	//public void performOprationOnTable(String tableName, long totalRecords) ;
+	// get records in batch
+	public List<Object[]> performOprationOnTable(String tableName, long offset, long batchSize,List<SQLColumn> columns);
 
+	public List<Object[]> performOprationOnTable(String tableName, long totalRecords);
+
+	public TableMetaData getTableMetaData(String tableName);
 
 }

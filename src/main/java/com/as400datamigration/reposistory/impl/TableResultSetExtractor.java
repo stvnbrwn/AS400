@@ -1,10 +1,12 @@
 package com.as400datamigration.reposistory.impl;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -16,11 +18,29 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]>>{
 	
-	List<SQLColumn> columns;
+	List<SQLColumn> columns=new ArrayList<SQLColumn>();
 	//int totalRecords;
 	
 	@Override
 	public List<Object[]> extractData(ResultSet rs) throws SQLException, DataAccessException {
+			
+		ResultSetMetaData rsmd = rs.getMetaData();
+
+		int columnCount = rsmd.getColumnCount();
+		if ( columns.isEmpty()) {
+			
+			for (int i = 1; i <= columnCount; i++) {
+				SQLColumn column = new SQLColumn();
+				column.setName(rsmd.getColumnName(i));
+				column.setColumnType(rsmd.getColumnTypeName(i));
+				column.setColumnSize(rsmd.getColumnDisplaySize(i));
+				column.setScale(rsmd.getPrecision(i));
+				// json-> mapping
+
+				// System.out.println(rsmd.get); 
+				columns.add(column);
+			}
+		}
 		
 		List<Object[]> tableDataList=new ArrayList<>();
 		log.info("Get all data form table starts , Total Columns " + columns.size() +
@@ -54,6 +74,9 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 	public TableResultSetExtractor(List<SQLColumn> columns) {
 		super();
 		this.columns=columns;
+	}
+
+	public TableResultSetExtractor() {
 	}
 
 	private static Object getColumnValue(ResultSet rs,String columnType, String ColumnName, int scale) {
