@@ -1,4 +1,4 @@
-package com.as400datamigration.dao.impl;
+package com.as400datamigration.reposistory.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.as400datamigration.dao.PostgresDao;
+import com.as400datamigration.reposistory.PostgresDao;
 
 import lombok.extern.slf4j.Slf4j;
 

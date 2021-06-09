@@ -1,4 +1,4 @@
-package com.as400datamigration.dao.impl;
+package com.as400datamigration.reposistory.impl;
 
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -15,9 +15,9 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
 import com.as400datamigration.common.Utility;
-import com.as400datamigration.dao.As400Dao;
-import com.as400datamigration.dao.PostgresDao;
 import com.as400datamigration.model.SQLColumn;
+import com.as400datamigration.reposistory.As400Dao;
+import com.as400datamigration.reposistory.PostgresDao;
 
 import lombok.extern.slf4j.Slf4j;
 

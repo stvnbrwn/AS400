@@ -11,9 +11,9 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.as400datamigration.dao.As400Dao;
-import com.as400datamigration.dao.PostgresDao;
 import com.as400datamigration.model.SQLColumn;
+import com.as400datamigration.reposistory.As400Dao;
+import com.as400datamigration.reposistory.PostgresDao;
 
 @Service
 public class As400DataMigrationService {
