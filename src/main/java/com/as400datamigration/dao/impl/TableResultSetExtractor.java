@@ -1,4 +1,4 @@
-package com.as400datamigration.reposistory;
+package com.as400datamigration.dao.impl;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
