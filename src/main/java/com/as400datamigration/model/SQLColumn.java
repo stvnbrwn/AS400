@@ -18,14 +18,16 @@ public class SQLColumn {
 	String columnType;
 	int columnSize;
 	int scale;
-	String ColumnHeading;
+	String columnHeading;
+	
 
-	public String getCreateString() {
-		return name + " " + columnType + " ( " + columnSize + " ) ,";
-	}
+	/*
+	 * public String getCreateString() { return name + " " + columnType + " ( " +
+	 * columnSize + " ) ,"; }
+	 * 
+	 * public String getInsertString() { return name + ", "; }
+	 */
 
-	public String getInsertString() {
-		return name + ", ";
-	}
-
+	
+	
 }

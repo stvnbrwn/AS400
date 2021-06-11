@@ -21,15 +21,17 @@ public interface As400Dao {
 	public List<Object[]> fetchFirst5RecordsFromTable(String tableName, List<SQLColumn> columns) ;
 	
 	// 1) full insertion -> get as400 data from tables --> previously get columns data
-	public List<Object[]> performOprationOnTable(String tableName, List<SQLColumn> columns);
+	//public List<Object[]> performOprationOnTable(String tableName, List<SQLColumn> columns);
 
 	// get all records in
 	//public void performOprationOnTable(String tableName, long totalRecords) ;
 	// get records in batch
 	public List<Object[]> performOprationOnTable(String tableName, long offset, long batchSize,List<SQLColumn> columns);
 
-	public List<Object[]> performOprationOnTable(String tableName, long totalRecords);
+	//public List<Object[]> performOprationOnTable(String tableName, long totalRecords);
 
 	public TableMetaData getTableMetaData(String tableName);
-
+	
+	//public List<Object[]> performOprationOnTable(TableMetaData tableMetaData, List<SQLColumn> columns);
+	
 }

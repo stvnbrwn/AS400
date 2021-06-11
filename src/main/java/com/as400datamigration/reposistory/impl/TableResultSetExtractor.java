@@ -24,23 +24,22 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 	@Override
 	public List<Object[]> extractData(ResultSet rs) throws SQLException, DataAccessException {
 			
-		ResultSetMetaData rsmd = rs.getMetaData();
-
-		int columnCount = rsmd.getColumnCount();
-		if ( columns.isEmpty()) {
-			
-			for (int i = 1; i <= columnCount; i++) {
-				SQLColumn column = new SQLColumn();
-				column.setName(rsmd.getColumnName(i));
-				column.setColumnType(rsmd.getColumnTypeName(i));
-				column.setColumnSize(rsmd.getColumnDisplaySize(i));
-				column.setScale(rsmd.getPrecision(i));
-				// json-> mapping
-
-				// System.out.println(rsmd.get); 
-				columns.add(column);
-			}
-		}
+		/*
+		 * ResultSetMetaData rsmd = rs.getMetaData();
+		 * 
+		 * int columnCount = rsmd.getColumnCount();
+		 */
+		/*
+		 * if ( columns.isEmpty()) {
+		 * 
+		 * for (int i = 1; i <= columnCount; i++) { SQLColumn column = new SQLColumn();
+		 * column.setName(rsmd.getColumnName(i));
+		 * column.setColumnType(rsmd.getColumnTypeName(i));
+		 * column.setColumnSize(rsmd.getColumnDisplaySize(i));
+		 * column.setScale(rsmd.getPrecision(i)); // json-> mapping
+		 * 
+		 * // System.out.println(rsmd.get); columns.add(column); } }
+		 */
 		
 		List<Object[]> tableDataList=new ArrayList<>();
 		log.info("Get all data form table starts , Total Columns " + columns.size() +

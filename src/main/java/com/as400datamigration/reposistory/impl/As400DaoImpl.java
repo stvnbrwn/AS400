@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import com.as400datamigration.common.AuditMessage;
 import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableMetaData;
@@ -58,6 +59,8 @@ public class As400DaoImpl implements As400Dao {
 			
 			//name=RRN, columnType=DECIMAL, columnSize=17
 			columns.add(0,new SQLColumn("RRN","DECIMAL",17,0,"RRN Number"));
+			
+//			utility.setPostgresDataType(columns);
 		} catch (Exception e) {
 			log.error("Exception at getTableDesc !!!");
 		}
@@ -79,21 +82,20 @@ public class As400DaoImpl implements As400Dao {
 	}
 	
 	// 1) full insertion -> get as400 data from tables
-	public List<Object[]> performOprationOnTable(String tableName, List<SQLColumn> columns) {
-		log.info("Start performOprationOnTable for table : " + tableName + "Time : "+ LocalDateTime.now());
-		String sqlData = utility.getSelectQuery(tableName);
-		List<Object[]> tableDataList = new ArrayList<>();
-		try {
-			if (!columns.isEmpty()) {
-				tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(columns));
-			}
-			log.info("Ending of performOprationOnTable !!!");
-			log.info("Total data in Table : "+ tableDataList.size() + " Time : "+LocalDateTime.now());
-		} catch (Exception e) {
-			log.error("Exception at performOprationOnTable !!!");
-		}
-		return tableDataList;
-	}
+	/*
+	 * public List<Object[]> performOprationOnTable(String tableName,
+	 * List<SQLColumn> columns) {
+	 * log.info("Start performOprationOnTable for table : " + tableName + "Time : "+
+	 * LocalDateTime.now()); String sqlData = utility.getSelectQuery(tableName);
+	 * List<Object[]> tableDataList = new ArrayList<>(); try { if
+	 * (!columns.isEmpty()) { tableDataList = as400Template.query(sqlData, new
+	 * TableResultSetExtractor(columns)); }
+	 * log.info("Ending of performOprationOnTable !!!");
+	 * log.info("Total data in Table : "+ tableDataList.size() +
+	 * " Time : "+LocalDateTime.now()); } catch (Exception e) {
+	 * log.error("Exception at performOprationOnTable !!!"); } return tableDataList;
+	 * }
+	 */
 
 	public List<Object[]> performOprationOnTable(String tableName,long offset, long totalRecords,List<SQLColumn> columns) {
 
@@ -103,6 +105,11 @@ public class As400DaoImpl implements As400Dao {
 		/*
 		 * if(offset==0) sqlData= utility.getSelectQuery(tableName); else
 		 */
+		try {
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		sqlData = utility.getSelectQueryForBatch(tableName, offset, totalRecords);
 		List<Object[]> tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(columns));
 		System.out.println();
@@ -110,28 +117,38 @@ public class As400DaoImpl implements As400Dao {
 
 	}
 
-	@Override
-	public List<Object[]> performOprationOnTable(String tableName, long totalRecords) {
-		log.info("Start performOprationOnTable for table : " + tableName);
-		String sqlData = utility.getSelectQuery(tableName);
-
-		List<Object[]> tableDataList = as400Template.query(sqlData, new TableResultSetExtractor());
-		return tableDataList;
-	}
+	
+	/*
+	 * @Override public List<Object[]> performOprationOnTable(String tableName, long
+	 * totalRecords) { log.info("Start performOprationOnTable for table : " +
+	 * tableName); String sqlData = utility.getSelectQuery(tableName);
+	 * 
+	 * List<Object[]> tableDataList = as400Template.query(sqlData, new
+	 * TableResultSetExtractor()); return tableDataList; }
+	 */
+	 
 
 	
 	
 	public TableMetaData getTableMetaData(String tableName) {
-		TableMetaData tableMetaData = null;
+		TableMetaData tableMetaData = new TableMetaData();
 		try {
 			log.info("Get Total records for table : " + tableName + " time    : " + LocalDateTime.now());
 			tableMetaData = (TableMetaData) as400Template.queryForObject(utility.getTableMetaData(tableName), new BeanPropertyRowMapper<TableMetaData>(TableMetaData.class));
 			//System.out.println("totalrecords : " + totalRecords);
 		} catch (Exception e) {
-			log.error("Exception at gettotalRecords !!!");
-			e.printStackTrace();
+			log.error("Exception at getTableMetaData !!!" , e);
+			// table_name VARCHAR, total_rows NUMERIC, status VARCHAR, reason VARCHAR
+			postgresDao.insertIntoAllTableProcess(new Object[] {tableName,tableMetaData.getTotalRows(),AuditMessage.TABLE_STATE_FAILED,
+					AuditMessage.TABLE_STATE_FAILED_MESSAGE_AT_GETMETADATA +  e});
 		}
 		return tableMetaData;
 	}
+
+	/*
+	 * @Override public List<Object[]> performOprationOnTable(TableMetaData
+	 * tableMetaData, List<SQLColumn> columns) { // TODO Auto-generated method stub
+	 * return null; }
+	 */
 
 }
