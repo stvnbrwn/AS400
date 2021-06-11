@@ -109,4 +109,9 @@ public class Utility {
 		return  String.format(Constant.POSTGRES_LOG_INTO_ALL_BATCH_DETAILS, schema);
 	}
 
+	public String getAllBatchDetail(BatchDetailStatus status) {
+		
+		return null;
+	}
+
 }

@@ -5,7 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.as400datamigration.common.AllBatchDetailStatus;
+import com.as400datamigration.common.BatchDetailStatus;
+import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableMetaData;
 
@@ -16,9 +17,9 @@ public interface PostgresDao {
 	
 	public void createTable(String crtQuery, TableMetaData tableMetaData) ;
 
-	public void insertBatchInTable(String insertQuery, List<Object[]> tableDataList) ;
+	public void saveBatchInTable(String insertQuery, List<Object[]> tableDataList, BatchDetail allBatchDetails) ;
 
-	void insertIntoAllTableProcess(Object[] tableProcess);
+	void saveIntoAllTableProcess(Object[] tableProcess);
 
 	/*
 	 * public void saveAllBatchDetail(String tableName, Long minRrn, Long maxRrn,
@@ -26,7 +27,7 @@ public interface PostgresDao {
 	 * LocalDateTime modified);
 	 */
 	
-	public void saveAllBatchDetail(Object... args);
+	public void saveAllBatchDetail(BatchDetail allBatchDetails,BatchDetailStatus status);
 
 
 }

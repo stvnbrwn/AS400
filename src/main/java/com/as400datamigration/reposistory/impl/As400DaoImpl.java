@@ -139,7 +139,7 @@ public class As400DaoImpl implements As400Dao {
 		} catch (Exception e) {
 			log.error("Exception at getTableMetaData !!!" , e);
 			// table_name VARCHAR, total_rows NUMERIC, status VARCHAR, reason VARCHAR
-			postgresDao.insertIntoAllTableProcess(new Object[] {tableName,tableMetaData.getTotalRows(),AuditMessage.TABLE_STATE_FAILED,
+			postgresDao.saveIntoAllTableProcess(new Object[] {tableName,tableMetaData.getTotalRows(),AuditMessage.TABLE_STATE_FAILED,
 					AuditMessage.TABLE_STATE_FAILED_MESSAGE_AT_GETMETADATA +  e});
 		}
 		return tableMetaData;

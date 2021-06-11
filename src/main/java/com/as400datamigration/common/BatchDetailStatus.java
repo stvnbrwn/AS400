@@ -1,6 +1,6 @@
 package com.as400datamigration.common;
 
-public enum AllBatchDetailStatus {
+public enum BatchDetailStatus {
 	
 	RUNNING,
 	COMPLETED,

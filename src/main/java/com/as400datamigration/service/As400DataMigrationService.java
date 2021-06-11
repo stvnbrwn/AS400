@@ -13,8 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.as400datamigration.common.AllBatchDetailStatus;
+import com.as400datamigration.common.BatchDetailStatus;
 import com.as400datamigration.common.Utility;
+import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.PostgresQueries;
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableMetaData;
@@ -47,35 +48,27 @@ public class As400DataMigrationService {
 
 			tableList.forEach(tableName -> {
 				if (!tableName.isEmpty()) {
-					// long totalRecords = as400Dao.gettotalRecords(tableName);
 
 					TableMetaData tableMetaData = as400Dao.getTableMetaData(tableName);
 					tableMetaData.setTableName(tableName);
-					/*
-					 * (if totalRecords is greater than batch size then --> noraml select query with
-					 * fetch clause else use fetch and create new method for thread )
-					 */
-
 					List<SQLColumn> columns = as400Dao.getTableDesc(tableName);
 					PostgresQueries postgresQueries = utility.getPostgresQueries(tableName, columns);
-
 					postgresDao.createTable(postgresQueries.getCreateTable(),tableMetaData);
-					// name=RRN, columnType=DECIMAL, columnSize=17
 					
 					// improve
 					List<Object[]> tableData = null;
 					if (tableMetaData.getTotalRows() < batchSize) {
-						//postgresDao.createTable(postgresQueries.getCreateTable());
-						/*
-						 * bno SERIAL PRIMARY KEY, table_name VARCHAR, starting_rrn NUMERIC, ending_rrn
-						 * NUMERIC, started_at TIMESTAMP, status VARCHAR, ended_at TIMESTAMP,
-						 * modified_at TIMESTAMP
-						 */
-						postgresDao.saveAllBatchDetail(tableName,tableMetaData.getMinRrn(),tableMetaData.getMaxRrn(),LocalDateTime.now(),AllBatchDetailStatus.RUNNING,
-								null,LocalDateTime.now());
+						
+						BatchDetail batchDetails=new BatchDetail(tableMetaData,BatchDetailStatus.RUNNING);
+						// starting time -?? before read from as400 
+						postgresDao.saveAllBatchDetail(batchDetails,BatchDetailStatus.RUNNING);
+						
 						tableData = as400Dao.performOprationOnTable(tableName, tableMetaData.getMinRrn(),
 								tableMetaData.getMaxRrn(), columns);
-						postgresDao.insertBatchInTable(postgresQueries.getInsertTable(), tableData);
+						
+						postgresDao.saveBatchInTable(postgresQueries.getInsertTable(), tableData,batchDetails);
+						
+						
 					} else {
 						long maxBatchLimit = tableMetaData.getMaxRrn() - batchSize - 1;
 						long totalrows = 0;
@@ -84,11 +77,11 @@ public class As400DataMigrationService {
 									tableMetaData.getMinRrn() + batchSize - 1, columns);
 							tableMetaData.setMinRrn(tableMetaData.getMinRrn() + batchSize);
 							totalrows += tableData.size(); /* maxRrn-=batchSize; */
-							postgresDao.insertBatchInTable(postgresQueries.getInsertTable(), tableData);
+							postgresDao.saveBatchInTable(postgresQueries.getInsertTable(), tableData);
 						}
 						tableData=as400Dao.performOprationOnTable(tableName, tableMetaData.getMinRrn(), tableMetaData.getMaxRrn(),
 								columns);
-						postgresDao.insertBatchInTable(postgresQueries.getInsertTable(), tableData);
+						postgresDao.saveBatchInTable(postgresQueries.getInsertTable(), tableData);
 					}
 					System.out.println("stop !!!");
 					// as400Dao.performOprationOnTable(tableName, totalRecords);

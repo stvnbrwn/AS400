@@ -4,23 +4,15 @@
 
 CREATE SCHEMA IF NOT EXISTS ADM;
 
-CREATE TABLE IF NOT EXISTS ADM.all_table_process
-(   tno SERIAL PRIMARY KEY, 
-    table_name VARCHAR, 
-    total_rows NUMERIC,
-    status	VARCHAR,	 	
-    reason	VARCHAR	
-); 
-
 CREATE TABLE IF NOT EXISTS ADM.all_betch_details
 (   bno SERIAL PRIMARY KEY, 
-    table_name    VARCHAR,
-    starting_rrn  NUMERIC,
-    ending_rrn    NUMERIC,
-    started_at    TIMESTAMP,
-    status	      VARCHAR,	 	
-    ended_at	  TIMESTAMP,	
-    modified_at	  TIMESTAMP 
+    table_name VARCHAR,
+    starting_rrn NUMERIC,
+    ending_rrn NUMERIC,
+    started_at TIMESTAMP,
+    status	VARCHAR,	 	
+    ended_at	TIMESTAMP,	
+    modified_at	TIMESTAMP 
 ); 
 
 CREATE TABLE IF NOT EXISTS ADM.failed_betch_details(
@@ -33,8 +25,7 @@ CREATE TABLE IF NOT EXISTS ADM.failed_betch_details(
     attempts int,  
     ended_at	TIMESTAMP,	
     modified_at	TIMESTAMP,
-    reason varchar,
     CONSTRAINT fkey FOREIGN KEY (bno)
-        REFERENCES adm.all_betch_details (bno)
+        REFERENCES adm.betch_details (bno)
 );
 
