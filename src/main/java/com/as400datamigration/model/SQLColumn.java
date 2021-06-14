@@ -21,13 +21,4 @@ public class SQLColumn {
 	String columnHeading;
 	
 
-	/*
-	 * public String getCreateString() { return name + " " + columnType + " ( " +
-	 * columnSize + " ) ,"; }
-	 * 
-	 * public String getInsertString() { return name + ", "; }
-	 */
-
-	
-	
 }

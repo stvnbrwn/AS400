@@ -25,9 +25,9 @@ public class As400DataMigrationRunnerTest implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 
 		try {
-			String filePath = null ;
-			if(args.length>0)
-				 filePath = args[0];
+			String filePath = null;
+			if (args.length > 0)
+				filePath = args[0];
 			log.info("Starting of AS400_DATAMIGRATION TESTING POINT. . .! " + LocalDateTime.now());
 			as400DataMigrationServiceTest.process(filePath);
 			log.info("Ending   of AS400_DATAMIGRATION TESTING POINT. . .! " + LocalDateTime.now());
@@ -39,7 +39,7 @@ public class As400DataMigrationRunnerTest implements CommandLineRunner {
 			e.printStackTrace(new PrintWriter(sw));
 			String exceptionAsString = sw.toString();
 			log.trace(exceptionAsString);
-			//send mail if client wants
+			// send mail if client wants
 		}
 
 	}

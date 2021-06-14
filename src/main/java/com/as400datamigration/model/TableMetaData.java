@@ -1,11 +1,9 @@
 package com.as400datamigration.model;
 
+import java.util.List;
 import java.util.Objects;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 @NoArgsConstructor
@@ -17,20 +15,15 @@ public class TableMetaData {
 	Long minRrn;
 	Long maxRrn;
 	String tableName="";
+	List<SQLColumn> columns;
+	PostgresQueries postgresQueries ;
+	BatchDetail batchDetail;
 	
 	public TableMetaData(Long totalRows, Long minRrn, Long maxRrn) {
 		super();
 		this.totalRows = totalRows;
-		
-		if(Objects.isNull(minRrn))
-			this.minRrn =0l;
-		else
-			this.minRrn = minRrn;
-		
-		if(Objects.isNull(maxRrn))
-			this.maxRrn =0l;
-		else
-			this.maxRrn = maxRrn;
+		this.minRrn = minRrn;
+		this.maxRrn = maxRrn;
 		
 	}
 
@@ -71,8 +64,31 @@ public class TableMetaData {
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 	}
-	
-	
+
+	public List<SQLColumn> getColumns() {
+		return columns;
+	}
+
+	public void setColumns(List<SQLColumn> columns) {
+		this.columns = columns;
+	}
+
+	public PostgresQueries getPostgresQueries() {
+		return postgresQueries;
+	}
+
+	public void setPostgresQueries(PostgresQueries postgresQueries) {
+		this.postgresQueries = postgresQueries;
+	}
+
+	public BatchDetail getBatchDetail() {
+		return batchDetail;
+	}
+
+	public void setBatchDetail(BatchDetail batchDetail) {
+		this.batchDetail = batchDetail;
+	}
+
 	
 	
 }

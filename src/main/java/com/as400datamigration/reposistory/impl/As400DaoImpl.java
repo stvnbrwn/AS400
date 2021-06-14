@@ -1,7 +1,6 @@
 package com.as400datamigration.reposistory.impl;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +9,13 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import com.as400datamigration.common.AuditMessage;
+import com.as400datamigration.audit.AuditMessage;
+import com.as400datamigration.audit.BatchDetailStatus;
+import com.as400datamigration.audit.TableStatus;
 import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableMetaData;
+import com.as400datamigration.model.TableProcess;
 import com.as400datamigration.reposistory.As400Dao;
 import com.as400datamigration.reposistory.PostgresDao;
 
@@ -39,7 +41,7 @@ public class As400DaoImpl implements As400Dao {
 		try {
 			log.info("Get Total records for table : " + tableName + " time    : " + LocalDateTime.now());
 			totalRecords = as400Template.queryForObject(utility.getRowCount(tableName), Long.class);
-			//System.out.println("totalrecords : " + totalRecords);
+			// System.out.println("totalrecords : " + totalRecords);
 		} catch (Exception e) {
 			log.error("Exception at gettotalRecords !!!");
 		}
@@ -48,21 +50,18 @@ public class As400DaoImpl implements As400Dao {
 
 	// 1) Full insertion 4)TEST
 	public List<SQLColumn> getTableDesc(String tableName) {
-
-		String tableDescQuery = utility.fetchTableDesc(tableName);
-		List<SQLColumn> columns = new ArrayList<>();
+		List<SQLColumn> columns = null;
 		try {
-			log.info("Get table desc start !!!");
-			columns = as400Template.query(tableDescQuery,
+			columns = as400Template.query(utility.fetchTableDesc(tableName),
 					(rs, num) -> new SQLColumn(rs.getString("NAME"), rs.getString("DATA_TYPE"), rs.getInt("LENGTH"),
 							rs.getInt("SCALE"), rs.getString("COLUMN_HEADING")));
-			
-			//name=RRN, columnType=DECIMAL, columnSize=17
-			columns.add(0,new SQLColumn("RRN","DECIMAL",17,0,"RRN Number"));
-			
-//			utility.setPostgresDataType(columns);
+
+			columns.add(0, new SQLColumn("RRN", "DECIMAL", 17, 0, "RRN Number"));
 		} catch (Exception e) {
-			log.error("Exception at getTableDesc !!!");
+			log.error("Exception at getTableDesc !!!", e);
+			TableProcess tableProcess = new TableProcess(tableName, 0l, TableStatus.Table_Not_Found_At_Source,
+					AuditMessage.Table_Not_Found_At_Source_Msg + AuditMessage.Execption_Msg + e);
+			postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
 		}
 		return columns;
 	}
@@ -76,40 +75,16 @@ public class As400DaoImpl implements As400Dao {
 			tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(columns));
 		} catch (Exception e) {
 			log.error("Exception at fetchFirst5RecordsFromTable !!!");
-		} 
-		
+		}
+
 		return tableDataList;
 	}
-	
-	// 1) full insertion -> get as400 data from tables
-	/*
-	 * public List<Object[]> performOprationOnTable(String tableName,
-	 * List<SQLColumn> columns) {
-	 * log.info("Start performOprationOnTable for table : " + tableName + "Time : "+
-	 * LocalDateTime.now()); String sqlData = utility.getSelectQuery(tableName);
-	 * List<Object[]> tableDataList = new ArrayList<>(); try { if
-	 * (!columns.isEmpty()) { tableDataList = as400Template.query(sqlData, new
-	 * TableResultSetExtractor(columns)); }
-	 * log.info("Ending of performOprationOnTable !!!");
-	 * log.info("Total data in Table : "+ tableDataList.size() +
-	 * " Time : "+LocalDateTime.now()); } catch (Exception e) {
-	 * log.error("Exception at performOprationOnTable !!!"); } return tableDataList;
-	 * }
-	 */
 
-	public List<Object[]> performOprationOnTable(String tableName,long offset, long totalRecords,List<SQLColumn> columns) {
+	public List<Object[]> performReadOprationOnTable(String tableName, long offset, long totalRecords,
+			List<SQLColumn> columns) {
 
 		log.info("Start performOprationOnTable for table : " + tableName);
 		String sqlData;
-		// improve
-		/*
-		 * if(offset==0) sqlData= utility.getSelectQuery(tableName); else
-		 */
-		try {
-			
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
 		sqlData = utility.getSelectQueryForBatch(tableName, offset, totalRecords);
 		List<Object[]> tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(columns));
 		System.out.println();
@@ -117,30 +92,47 @@ public class As400DaoImpl implements As400Dao {
 
 	}
 
-	
-	/*
-	 * @Override public List<Object[]> performOprationOnTable(String tableName, long
-	 * totalRecords) { log.info("Start performOprationOnTable for table : " +
-	 * tableName); String sqlData = utility.getSelectQuery(tableName);
-	 * 
-	 * List<Object[]> tableDataList = as400Template.query(sqlData, new
-	 * TableResultSetExtractor()); return tableDataList; }
-	 */
-	 
-
-	
-	
-	public TableMetaData getTableMetaData(String tableName) {
-		TableMetaData tableMetaData = new TableMetaData();
+	@Override
+	public List<Object[]> readOprationOnTable(TableMetaData tableMetaData) {
+		List<Object[]> tableDataList = null;
 		try {
-			log.info("Get Total records for table : " + tableName + " time    : " + LocalDateTime.now());
-			tableMetaData = (TableMetaData) as400Template.queryForObject(utility.getTableMetaData(tableName), new BeanPropertyRowMapper<TableMetaData>(TableMetaData.class));
-			//System.out.println("totalrecords : " + totalRecords);
+			log.info("Start performOprationOnTable for table : " + tableMetaData.getTableName());
+			postgresDao.saveBatchDetail(tableMetaData.getBatchDetail().getSaveObjArray());
+			String sqlData = utility.getSelectQueryForBatch(tableMetaData.getTableName(), tableMetaData.getMinRrn(),
+					tableMetaData.getMaxRrn());
+			tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(tableMetaData.getColumns()));
+
+			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.Ended_At_Source);
+			tableMetaData.getBatchDetail().setEndedAtSource(LocalDateTime.now());
+			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
+			postgresDao.updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
+
 		} catch (Exception e) {
-			log.error("Exception at getTableMetaData !!!" , e);
-			// table_name VARCHAR, total_rows NUMERIC, status VARCHAR, reason VARCHAR
-			postgresDao.saveIntoAllTableProcess(new Object[] {tableName,tableMetaData.getTotalRows(),AuditMessage.TABLE_STATE_FAILED,
-					AuditMessage.TABLE_STATE_FAILED_MESSAGE_AT_GETMETADATA +  e});
+			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.Failed_At_Source);
+			tableMetaData.getBatchDetail().setEndedAtSource(LocalDateTime.now());
+			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
+			tableMetaData.getBatchDetail().setReason(AuditMessage.Execption_Msg + e);
+			postgresDao.updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
+			// pending
+			postgresDao.updateTableProcessStatus(
+					new TableProcess(tableMetaData.getTableName(), TableStatus.Table_Created_With_FailedBatch)
+							.getUpdateObjArray());
+
+		}
+
+		return tableDataList;
+	}
+
+	// done
+	public TableMetaData getTableMetaData(String tableName) {
+		TableMetaData tableMetaData = null;
+		try {
+			tableMetaData = (TableMetaData) as400Template.queryForObject(utility.getTableMetaData(tableName),
+					new BeanPropertyRowMapper<TableMetaData>(TableMetaData.class));
+		} catch (Exception e) {
+			TableProcess tableProcess = new TableProcess(tableName, 0l, TableStatus.Table_Not_Found_At_Source,
+					AuditMessage.Table_Not_Found_At_Source_Msg + AuditMessage.Execption_Msg + e);
+			postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
 		}
 		return tableMetaData;
 	}

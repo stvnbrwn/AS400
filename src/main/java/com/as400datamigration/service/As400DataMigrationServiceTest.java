@@ -41,27 +41,25 @@ public class As400DataMigrationServiceTest {
 
 			tableList.forEach(tableName -> {
 				if (!tableName.trim().isEmpty()) {
-					log.info("table no : " + i + " table Name " + tableName + "Start Time : "+ LocalDateTime.now());
+					log.info("table no : " + i + " table Name " + tableName + "Start Time : " + LocalDateTime.now());
 					long totalRecords = as400Dao.gettotalRecords(tableName);
 					log.info("Total records in the table  : " + totalRecords + " time : " + LocalDateTime.now());
-					
+
 					List<SQLColumn> columns = as400Dao.getTableDesc(tableName);
 					log.info("col count : " + columns.size());
 					columns.forEach(column -> {
 						log.info(column.toString());
 					});
-					
+
 					List<Object[]> tableDataList = as400Dao.fetchFirst5RecordsFromTable(tableName, columns);
 					log.info("**Table Data**");
 					tableDataList.forEach(row -> {
 						log.info(Arrays.toString(row));
 					});
-					
-					log.info("table no : " + i++ + " table Name " + tableName +
-							"Total records : " + totalRecords +
-							"Total Columns : " + columns.size()+
-							"Total fetched data : " + tableDataList.size() +
-							"End Time : "+ LocalDateTime.now());
+
+					log.info("table no : " + i++ + " table Name " + tableName + "Total records : " + totalRecords
+							+ "Total Columns : " + columns.size() + "Total fetched data : " + tableDataList.size()
+							+ "End Time : " + LocalDateTime.now());
 				}
 			});
 

@@ -1,12 +1,11 @@
 package com.as400datamigration.common;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.as400datamigration.model.PostgresQueries;
 import com.as400datamigration.model.SQLColumn;
+import com.as400datamigration.model.TableMetaData;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,11 +28,6 @@ public class Utility {
 
 		return String.format(Constant.AS400_SELECT_TABLE_DESC, tschema, tname);
 	}
-
-	/*
-	 * public String getSelectQuery(String tableName) { return
-	 * String.format(Constant.AS400_SELECT_ALL_FROM, tableName); }
-	 */
 
 	public String getSelectQueryForBatch(String tableName, long offset, long totalRecords) {
 		return String.format(Constant.AS400_SELECT_ALL_IN_BATCH, tableName, offset, totalRecords);
@@ -78,15 +72,15 @@ public class Utility {
 
 	}
 
-	public PostgresQueries getPostgresQueries(String tableName, List<SQLColumn> columns) {
+	public PostgresQueries getPostgresQueries(TableMetaData tableMetaData) {
 
-		String crtQuery = String.format(Constant.POSTGRES_CREATE_TABLE, schema)
-				+ tableName.substring(tableName.lastIndexOf(".") + 1) + " ( ";
-		String insertQuery = String.format(Constant.POSTGRES_INSERT_INTO, schema)
-				+ tableName.substring(tableName.lastIndexOf(".") + 1) + " ( ";
+		String crtQuery = String.format(Constant.P_CREATE_TABLE, schema)
+				+ tableMetaData.getTableName().substring(tableMetaData.getTableName().lastIndexOf(".") + 1) + " ( ";
+		String insertQuery = String.format(Constant.P_INSERT_INTO, schema)
+				+ tableMetaData.getTableName().substring(tableMetaData.getTableName().lastIndexOf(".") + 1) + " ( ";
 		String aftrValues = "values ( ";
 
-		for (SQLColumn sqlColumn : columns) {
+		for (SQLColumn sqlColumn : tableMetaData.getColumns()) {
 			crtQuery += sqlColumn.getName().replace("#", "") + " " + getPostgresDataType(sqlColumn) + ",";
 			insertQuery += sqlColumn.getName().replace("#", "") + " , ";
 			aftrValues += " ?,";
@@ -101,17 +95,24 @@ public class Utility {
 
 	}
 
-	public String getAllTableProcess(Object object) {
-		return String.format(Constant.POSTGRES_LOG_INTO_ALL_TABLE_PROCESS, schema);
+	public String getInsertIntoTableProcess() {
+		return String.format(Constant.P_LOG_INTO_TABLE_PROCESS, schema);
+	}
+	
+	public String getUpdateTableProcess() {
+		return String.format(Constant.P_LOG_UPDATE_TABLE_PROCESS, schema);
 	}
 
-	public String getAllBatchDeatil(Object object) {
-		return  String.format(Constant.POSTGRES_LOG_INTO_ALL_BATCH_DETAILS, schema);
+	public String getInsertIntoBatchDetail() {
+		return String.format(Constant.P_LOG_INTO_BATCH_DETAILS, schema);
 	}
 
-	public String getAllBatchDetail(BatchDetailStatus status) {
+	public String getUpdateBatchDetail() {
 		
-		return null;
+		return String.format(Constant.P_LOG_UPDATE_BATCH_DETAILS, schema);
+		
 	}
+
+	
 
 }

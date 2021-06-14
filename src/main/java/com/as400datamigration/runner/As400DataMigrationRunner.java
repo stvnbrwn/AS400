@@ -24,10 +24,10 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		try {
-			String filePath = null ;
-			if(args.length>0)
-				 filePath = args[0];
-			
+			String filePath = null;
+			if (args.length > 0)
+				filePath = args[0];
+
 			log.info("Starting of AS400_DATAMIGRATION . . .! " + LocalDateTime.now());
 			as400DataMigrationService.process(filePath);
 			log.info("Ending   of AS400_DATAMIGRATION . . .! " + LocalDateTime.now());

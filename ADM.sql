@@ -5,35 +5,48 @@
 CREATE SCHEMA IF NOT EXISTS ADM;
 
 CREATE TABLE IF NOT EXISTS ADM.all_table_process
-(   tno SERIAL PRIMARY KEY, 
-    table_name VARCHAR, 
+(   
+    table_name VARCHAR PRIMARY KEY, 
     total_rows NUMERIC,
-    status	VARCHAR,	 	
+    status	VARCHAR, 
+    -- Table_Not_Found,
+	-- Table_Created_With_NO_Data,
+	-- Table_Created_And_InRunning,
+	-- Table_Created_With_FailedBatch,
+	-- Table_Created_And_AllBatchCompleted
     reason	VARCHAR	
 ); 
 
+
 CREATE TABLE IF NOT EXISTS ADM.all_betch_details
 (   bno SERIAL PRIMARY KEY, 
-    table_name    VARCHAR,
-    starting_rrn  NUMERIC,
-    ending_rrn    NUMERIC,
-    started_at    TIMESTAMP,
-    status	      VARCHAR,	 	
-    ended_at	  TIMESTAMP,	
-    modified_at	  TIMESTAMP 
+    table_name                 VARCHAR,
+    starting_rrn               NUMERIC,
+    ending_rrn                 NUMERIC,
+    started_at_source          TIMESTAMP,
+    started_at_destination     TIMESTAMP,
+    
+    status	                   VARCHAR,	
+    -- Started_At_Source,	Failed_At_Source,	Ended_At_Source,
+	-- Started_At_Destination,	Failed_At_Destination,	Ended_At_Destination,
+	-- Batch_Refactored
+    ended_at_source	           TIMESTAMP,
+    ended_at_destination	   TIMESTAMP,
+    
+    modified_at	               TIMESTAMP ,
+    reason                     varchar,
+    INDEX status_index (status),
+    CONSTRAINT all_betch_details_fkey FOREIGN KEY (table_name)
+        REFERENCES adm.all_table_process (table_name)
 ); 
 
 CREATE TABLE IF NOT EXISTS ADM.failed_betch_details(
     fbno serial PRIMARY KEY,
-    bno INT,
-    table_name VARCHAR,
-    starting_rrn NUMERIC,  
-    ending_rrn NUMERIC,
-    started_at TIMESTAMP,
-    attempts int,  
-    ended_at	TIMESTAMP,	
-    modified_at	TIMESTAMP,
-    reason varchar,
+    bno             INT,
+    started_at      TIMESTAMP,
+    status          varchar, 
+    ended_at	    TIMESTAMP,	
+    reason          varchar,
     CONSTRAINT fkey FOREIGN KEY (bno)
         REFERENCES adm.all_betch_details (bno)
 );

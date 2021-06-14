@@ -24,18 +24,34 @@ public interface Constant {
 	
 	
 	// postgres Query
-	String POSTGRES_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %s.";
+	String P_CREATE_TABLE = "CREATE TABLE IF NOT EXISTS %s.";
 
-	String POSTGRES_INSERT_INTO = "INSERT INTO %s.";
+	String P_INSERT_INTO = "INSERT INTO %s.";
 	
-	String POSTGRES_LOG_INTO_ALL_TABLE_PROCESS = "INSERT INTO %s.all_table_process (table_name,total_rows,status,reason) values (?,?,?,?)";
+	String P_LOG_INTO_TABLE_PROCESS = "INSERT INTO %s.all_table_process (table_name,total_rows,status,reason) values (?,?,?,?)";
 	
-	String POSTGRES_LOG_INTO_ALL_BATCH_DETAILS="INSERT INTO %s.all_betch_details "
-			+ "(table_name ,starting_rrn,ending_rrn ,started_at,status,ended_at,modified_at) values"
-			+ "(?,?,?,?,?,?,?)";
+	String P_LOG_UPDATE_TABLE_PROCESS = "update %s.all_table_process set "
+			+ "status = ?,"
+			+ "reason = ? "
+			+ "where table_name =?";
+	         
+	String P_LOG_INTO_BATCH_DETAILS="INSERT INTO %s.all_betch_details "
+			+ "(table_name ,starting_rrn,ending_rrn ,started_at_source,started_at_destination,status,"
+			+ "ended_at_source,ended_at_destination,modified_at,reason) values"
+			+ "(?,?,?,?,?,?,?,?,?,?)";
 	
-	String POSTGRES_LOG_INTO_FAIL_BATCH_DETAILS="INSERT INTO %s.failed_betch_details "
+	String P_LOG_UPDATE_BATCH_DETAILS="UPDATE %s.all_betch_details "
+			+ "started_at_destination = ? ,"
+			+ "status =? ,"
+			+ "ended_at_source = ?,"
+			+ "ended_at_destination=?,"
+			+ "modified_at=?,"
+			+ "reason=?"
+			+ "where table_name= ? and starting_rrn = ? and ending_rrn= ?";
+	
+	String P_LOG_INTO_FAIL_BATCH_DETAILS="INSERT INTO %s.failed_betch_details "
 			+ "(bno, table_name, starting_rrn, ending_rrn, started_at,attempts, ended_at, modified_at,reason) values"
 			+ "(?,?,?,?,?,?,?,?,?)";
 
+	
 }

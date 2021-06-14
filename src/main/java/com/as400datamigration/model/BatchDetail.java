@@ -2,9 +2,8 @@ package com.as400datamigration.model;
 
 import java.time.LocalDateTime;
 
-import com.as400datamigration.common.BatchDetailStatus;
+import com.as400datamigration.audit.BatchDetailStatus;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,55 +18,62 @@ public class BatchDetail {
 	String tableName  ;
 	long  startingRrn;
 	long endingRrn  ;
-	LocalDateTime startedAt;  
-	BatchDetailStatus status	;    
-	LocalDateTime endedAt ;
+	
+	LocalDateTime startedAtSource;
+	LocalDateTime startedAtDestination;
+	
+	BatchDetailStatus status	;  
+
+	LocalDateTime endedAtSource;
+	LocalDateTime  endedAtDestination;
+	
 	LocalDateTime modifiedAt;
+	String reason;
 	
-	
-
-	public BatchDetail(String tableName, Long minRrn, Long maxRrn, LocalDateTime startedAt, BatchDetailStatus status,
-			LocalDateTime endedAt, LocalDateTime modifiedAt) {
-	}
-
-
-
-	public BatchDetail(TableMetaData tableMetaData, BatchDetailStatus status) {
-		this.tableName=tableMetaData.getTableName();
-		this.startingRrn=tableMetaData.getMinRrn();
-		this.endingRrn=tableMetaData.getMaxRrn();
-		this.startedAt=LocalDateTime.now();
-		this.status=BatchDetailStatus.RUNNING;
-		this.endedAt=null;
-		this.modifiedAt = LocalDateTime.now();
-
-	}
-
-
-
-	public Object[] getObjArray() {
+	public BatchDetail(TableMetaData tableMetaData) {
 		
-		return new Object[] {this.getTableName(),this.getStartingRrn(),
-							this.getEndingRrn(),this.getStartedAt(),
-							this.getStatus(),this.getEndedAt(),
-							this.getModifiedAt()};
+		this.tableName = tableMetaData.getTableName();
+		this.startingRrn = tableMetaData.getMinRrn();
+		this.endingRrn = tableMetaData.getMaxRrn();
+		this.startedAtSource = LocalDateTime.now();
+		this.status = BatchDetailStatus.Started_At_Source;
+		this.modifiedAt = LocalDateTime.now();
+		
 	}
 
+	public Object[] getSaveObjArray() {
+		
+		return new Object[] {
+				this.tableName,     				  
+				this.startingRrn,         
+				this.endingRrn,           
+				this.startedAtSource     ,
+				this.startedAtDestination,
+				this.status              ,
+				this.endedAtSource       ,
+				this.endedAtDestination ,	
+				this.modifiedAt 		,
+				this.reason 		};
+	}
+	
+	public Object[] getUpdateObjArray() {
+		
+		return new Object[] {
+			//update	
+				this.startedAtDestination,
+				this.status              ,
+				this.endedAtSource       ,
+				this.endedAtDestination ,	
+				this.modifiedAt 		,
+				this.reason 		,
+			//where
+				this.tableName,     				  
+				this.startingRrn,         
+				this.endingRrn
+			};
+	}
 
+	
 
-	/*
-	 * public BatchDetail getObjArrayOnstatus(AllBatchDetailStatus status) {
-	 * 
-	 * if(status.equals(AllBatchDetailStatus.RUNNING)) return this; else if
-	 * (status.equals(AllBatchDetailStatus.COMPLETED)) return new
-	 * BatchDetail(this,AllBatchDetailStatus.COMPLETED);
-	 * 
-	 * 
-	 * }
-	 * 
-	 * 
-	 * 
-	 * public BatchDetail(BatchDetail allBatchDetails, AllBatchDetailStatus
-	 * completed) { // TODO Auto-generated constructor stub }
-	 */
+		
 }
