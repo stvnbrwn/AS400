@@ -15,6 +15,7 @@ import lombok.ToString;
 @ToString
 public class BatchDetail {
 	
+	long bno;
 	String tableName  ;
 	long  startingRrn;
 	long endingRrn  ;
@@ -29,6 +30,16 @@ public class BatchDetail {
 	
 	LocalDateTime modifiedAt;
 	String reason;
+	
+	String ColumnsJson;
+	
+	public BatchDetail(int bno,String tableName, long startingRrn, long endingRrn) {
+		super();
+		this.bno=bno;
+		this.tableName = tableName;
+		this.startingRrn = startingRrn;
+		this.endingRrn = endingRrn;
+	}
 	
 	public BatchDetail(TableMetaData tableMetaData) {
 		
@@ -66,12 +77,13 @@ public class BatchDetail {
 				this.endedAtDestination ,	
 				this.modifiedAt 		,
 				this.reason 		,
+				this.ColumnsJson,
 			//where
-				this.tableName,     				  
-				this.startingRrn,         
-				this.endingRrn
+				this.bno,     				  
 			};
 	}
+
+	
 
 	
 

@@ -28,14 +28,28 @@ public interface Constant {
 
 	String P_INSERT_INTO = "INSERT INTO %s.";
 	
-	String P_LOG_INTO_TABLE_PROCESS = "INSERT INTO %s.all_table_process (table_name,total_rows,status,reason) values (?,?,?,?)";
+	String P_LOG_INTO_TABLE_PROCESS = 
+			"INSERT INTO %s.all_table_process "
+		  + "(table_name,total_rows,max_rrn,status,reason,columns) "
+		  + "values (?,?,?,?,?,?)";
 	
-	String P_LOG_UPDATE_TABLE_PROCESS = "update %s.all_table_process set "
-			+ "status = ?,"
-			+ "reason = ? "
+	/*
+	 * String P_LOG_UPDATE_TABLE_PROCESS_METADATA =
+	 * "update %s.all_table_process set " + "total_rows=?," + "max_rrn=?," +
+	 * "status = ?," + "reason = ? " + "where table_name =?";
+	 */
+	
+	String P_FETCH_FROM_TABLE_PROCESS = 
+			"SELECT * FROM %s.all_table_process where tablename='%s'";
+	
+	String P_LOG_UPDATE_TABLE_PROCESS_STATUS = 
+			  "update %s.all_table_process set "
+			+ "status = ?, "
+			+ "reason = ?, "
 			+ "where table_name =?";
 	         
-	String P_LOG_INTO_BATCH_DETAILS="INSERT INTO %s.all_betch_details "
+	String P_LOG_INTO_BATCH_DETAILS=
+			  "INSERT INTO %s.all_betch_details "
 			+ "(table_name ,starting_rrn,ending_rrn ,started_at_source,started_at_destination,status,"
 			+ "ended_at_source,ended_at_destination,modified_at,reason) values"
 			+ "(?,?,?,?,?,?,?,?,?,?)";
@@ -46,12 +60,36 @@ public interface Constant {
 			+ "ended_at_source = ?,"
 			+ "ended_at_destination=?,"
 			+ "modified_at=?,"
-			+ "reason=?"
-			+ "where table_name= ? and starting_rrn = ? and ending_rrn= ?";
+			+ "reason=?,"
+			+ "columns=?"
+			+ "where bno= ?";
+	 
+	String P_LOG_INTO_FAILED_BATCH_DETAILS=
+			  "INSERT INTO %s.failed_betch_details "
+			+ "(bno, started_at,status, ended_at,reason) values"
+			+ "(?,?,?,?,?)";
 	
-	String P_LOG_INTO_FAIL_BATCH_DETAILS="INSERT INTO %s.failed_betch_details "
-			+ "(bno, table_name, starting_rrn, ending_rrn, started_at,attempts, ended_at, modified_at,reason) values"
-			+ "(?,?,?,?,?,?,?,?,?)";
+	String P_LOG_UPDATE_FAILED_BATCH_DETAILS=
+			  "UPDATE %s.failed_betch_details "
+			+ "set "
+			+ "status=?,"
+			+ "ended_at=?,"
+			+ "reason=? "
+			+ "where fbno =?";
+
+	String P_FETCH_FAILED_BATCH = 
+			    "SELECT  bno "
+			  + "       ,table_name  "
+			  + "       ,starting_rrn  "
+			  + "       ,ending_rrn  "
+			  + "       ,columns "
+			  + "FROM all_betch_details  "
+			  + "WHERE status = 'Failed_At_Source' or status = 'Failed_At_Destination' ; ";
+
+	
+
+	
+
 
 	
 }

@@ -14,7 +14,7 @@ public interface As400Dao {
 	public long gettotalRecords(String tableName);
 
 	// 1) Full insertion 4)TEST
-	public List<SQLColumn> getTableDesc(String tableName);
+	public List<SQLColumn> getTableDesc(String tableName, boolean atCreation);
 
 	// 4)TEST
 	public List<Object[]> fetchFirst5RecordsFromTable(String tableName, List<SQLColumn> columns);
@@ -22,8 +22,12 @@ public interface As400Dao {
 	public List<Object[]> performReadOprationOnTable(String tableName, long MinRrn, long Offset,
 			List<SQLColumn> columns);
 
-	public TableMetaData getTableMetaData(String tableName);
+	public TableMetaData getTableMetaData(String tableName,boolean fromTableCreate);
 
 	public List<Object[]> readOprationOnTable(TableMetaData tableMetaData);
+
+	public List<Object[]> readOprationOnFailedBatch(TableMetaData tableMetaData);
+
+	public List<SQLColumn> getTableDesc(TableMetaData tableMetaData);
 
 }

@@ -1,5 +1,10 @@
 package com.as400datamigration.common;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -99,10 +104,19 @@ public class Utility {
 		return String.format(Constant.P_LOG_INTO_TABLE_PROCESS, schema);
 	}
 	
-	public String getUpdateTableProcess() {
-		return String.format(Constant.P_LOG_UPDATE_TABLE_PROCESS, schema);
+	/*
+	 * public String getUpdateTableProcessMetaData() { return
+	 * String.format(Constant.P_LOG_UPDATE_TABLE_PROCESS_METADATA, schema); }
+	 */
+	
+	public String getUpdateTableProcessStatus() {
+		return String.format(Constant.P_LOG_UPDATE_TABLE_PROCESS_STATUS, schema);
 	}
-
+	
+	public String getTableProcessMetaData(String tableName) {
+		return String.format(Constant.P_FETCH_FROM_TABLE_PROCESS, schema, tableName);
+	}
+	
 	public String getInsertIntoBatchDetail() {
 		return String.format(Constant.P_LOG_INTO_BATCH_DETAILS, schema);
 	}
@@ -113,6 +127,25 @@ public class Utility {
 		
 	}
 
+	public String fetchFailedbatch() {
+		return String.format(Constant.P_FETCH_FAILED_BATCH, schema);
+	}
 	
+	
+	public  <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) 
+    {
+        Map<Object, Boolean> map = new ConcurrentHashMap<>();
+        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
+    }
+
+	public String getInsertIntoFailedBatch() {
+		return String.format(Constant.P_LOG_INTO_FAILED_BATCH_DETAILS, schema);
+	}
+
+	public String getUpdateFailedBatchDetail() {
+		return String.format(Constant.P_LOG_UPDATE_FAILED_BATCH_DETAILS, schema);
+	}
+
+		
 
 }

@@ -15,8 +15,10 @@ public class TableProcess {
 
 	String tableName;
 	Long totalRows;
+	Long MaxRrn;
 	TableStatus status;
 	String reason;
+	String columnsJson;
 
 	public TableProcess(String tableName) {
 		super();
@@ -31,7 +33,25 @@ public class TableProcess {
 
 	public Object[] getSaveObjArray() {
 
-		return new Object[] { this.getTableName(), this.getTotalRows(), this.getStatus(), this.getReason() };
+		return new Object[] { 
+				this.tableName,
+				this.totalRows,
+				this.MaxRrn,
+				this.status,
+				this.reason,
+				this.columnsJson
+		};
+
+	}
+	
+	public Object[] getUpdateObjArray() {
+
+		return new Object[] { 
+				//update
+				this.status,
+				this.reason,
+				//where
+				this.tableName };
 
 	}
 
@@ -70,10 +90,29 @@ public class TableProcess {
 		this.reason = reason;
 	}
 
-	public Object[] getUpdateObjArray() {
+	
 
-		return new Object[] { this.status, this.reason, this.tableName };
+	public Long getMaxRrn() {
+		return MaxRrn;
+	}
 
+	public void setMaxRrn(Long maxRrn) {
+		MaxRrn = maxRrn;
+	}
+
+	public TableProcess(String tableName, TableStatus status , String reason) {
+		this.tableName = tableName;
+		this.status = status;
+		this.reason=reason;
+		
+	}
+
+	public String getColumnsJson() {
+		return columnsJson;
+	}
+
+	public void setColumnsJson(String columnsJson) {
+		this.columnsJson = columnsJson;
 	}
 
 }

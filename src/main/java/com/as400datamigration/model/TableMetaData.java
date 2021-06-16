@@ -17,7 +17,14 @@ public class TableMetaData {
 	String tableName="";
 	List<SQLColumn> columns;
 	PostgresQueries postgresQueries ;
+	
+	TableProcess tableProcess;
 	BatchDetail batchDetail;
+	FailedBatchDetails failedBatchDetails;
+	
+	public TableMetaData(String tableName) {
+		this.tableName = tableName;
+	}
 	
 	public TableMetaData(Long totalRows, Long minRrn, Long maxRrn) {
 		super();
@@ -26,6 +33,18 @@ public class TableMetaData {
 		this.maxRrn = maxRrn;
 		
 	}
+	
+	public TableMetaData(String tableName, long startingRrn, long endingRrn, List<SQLColumn> columns,FailedBatchDetails failedBatchDetails) {
+		super();
+		this.tableName = tableName;
+		this.minRrn = startingRrn;
+		this.maxRrn = startingRrn;
+		this.columns=columns;
+		this.failedBatchDetails= failedBatchDetails;
+	}
+
+
+	
 
 	public Long getTotalRows() {
 		return totalRows;
@@ -89,6 +108,28 @@ public class TableMetaData {
 		this.batchDetail = batchDetail;
 	}
 
+	public FailedBatchDetails getFailedBatchDetails() {
+		return failedBatchDetails;
+	}
+
+	public void setFailedBatchDetails(FailedBatchDetails failedBatchDetails) {
+		this.failedBatchDetails = failedBatchDetails;
+	}
+
+	public TableProcess getTableProcess() {
+		return tableProcess;
+	}
+
+	public void setTableProcess(TableProcess tableProcess) {
+		this.tableProcess = tableProcess;
+	}
+
+	
+
+	
+
+
+	
 	
 	
 }

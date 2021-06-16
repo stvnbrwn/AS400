@@ -44,8 +44,8 @@ public class As400DataMigrationServiceTest {
 					log.info("table no : " + i + " table Name " + tableName + "Start Time : " + LocalDateTime.now());
 					long totalRecords = as400Dao.gettotalRecords(tableName);
 					log.info("Total records in the table  : " + totalRecords + " time : " + LocalDateTime.now());
-
-					List<SQLColumn> columns = as400Dao.getTableDesc(tableName);
+					boolean atCreation=true;
+					List<SQLColumn> columns = as400Dao.getTableDesc(tableName, atCreation);
 					log.info("col count : " + columns.size());
 					columns.forEach(column -> {
 						log.info(column.toString());
