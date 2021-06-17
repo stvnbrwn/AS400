@@ -45,16 +45,16 @@ public interface Constant {
 	String P_LOG_UPDATE_TABLE_PROCESS_STATUS = 
 			  "update %s.all_table_process set "
 			+ "status = ?, "
-			+ "reason = ?, "
+			+ "reason = ? "
 			+ "where table_name =?";
 	         
 	String P_LOG_INTO_BATCH_DETAILS=
-			  "INSERT INTO %s.all_betch_details "
+			  "INSERT INTO %s.all_batch_details "
 			+ "(table_name ,starting_rrn,ending_rrn ,started_at_source,started_at_destination,status,"
 			+ "ended_at_source,ended_at_destination,modified_at,reason) values"
 			+ "(?,?,?,?,?,?,?,?,?,?)";
 	
-	String P_LOG_UPDATE_BATCH_DETAILS="UPDATE %s.all_betch_details "
+	String P_LOG_UPDATE_BATCH_DETAILS="UPDATE %s.all_batch_details set "
 			+ "started_at_destination = ? ,"
 			+ "status =? ,"
 			+ "ended_at_source = ?,"
@@ -62,15 +62,15 @@ public interface Constant {
 			+ "modified_at=?,"
 			+ "reason=?,"
 			+ "columns=?"
-			+ "where bno= ?";
+			+ " where bno= ?";
 	 
 	String P_LOG_INTO_FAILED_BATCH_DETAILS=
-			  "INSERT INTO %s.failed_betch_details "
+			  "INSERT INTO %s.failed_batch_details "
 			+ "(bno, started_at,status, ended_at,reason) values"
 			+ "(?,?,?,?,?)";
 	
 	String P_LOG_UPDATE_FAILED_BATCH_DETAILS=
-			  "UPDATE %s.failed_betch_details "
+			  "UPDATE %s.failed_batch_details "
 			+ "set "
 			+ "status=?,"
 			+ "ended_at=?,"
@@ -83,7 +83,7 @@ public interface Constant {
 			  + "       ,starting_rrn  "
 			  + "       ,ending_rrn  "
 			  + "       ,columns "
-			  + "FROM all_betch_details  "
+			  + "FROM %s.all_batch_details  "
 			  + "WHERE status = 'Failed_At_Source' or status = 'Failed_At_Destination' ; ";
 
 	

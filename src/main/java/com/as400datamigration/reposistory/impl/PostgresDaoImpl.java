@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
@@ -123,7 +125,23 @@ public class PostgresDaoImpl implements PostgresDao {
 	public long saveBatchDetail(Object[] allBatchDetails) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		try {
-			postgresTemplate.update(utility.getInsertIntoBatchDetail(), allBatchDetails, keyHolder);
+			//postgresTemplate.update();
+			postgresTemplate.update(utility.getPrepareStatement(utility.getInsertIntoBatchDetail(), allBatchDetails, 
+					new String[] {"bno"}), keyHolder);
+		} catch (Exception e) {
+			log.error(AuditMessage.Execption_Msg + "saveBatchDetail", e);
+		}
+		return keyHolder.getKey().longValue();
+	}
+	
+	
+	
+	@Override
+	public long saveBatchDetail_t(BatchDetail batchDetail) {
+		KeyHolder keyHolder = new GeneratedKeyHolder();
+		try {
+			 SqlParameterSource data = new BeanPropertySqlParameterSource(batchDetail);
+			postgresTemplate.update(utility.getInsertIntoBatchDetail(), data,keyHolder);
 		} catch (Exception e) {
 			log.error(AuditMessage.Execption_Msg + "saveBatchDetail", e);
 		}

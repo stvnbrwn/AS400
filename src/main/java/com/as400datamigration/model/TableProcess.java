@@ -37,7 +37,7 @@ public class TableProcess {
 				this.tableName,
 				this.totalRows,
 				this.MaxRrn,
-				this.status,
+				this.status.toString(),
 				this.reason,
 				this.columnsJson
 		};
@@ -48,7 +48,7 @@ public class TableProcess {
 
 		return new Object[] { 
 				//update
-				this.status,
+				this.status.toString(),
 				this.reason,
 				//where
 				this.tableName };

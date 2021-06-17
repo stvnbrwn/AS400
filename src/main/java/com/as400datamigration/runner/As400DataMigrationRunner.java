@@ -46,11 +46,11 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			log.info("Ending   of AS400_DATAMIGRATION Full Process. . .! " + LocalDateTime.now());
 			
 			log.info("Starting of AS400_DATAMIGRATION Failed Process. . .! " + LocalDateTime.now());
-			processSyncInsert(filePath);
+			//processSyncInsert(filePath);
 			log.info("Ending   of AS400_DATAMIGRATION Failed Process. . .! " + LocalDateTime.now());
 			
 			log.info("Starting of AS400_DATAMIGRATION Failed Process. . .! " + LocalDateTime.now());
-			processFailedBatches();
+			//processFailedBatches();
 			log.info("Ending   of AS400_DATAMIGRATION Failed Process. . .! " + LocalDateTime.now());
 
 		} catch (Exception e) {

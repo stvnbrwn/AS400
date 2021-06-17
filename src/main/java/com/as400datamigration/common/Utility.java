@@ -1,11 +1,16 @@
 package com.as400datamigration.common;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Component;
 
 import com.as400datamigration.model.PostgresQueries;
@@ -144,6 +149,20 @@ public class Utility {
 
 	public String getUpdateFailedBatchDetail() {
 		return String.format(Constant.P_LOG_UPDATE_FAILED_BATCH_DETAILS, schema);
+	}
+
+	public PreparedStatementCreator getPrepareStatement(String insertIntoBatchDetail, Object[] allBatchDetails, String[] keyNameArray) {
+				
+		return new PreparedStatementCreator() {
+			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
+				PreparedStatement ps = conn.prepareStatement(insertIntoBatchDetail, keyNameArray);
+				
+				for (int i = 1; i < allBatchDetails.length+1; i++) {
+					ps.setObject(i, allBatchDetails[i-1]);
+				}
+				return ps;
+			}
+		};
 	}
 
 		

@@ -45,47 +45,51 @@ public class As400DataMigrationService {
 	PostgresDao postgresDao;
 
 	public void processCompleteMigration(String tableName) {
-		TableMetaData tableMetaData = createTable(tableName);
-
-		if (Objects.nonNull(tableMetaData)) {
-			performReadWriteOnTable(tableMetaData);
+		try {
+			TableMetaData tableMetaData = createTable(tableName);
+			if (Objects.nonNull(tableMetaData)) {
+				performReadWriteOnTable(tableMetaData);
+			}
+		} catch (Exception e) {
+			log.error(AuditMessage.Execption_Msg , e);
+			//
 		}
+		
 	}
 
 	private void performReadWriteOnTable(TableMetaData tableMetaData) {
-		List<Object[]> tableData = null;
 		if (tableMetaData.getTotalRows() > 0) {
 			long maxRrn = tableMetaData.getMaxRrn();
-			// long totalrows = 0; // extra
 			boolean allBatchInsert = true;
 			while (tableMetaData.getMinRrn() < maxRrn) {
 				tableMetaData.setMaxRrn(tableMetaData.getMinRrn() + batchSize - 1);
-				if (tableMetaData.getMaxRrn() > maxRrn) {
-					tableMetaData.setMaxRrn(maxRrn);
-				}
-				tableMetaData.setBatchDetail(new BatchDetail(tableMetaData));
-				tableData = as400Dao.readOprationOnTable(tableMetaData);
-				if (Objects.nonNull(tableData)) {
-					boolean batchInsert = postgresDao.writeOpraionOnTable(tableMetaData, tableData);
-					allBatchInsert = allBatchInsert && batchInsert;
-
-				} else {
-					allBatchInsert = false;
-				}
-
+				allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
 				tableMetaData.setMinRrn(tableMetaData.getMinRrn() + batchSize);
-				// totalrows += tableData.size(); // extra
 			}
+				tableMetaData.setMaxRrn(maxRrn);
+				allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
 			if (allBatchInsert) {
 				postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),
 						TableStatus.Table_Created_And_AllBatchCompleted).getUpdateObjArray());
 			}
-
 		}
 		System.out.println("stop !!!");
 	}
-	
 
+	private boolean batchOpration(TableMetaData tableMetaData, boolean allBatchInsert) {
+		List<Object[]> tableData=null;
+		tableMetaData.setBatchDetail(new BatchDetail(tableMetaData));
+		tableData = as400Dao.readOprationOnTable(tableMetaData);
+		if (Objects.nonNull(tableData)) {
+			boolean batchInsert = postgresDao.writeOpraionOnTable(tableMetaData, tableData);
+			allBatchInsert = allBatchInsert && batchInsert;
+
+		} else {
+			allBatchInsert = false;
+		}
+		return allBatchInsert;
+	}
+	
 	@Transactional
 	private TableMetaData createTable(String tableName) {
 		TableMetaData tableMetaData = null;
@@ -147,6 +151,7 @@ public class As400DataMigrationService {
 				
 				//check in as400 is its there --> new table which is previously 
 				// not in complete migration
+				// full table process
 			}
 			
 		} catch (Exception e) {
@@ -154,7 +159,6 @@ public class As400DataMigrationService {
 			// if we throw e then no table found in tableprocess
 		}
 	}
-
 
 	public void processFailedBatches(BatchDetail batch) {
 		List<Object[]> tableData = null;

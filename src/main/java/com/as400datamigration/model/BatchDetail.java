@@ -60,7 +60,7 @@ public class BatchDetail {
 				this.endingRrn,           
 				this.startedAtSource     ,
 				this.startedAtDestination,
-				this.status              ,
+				this.status.toString()              ,
 				this.endedAtSource       ,
 				this.endedAtDestination ,	
 				this.modifiedAt 		,
@@ -72,7 +72,7 @@ public class BatchDetail {
 		return new Object[] {
 			//update	
 				this.startedAtDestination,
-				this.status              ,
+				this.status.toString()              ,
 				this.endedAtSource       ,
 				this.endedAtDestination ,	
 				this.modifiedAt 		,

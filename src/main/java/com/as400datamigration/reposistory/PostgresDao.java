@@ -35,4 +35,6 @@ public interface PostgresDao {
 
 	public TableProcess getTableMetaDataFromDestination(TableMetaData tableMetaData);
 
+	long saveBatchDetail_t(BatchDetail batchDetail);
+
 }

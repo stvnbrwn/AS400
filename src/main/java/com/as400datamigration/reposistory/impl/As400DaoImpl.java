@@ -110,17 +110,16 @@ public class As400DaoImpl implements As400Dao {
 		return tableDataList;
 	}
 
-	public List<Object[]> performReadOprationOnTable(String tableName, long offset, long totalRecords,
-			List<SQLColumn> columns) {
-
-		log.info("Start performOprationOnTable for table : " + tableName);
-		String sqlData;
-		sqlData = utility.getSelectQueryForBatch(tableName, offset, totalRecords);
-		List<Object[]> tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(columns));
-		System.out.println();
-		return tableDataList;
-
-	}
+	/*
+	 * public List<Object[]> performReadOprationOnTable(String tableName, long
+	 * offset, long totalRecords, List<SQLColumn> columns) {
+	 * 
+	 * log.info("Start performOprationOnTable for table : " + tableName); String
+	 * sqlData; sqlData = utility.getSelectQueryForBatch(tableName, offset,
+	 * totalRecords); List<Object[]> tableDataList = as400Template.query(sqlData,
+	 * new TableResultSetExtractor(columns)); System.out.println(); return
+	 * tableDataList; }
+	 */
 
 	@Override
 	public List<Object[]> readOprationOnTable(TableMetaData tableMetaData) {
@@ -128,7 +127,11 @@ public class As400DaoImpl implements As400Dao {
 		long bno = 0;  // doubt
 		try {
 			log.info("Start performOprationOnTable for table : " + tableMetaData.getTableName());
+			
+			//bno=postgresDao.saveBatchDetail_t(tableMetaData.getBatchDetail());
+			
 			bno=postgresDao.saveBatchDetail(tableMetaData.getBatchDetail().getSaveObjArray());
+			//System.out.println();
 			String sqlData = utility.getSelectQueryForBatch(tableMetaData.getTableName(), tableMetaData.getMinRrn(),
 					tableMetaData.getMaxRrn());
 			tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(tableMetaData.getColumns()));
@@ -138,14 +141,14 @@ public class As400DaoImpl implements As400Dao {
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setBno(bno);
 			postgresDao.updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
-
-		} catch (Exception e) {
+		} 
+		catch (Exception e) {
 			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.Failed_At_Source);
 			tableMetaData.getBatchDetail().setEndedAtSource(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setColumnsJson(tableMetaData.getTableProcess().getColumnsJson());
 			tableMetaData.getBatchDetail().setReason(AuditMessage.Execption_Msg + e);
-			if(bno!=0)
+			if(bno!=0)// 0== throw
 				tableMetaData.getBatchDetail().setBno(bno); 
 			// zero in case of bno not found -> doubt we can not update on zero
 			postgresDao.updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
@@ -177,7 +180,7 @@ public class As400DaoImpl implements As400Dao {
 			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.Fail);
 			tableMetaData.getFailedBatchDetails().setEndedAt(LocalDateTime.now());
 			tableMetaData.getFailedBatchDetails().setReason(AuditMessage.Execption_Msg + e);
-			if (fbno!=0) {
+			if (fbno!=0) {  //doubt
 				tableMetaData.getFailedBatchDetails().setBno(fbno);
 			}
 			postgresDao.updateFailedBatchDetail(tableMetaData.getFailedBatchDetails().getUpdateObjArray()); // pending
@@ -190,7 +193,7 @@ public class As400DaoImpl implements As400Dao {
 		TableMetaData tableMetaData = null;
 		TableProcess tableProcess = new TableProcess(tableName);
 		try {
-			postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
+			//postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
 			tableMetaData = (TableMetaData) as400Template.queryForObject(utility.getTableMetaData(tableName),
 					new BeanPropertyRowMapper<TableMetaData>(TableMetaData.class));
 			
