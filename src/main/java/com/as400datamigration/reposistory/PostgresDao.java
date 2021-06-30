@@ -33,8 +33,11 @@ public interface PostgresDao {
 
 	/* public void updateTableProcessMetaData(Object[] updateObjArray); */
 
-	public TableProcess getTableMetaDataFromDestination(TableMetaData tableMetaData);
+	public TableProcess getTableMetaDataFromDestination(String tableName);
 
 	long saveBatchDetail_t(BatchDetail batchDetail);
+
+	public BatchDetail getlastBatchDetails(String tableName);
+
 
 }

@@ -1,0 +1,18 @@
+{
+  "groups": [
+    {
+      "name": "as400.datasource",
+      "type": "javax.sql.DataSource",
+      "sourceType": "com.as400datamigration.config.DatasourceConfiguration",
+      "sourceMethod": "as400DataSource()"
+    },
+    {
+      "name": "postgres.datasource",
+      "type": "javax.sql.DataSource",
+      "sourceType": "com.as400datamigration.config.DatasourceConfiguration",
+      "sourceMethod": "postgresDataSource()"
+    }
+  ],
+  "properties": [],
+  "hints": []
+}

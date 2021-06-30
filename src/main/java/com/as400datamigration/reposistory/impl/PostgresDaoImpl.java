@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.as400datamigration.audit.AuditMessage;
@@ -26,7 +26,7 @@ import com.as400datamigration.reposistory.PostgresDao;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Service
+@Component
 public class PostgresDaoImpl implements PostgresDao {
 
 	@Autowired
@@ -42,12 +42,12 @@ public class PostgresDaoImpl implements PostgresDao {
 
 	@Override
 	public void saveIntoTableProcess(Object[] tableProcess) {
-		try {
-			postgresTemplate.update(utility.getInsertIntoTableProcess(), tableProcess);
-		} catch (Exception e) {
-			log.error("Batch insert fail !!!", e);
-		}
-
+		/*
+		 * try { postgresTemplate.update(utility.getInsertIntoTableProcess(),
+		 * tableProcess); } catch (Exception e) {
+		 * log.error("saveIntoTableProcess insert fail !!!", e); throw e; }
+		 */
+		postgresTemplate.update(utility.getInsertIntoTableProcess(), tableProcess);
 	}
 	
 	@Override
@@ -219,18 +219,31 @@ public class PostgresDaoImpl implements PostgresDao {
 	}
 
 	@Override
-	public TableProcess getTableMetaDataFromDestination(TableMetaData tableMetaData) {
+	public TableProcess getTableMetaDataFromDestination(String tableName) {
 		TableProcess tableProcess=null;
 		try {
 			tableProcess = (TableProcess) postgresTemplate.queryForObject(
-					utility.getTableProcessMetaData(tableMetaData.getTableName()),
+					utility.getTableProcessMetaData(tableName),
 					new BeanPropertyRowMapper<TableProcess>(TableProcess.class));
 		} catch (Exception e) {
-			// table not at - > destination
-			// or other 
-			throw e;
+			log.error("Connection error at Destination, or table not found ");
 		}
 		return tableProcess;
 	}
 
+	@Override
+	public BatchDetail getlastBatchDetails(String tableName) {
+		BatchDetail batchDetail = null;
+		try {
+			batchDetail=(BatchDetail) postgresTemplate.queryForObject(
+					utility.getTableProcessMetaData(tableName),
+					new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
+		} catch (Exception e) {
+			log.error("Connection error at Destination, or table batch details not found ",e);
+		}
+		
+		return batchDetail;
+	}
+
+	
 }

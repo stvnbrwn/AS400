@@ -1,15 +1,16 @@
--- ADM is schema name
+-- ADM_AUDIT is schema name
 -- You can use any name
 -- according to it please change below query/queries 
 
-CREATE SCHEMA IF NOT EXISTS ADM;
+CREATE SCHEMA IF NOT EXISTS ADM_AUDIT;
 
---create schema if not exists D_schema;
+create schema IF NOT EXISTS ADM;
 
-CREATE TABLE IF NOT EXISTS ADM.all_table_process
+CREATE TABLE IF NOT EXISTS ADM_AUDIT.all_table_process
 (   
     table_name VARCHAR PRIMARY KEY, 
     total_rows NUMERIC,
+    min_rrn NUMERIC,
     max_rrn NUMERIC,
     create_timestamp TIMESTAMP,
     status	VARCHAR, 
@@ -26,7 +27,7 @@ CREATE TABLE IF NOT EXISTS ADM.all_table_process
     columns varchar
 ); 
 
-create TABLE if not EXISTS ADM.all_table_process_details (
+create TABLE if not EXISTS ADM_AUDIT.all_table_process_details (
     tpd_no serial,
     table_name VARCHAR,
     reason	VARCHAR,
@@ -34,7 +35,7 @@ create TABLE if not EXISTS ADM.all_table_process_details (
 );
 
 
-CREATE TABLE IF NOT EXISTS ADM.all_batch_details
+CREATE TABLE IF NOT EXISTS ADM_AUDIT.all_batch_details
 (   bno SERIAL PRIMARY KEY, 
     table_name                 VARCHAR,
     starting_rrn               NUMERIC,
@@ -45,22 +46,22 @@ CREATE TABLE IF NOT EXISTS ADM.all_batch_details
     status	                   VARCHAR,	
                                  -- Started_At_Source,	Failed_At_Source,	Ended_At_Source,
 	                             -- Started_At_Destination,	Failed_At_Destination,	Ended_At_Destination,
-	                             -- Batch_Refactored , Max_Attemp_
+	                             -- Batch_Refactored , Max_Attemp_Reached
     ended_at_source	           TIMESTAMP,
     ended_at_destination	   TIMESTAMP,
     
     modified_at	               TIMESTAMP ,
     reason                     varchar,
-    columnsJson                    varchar,
+    columns                    varchar,
    -- INDEX status (status),
     CONSTRAINT all_batch_details_fkey FOREIGN KEY (table_name)
-        REFERENCES adm.all_table_process (table_name)
+        REFERENCES ADM_AUDIT.all_table_process (table_name)
 ); 
 
 CREATE INDEX batch_status 
-ON ADM.all_batch_details(status);
+ON ADM_AUDIT.all_batch_details(status);
 
-CREATE TABLE IF NOT EXISTS ADM.failed_batch_details(
+CREATE TABLE IF NOT EXISTS ADM_AUDIT.failed_batch_details(
     fbno serial PRIMARY KEY,
     bno             INT,
     started_at      TIMESTAMP,
@@ -68,7 +69,7 @@ CREATE TABLE IF NOT EXISTS ADM.failed_batch_details(
     ended_at	    TIMESTAMP,	
     reason          varchar,
     CONSTRAINT fkey FOREIGN KEY (bno)
-        REFERENCES adm.all_batch_details (bno)
+        REFERENCES ADM_AUDIT.all_batch_details (bno)
 );
 
 

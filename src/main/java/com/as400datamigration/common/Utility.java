@@ -1,13 +1,13 @@
 package com.as400datamigration.common;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.PreparedStatementCreator;
@@ -25,7 +25,19 @@ public class Utility {
 
 	@Value("${postgres.schema}")
 	private String schema;
-
+	
+	@Value("${postgres.audit.schema}")
+	private String auditSchema;
+	
+	@Value("${main.menu}")
+	private String mainManuFilePath;
+	
+	@Value("${help.menu}")
+	private String helpManuFilePath;
+	
+	@Value("${specail.chars.in.columns-name}")
+	private String spclCharInColumnsName;
+	
 	// AS400
 	public String getRowCount(String tableName) {
 		return String.format(Constant.AS400_SELECT_TOTAL_ROW, tableName);
@@ -49,16 +61,17 @@ public class Utility {
 		return String.format(Constant.AS400_SELECT_FIRST_5_ROW, tableName);
 	}
 
-	public String getTableMetaData(String tableName) {
+	public String getTableMetaDataSource(String tableName) {
 		return String.format(Constant.AS400_SELECT_TABLE_META_DATA, tableName);
 	}
 
 	// postgresql
 	public String getPostgresDataType(SQLColumn sqlColumn) {
 		try {
-			switch (sqlColumn.getColumnType()) {
+			switch (sqlColumn.getColumnType().toUpperCase()) {
 
 			case "CHAR":
+			case "VARCHAR":
 				return "VARCHAR";
 
 			case "DECIMAL": // P -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
@@ -91,8 +104,8 @@ public class Utility {
 		String aftrValues = "values ( ";
 
 		for (SQLColumn sqlColumn : tableMetaData.getColumns()) {
-			crtQuery += sqlColumn.getName().replace("#", "") + " " + getPostgresDataType(sqlColumn) + ",";
-			insertQuery += sqlColumn.getName().replace("#", "") + " , ";
+			crtQuery += sqlColumn.getName().replaceAll(spclCharInColumnsName, "_") + " " + getPostgresDataType(sqlColumn) + ",";
+			insertQuery += sqlColumn.getName().replaceAll(spclCharInColumnsName, "_") + " , ";
 			aftrValues += " ?,";
 		}
 		// remove last comma
@@ -106,7 +119,7 @@ public class Utility {
 	}
 
 	public String getInsertIntoTableProcess() {
-		return String.format(Constant.P_LOG_INTO_TABLE_PROCESS, schema);
+		return String.format(Constant.P_LOG_INTO_TABLE_PROCESS, auditSchema);
 	}
 	
 	/*
@@ -115,40 +128,34 @@ public class Utility {
 	 */
 	
 	public String getUpdateTableProcessStatus() {
-		return String.format(Constant.P_LOG_UPDATE_TABLE_PROCESS_STATUS, schema);
+		return String.format(Constant.P_LOG_UPDATE_TABLE_PROCESS_STATUS, auditSchema);
 	}
 	
 	public String getTableProcessMetaData(String tableName) {
-		return String.format(Constant.P_FETCH_FROM_TABLE_PROCESS, schema, tableName);
+		return String.format(Constant.P_FETCH_FROM_TABLE_PROCESS, auditSchema, tableName);
 	}
 	
 	public String getInsertIntoBatchDetail() {
-		return String.format(Constant.P_LOG_INTO_BATCH_DETAILS, schema);
+		return String.format(Constant.P_LOG_INTO_BATCH_DETAILS, auditSchema);
 	}
 
 	public String getUpdateBatchDetail() {
 		
-		return String.format(Constant.P_LOG_UPDATE_BATCH_DETAILS, schema);
+		return String.format(Constant.P_LOG_UPDATE_BATCH_DETAILS, auditSchema);
 		
 	}
 
 	public String fetchFailedbatch() {
-		return String.format(Constant.P_FETCH_FAILED_BATCH, schema);
+		return String.format(Constant.P_FETCH_FAILED_BATCH, auditSchema);
 	}
 	
 	
-	public  <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) 
-    {
-        Map<Object, Boolean> map = new ConcurrentHashMap<>();
-        return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-    }
-
 	public String getInsertIntoFailedBatch() {
-		return String.format(Constant.P_LOG_INTO_FAILED_BATCH_DETAILS, schema);
+		return String.format(Constant.P_LOG_INTO_FAILED_BATCH_DETAILS, auditSchema);
 	}
 
 	public String getUpdateFailedBatchDetail() {
-		return String.format(Constant.P_LOG_UPDATE_FAILED_BATCH_DETAILS, schema);
+		return String.format(Constant.P_LOG_UPDATE_FAILED_BATCH_DETAILS, auditSchema);
 	}
 
 	public PreparedStatementCreator getPrepareStatement(String insertIntoBatchDetail, Object[] allBatchDetails, String[] keyNameArray) {
@@ -165,6 +172,19 @@ public class Utility {
 		};
 	}
 
+	
+	public void printMainManu() throws IOException  {
 		
+		InputStream in = getClass().getResourceAsStream(mainManuFilePath);
+        Stream<String> lines = new BufferedReader(new InputStreamReader(in)).lines();
+        lines.forEach(System.out::println);
+	}
 
+	public void HelpManu() throws IOException {
+		InputStream in = getClass().getResourceAsStream(helpManuFilePath);
+        Stream<String> lines = new BufferedReader(new InputStreamReader(in)).lines();
+        lines.forEach(System.out::println);
+	}
+
+	
 }

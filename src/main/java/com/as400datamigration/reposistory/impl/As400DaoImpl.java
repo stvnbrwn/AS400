@@ -51,7 +51,7 @@ public class As400DaoImpl implements As400Dao {
 		return totalRecords;
 	}
 
-	// 1) Full insertion 4)TEST
+	// 4)TEST
 	public List<SQLColumn> getTableDesc(String tableName, boolean atCreation) {
 		List<SQLColumn> columns = null;
 		try {
@@ -88,7 +88,7 @@ public class As400DaoImpl implements As400Dao {
 				tableMetaData.getTableProcess().setColumnsJson(gson.toJson(columns));
 			
 		} catch (Exception e) {
-			log.error("Exception at getTableDesc !!!", e);
+			log.error("Exception at getTableDesc !!!");
 				TableProcess tableProcess = new TableProcess(tableMetaData.getTableName(),TableStatus.Table_Desc_Not_Found_At_Source,
 						AuditMessage.Table_Desc_Not_Found_At_Source_Msg + AuditMessage.Execption_Msg + e);
 				postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
@@ -126,7 +126,7 @@ public class As400DaoImpl implements As400Dao {
 		List<Object[]> tableDataList = null;
 		long bno = 0;  // doubt
 		try {
-			log.info("Start performOprationOnTable for table : " + tableMetaData.getTableName());
+			log.info("Start readOprationOnTable for table : " + tableMetaData.getTableName());
 			
 			//bno=postgresDao.saveBatchDetail_t(tableMetaData.getBatchDetail());
 			
@@ -143,15 +143,20 @@ public class As400DaoImpl implements As400Dao {
 			postgresDao.updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
 		} 
 		catch (Exception e) {
+			
+			if(bno==0)
+				throw e;
+			
 			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.Failed_At_Source);
 			tableMetaData.getBatchDetail().setEndedAtSource(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setColumnsJson(tableMetaData.getTableProcess().getColumnsJson());
 			tableMetaData.getBatchDetail().setReason(AuditMessage.Execption_Msg + e);
-			if(bno!=0)// 0== throw
-				tableMetaData.getBatchDetail().setBno(bno); 
+			       // if(bno!=0)// 0== throw
+			tableMetaData.getBatchDetail().setBno(bno); 
 			// zero in case of bno not found -> doubt we can not update on zero
 			postgresDao.updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
+			
 			// pending
 			/*
 			 * postgresDao.updateTableProcessStatus( new
@@ -160,7 +165,7 @@ public class As400DaoImpl implements As400Dao {
 			 */
 
 		}
-
+		log.info("ENd readOprationOnTable for table : " + tableMetaData.getTableName());
 		return tableDataList;
 	}
 	
@@ -194,10 +199,11 @@ public class As400DaoImpl implements As400Dao {
 		TableProcess tableProcess = new TableProcess(tableName);
 		try {
 			//postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
-			tableMetaData = (TableMetaData) as400Template.queryForObject(utility.getTableMetaData(tableName),
+			tableMetaData = (TableMetaData) as400Template.queryForObject(utility.getTableMetaDataSource(tableName),
 					new BeanPropertyRowMapper<TableMetaData>(TableMetaData.class));
 			
 			tableProcess.setTotalRows(tableMetaData.getTotalRows());
+			tableProcess.setMinRrn(tableMetaData.getMinRrn());
 			tableProcess.setMaxRrn(tableMetaData.getMaxRrn());
 			tableMetaData.setTableProcess(tableProcess);
 		} catch (Exception e) {

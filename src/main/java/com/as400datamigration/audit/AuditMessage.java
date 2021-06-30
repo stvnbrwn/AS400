@@ -15,4 +15,10 @@ public interface AuditMessage {
 	
 	String Execption_Msg= "\n please check following things for more details :- \n";
 
+	String Table_Found_At_Source_Msg = "This table exist at the source.";
+
+	String Table_Found_At_Destination_Msg = "Table Found At Destination";
+
+	String Table_Not_Found_At_Destination_Msg = "Table Not Found At Destination";
+
 }

@@ -1,5 +1,6 @@
 package com.as400datamigration.reposistory.impl;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -54,10 +55,11 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 	private static Object getColumnValue(ResultSet rs, String columnType, String ColumnName, int scale) {
 
 		try {
-			switch (columnType) {
+			switch (columnType.toUpperCase()) {
 
 			case "CHAR":
-				return rs.getString(ColumnName);
+			case "VARCHAR":
+				return rs.getString(ColumnName).trim().replace("ÔððõòðÈÖÕÔÁ", "");
 
 			case "DECIMAL": // P -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
 			case "NUMERIC": // S -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields

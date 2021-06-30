@@ -1,20 +1,24 @@
 package com.as400datamigration.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.logging.LogManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Scope;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.as400datamigration.audit.AuditMessage;
 import com.as400datamigration.audit.TableStatus;
+import com.as400datamigration.common.LogMessage;
 import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.FailedBatchDetails;
@@ -44,39 +48,50 @@ public class As400DataMigrationService {
 	@Autowired
 	PostgresDao postgresDao;
 
+	@Async("ThreadExecutor")
 	public void processCompleteMigration(String tableName) {
 		try {
 			TableMetaData tableMetaData = createTable(tableName);
-			if (Objects.nonNull(tableMetaData)) {
-				performReadWriteOnTable(tableMetaData);
+			if (Objects.nonNull(tableMetaData) && Objects.nonNull(tableMetaData.getColumns())){
+				boolean allBatchInsert=performReadWriteOnTable(tableMetaData);
+				if (allBatchInsert) {
+					postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),
+							TableStatus.Table_Created_And_AllBatchCompleted).getUpdateObjArray());
+				}
 			}
-		} catch (Exception e) {
-			log.error(AuditMessage.Execption_Msg , e);
+		}catch (DuplicateKeyException e) {
+			System.out.println(LogMessage.ALIEN_CENTER +  tableName + " Table migration is already performed.");
+			System.out.println(LogMessage.ALIEN_CENTER +  "Please select option 2 from main menu for syncing the additional data for this table.");
+		} 
+		catch (Exception e) {
+			System.out.println(LogMessage.ALIEN_CENTER + "Please check connection or " + tableName + " already performed");
+			log.error(AuditMessage.Execption_Msg + " May be columns meta data not found \n" +"Error at processCompleteMigration " , e);
 			//
 		}
-		
 	}
 
-	private void performReadWriteOnTable(TableMetaData tableMetaData) {
+	private boolean performReadWriteOnTable(TableMetaData tableMetaData) {
+		boolean allBatchInsert = true;
+		log.info("start performReadWriteOnTable execution ..!");
 		if (tableMetaData.getTotalRows() > 0) {
 			long maxRrn = tableMetaData.getMaxRrn();
-			boolean allBatchInsert = true;
 			while (tableMetaData.getMinRrn() < maxRrn) {
 				tableMetaData.setMaxRrn(tableMetaData.getMinRrn() + batchSize - 1);
 				allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
 				tableMetaData.setMinRrn(tableMetaData.getMinRrn() + batchSize);
 			}
-				tableMetaData.setMaxRrn(maxRrn);
-				allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
-			if (allBatchInsert) {
-				postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),
-						TableStatus.Table_Created_And_AllBatchCompleted).getUpdateObjArray());
-			}
+				if(tableMetaData.getMaxRrn()<maxRrn) {
+					tableMetaData.setMaxRrn(maxRrn);
+					allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
+				}
 		}
-		System.out.println("stop !!!");
+		//System.out.println("stop !!!");
+		log.info("End performReadWriteOnTable execution ..!");
+		return allBatchInsert;
 	}
 
 	private boolean batchOpration(TableMetaData tableMetaData, boolean allBatchInsert) {
+		log.info("start batchOpration execution..! ");
 		List<Object[]> tableData=null;
 		tableMetaData.setBatchDetail(new BatchDetail(tableMetaData));
 		tableData = as400Dao.readOprationOnTable(tableMetaData);
@@ -87,11 +102,13 @@ public class As400DataMigrationService {
 		} else {
 			allBatchInsert = false;
 		}
+		log.info("End batchOpration execution..! ");
 		return allBatchInsert;
 	}
 	
 	@Transactional
 	private TableMetaData createTable(String tableName) {
+		log.info("start createTable execution ...! ");
 		TableMetaData tableMetaData = null;
 		// TableProcess tableProcess = new TableProcess(tableName);
 		try {
@@ -111,27 +128,30 @@ public class As400DataMigrationService {
 					} else {
 						tableMetaData.getTableProcess().setStatus(TableStatus.Table_Created_With_NO_Data);
 					}
-
+					
+					tableMetaData.getTableProcess().setCreateAt(LocalDateTime.now());
 					// tableMetaData.setTableProcess(tableProcess);
 					postgresDao.saveIntoTableProcess(tableMetaData.getTableProcess().getSaveObjArray());
 				}
 			}
-
+			
 		} catch (Exception e) {
-			log.info("Exception At create Table !!! ", e);
+			log.info("Exception At createTable !!! ");
 			TableProcess tableProcess = new TableProcess(tableName);
 			tableProcess.setTotalRows(0l);
 			tableProcess.setStatus(TableStatus.Table_Creation_Failed);
 			tableProcess.setReason(AuditMessage.Table_Creation_Failed_Msg + AuditMessage.Execption_Msg + e);
 			postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
+			
 		}
+		log.info("End createTable execution ...! ");
 		return tableMetaData;
 	}
 
 	public void processSyncInsert(String tableName) {
 		try {
 			TableMetaData tableMetaDataSource = new TableMetaData(tableName);
-			TableProcess tableProcessDestination = postgresDao.getTableMetaDataFromDestination(tableMetaDataSource);
+			TableProcess tableProcessDestination = postgresDao.getTableMetaDataFromDestination(tableName);
 			if (Objects.nonNull(tableProcessDestination)) {
 				List<SQLColumn> columns = null;
 				try {

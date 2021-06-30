@@ -30,8 +30,8 @@ public interface Constant {
 	
 	String P_LOG_INTO_TABLE_PROCESS = 
 			"INSERT INTO %s.all_table_process "
-		  + "(table_name,total_rows,max_rrn,status,reason,columns) "
-		  + "values (?,?,?,?,?,?)";
+		  + "(table_name,total_rows,min_rrn,max_rrn,status,reason,column_json,created_at) "
+		  + "values (?,?,?,?,?,?,?::JSON,?)";
 	
 	/*
 	 * String P_LOG_UPDATE_TABLE_PROCESS_METADATA =
@@ -40,7 +40,7 @@ public interface Constant {
 	 */
 	
 	String P_FETCH_FROM_TABLE_PROCESS = 
-			"SELECT * FROM %s.all_table_process where tablename='%s'";
+			"SELECT * FROM %s.all_table_process where all_table_process.table_name='%s'";
 	
 	String P_LOG_UPDATE_TABLE_PROCESS_STATUS = 
 			  "update %s.all_table_process set "
@@ -84,7 +84,9 @@ public interface Constant {
 			  + "       ,ending_rrn  "
 			  + "       ,columns "
 			  + "FROM %s.all_batch_details  "
-			  + "WHERE status = 'Failed_At_Source' or status = 'Failed_At_Destination' ; ";
+			  + "WHERE status = 'Failed_At_Source' or status = 'Failed_At_Destination' ";
+
+	
 
 	
 

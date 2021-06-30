@@ -1,5 +1,6 @@
 package com.as400datamigration.model;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 import com.as400datamigration.audit.TableStatus;
@@ -15,10 +16,13 @@ public class TableProcess {
 
 	String tableName;
 	Long totalRows;
-	Long MaxRrn;
+	Long minRrn;
+	Long maxRrn;
+	LocalDateTime createdAt;
 	TableStatus status;
-	String reason;
-	String columnsJson;
+	String reason="";
+	String columnJson;
+	
 
 	public TableProcess(String tableName) {
 		super();
@@ -36,10 +40,12 @@ public class TableProcess {
 		return new Object[] { 
 				this.tableName,
 				this.totalRows,
-				this.MaxRrn,
+				this.minRrn,
+				this.maxRrn,
 				this.status.toString(),
 				this.reason,
-				this.columnsJson
+				this.columnJson,
+				this.createdAt
 		};
 
 	}
@@ -54,7 +60,8 @@ public class TableProcess {
 				this.tableName };
 
 	}
-
+	
+	
 	public String getTableName() {
 		return tableName;
 	}
@@ -93,26 +100,43 @@ public class TableProcess {
 	
 
 	public Long getMaxRrn() {
-		return MaxRrn;
+		return this.maxRrn;
 	}
 
 	public void setMaxRrn(Long maxRrn) {
-		MaxRrn = maxRrn;
+		this.maxRrn = maxRrn;
 	}
 
 	public TableProcess(String tableName, TableStatus status , String reason) {
 		this.tableName = tableName;
 		this.status = status;
 		this.reason=reason;
+		this.createdAt=LocalDateTime.now();
 		
 	}
 
 	public String getColumnsJson() {
-		return columnsJson;
+		return columnJson;
 	}
 
 	public void setColumnsJson(String columnsJson) {
-		this.columnsJson = columnsJson;
+		this.columnJson = columnsJson;
+	}
+
+	public Long getMinRrn() {
+		return minRrn;
+	}
+
+	public void setMinRrn(Long minRrn) {
+		this.minRrn = minRrn;
+	}
+
+	public LocalDateTime getCreateAt() {
+		return createdAt;
+	}
+
+	public void setCreateAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
 	}
 
 }
