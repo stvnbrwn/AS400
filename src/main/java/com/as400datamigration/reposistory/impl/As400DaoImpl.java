@@ -17,6 +17,7 @@ import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableMetaData;
 import com.as400datamigration.model.TableProcess;
+import com.as400datamigration.model.TableProcessDetail;
 import com.as400datamigration.reposistory.As400Dao;
 import com.as400datamigration.reposistory.PostgresDao;
 import com.google.gson.Gson;
@@ -64,8 +65,8 @@ public class As400DaoImpl implements As400Dao {
 		} catch (Exception e) {
 			log.error("Exception at getTableDesc !!!", e);
 			if (atCreation) {
-				TableProcess tableProcess = new TableProcess(tableName,TableStatus.Table_Desc_Not_Found_At_Source,
-						AuditMessage.Table_Desc_Not_Found_At_Source_Msg + AuditMessage.Execption_Msg + e);
+				TableProcess tableProcess = new TableProcess(tableName,TableStatus.TABLE_DESC_NOT_FOUND_AT_SOURCE,
+						AuditMessage.TABLE_DESC_NOT_FOUND_AT_SOURCE_MSG + AuditMessage.EXECPTION_MSG + e);
 				postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
 			}
 			else
@@ -75,7 +76,7 @@ public class As400DaoImpl implements As400Dao {
 	}
 	
 	@Override
-	public List<SQLColumn> getTableDesc(TableMetaData tableMetaData) {
+	public List<SQLColumn> getTableDesc(TableMetaData tableMetaData,boolean isCreate) {
 		List<SQLColumn> columns = null;
 		try {
 			columns = as400Template.query(utility.fetchTableDesc(tableMetaData.getTableName()),
@@ -89,9 +90,18 @@ public class As400DaoImpl implements As400Dao {
 			
 		} catch (Exception e) {
 			log.error("Exception at getTableDesc !!!");
-				TableProcess tableProcess = new TableProcess(tableMetaData.getTableName(),TableStatus.Table_Desc_Not_Found_At_Source,
-						AuditMessage.Table_Desc_Not_Found_At_Source_Msg + AuditMessage.Execption_Msg + e);
-				postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
+			if(isCreate) {
+				postgresDao.saveIntoTableProcess(new TableProcess(tableMetaData.getTableName(),TableStatus.TABLE_DESC_NOT_FOUND_AT_SOURCE).getSaveObjArray());
+				postgresDao.saveIntoTableProcessDetail(new TableProcessDetail(tableMetaData.getTableName(), 
+						AuditMessage.TABLE_DESC_NOT_FOUND_AT_SOURCE_MSG + AuditMessage.EXECPTION_MSG + e).getSaveObjArray());
+			}
+			else {
+				postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),TableStatus.TABLE_DESC_NOT_FOUND_AT_SOURCE).getUpdateObjArray());
+				postgresDao.saveIntoTableProcessDetail(new TableProcessDetail(tableMetaData.getTableName(),
+						AuditMessage.SYNC_FAIL_AT_SOURCE_MSG +
+						AuditMessage.TABLE_DESC_NOT_FOUND_AT_SOURCE_MSG + AuditMessage.EXECPTION_MSG + e).getSaveObjArray());
+			}	
+				//change
 		}
 		return columns;
 	}
@@ -136,7 +146,7 @@ public class As400DaoImpl implements As400Dao {
 					tableMetaData.getMaxRrn());
 			tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(tableMetaData.getColumns()));
 
-			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.Ended_At_Source);
+			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.ENDED_AT_SOURCE);
 			tableMetaData.getBatchDetail().setEndedAtSource(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setBno(bno);
@@ -147,11 +157,11 @@ public class As400DaoImpl implements As400Dao {
 			if(bno==0)
 				throw e;
 			
-			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.Failed_At_Source);
+			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.FAILED_AT_SOURCE);
 			tableMetaData.getBatchDetail().setEndedAtSource(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setColumnsJson(tableMetaData.getTableProcess().getColumnsJson());
-			tableMetaData.getBatchDetail().setReason(AuditMessage.Execption_Msg + e);
+			tableMetaData.getBatchDetail().setReason(AuditMessage.EXECPTION_MSG + e);
 			       // if(bno!=0)// 0== throw
 			tableMetaData.getBatchDetail().setBno(bno); 
 			// zero in case of bno not found -> doubt we can not update on zero
@@ -182,9 +192,9 @@ public class As400DaoImpl implements As400Dao {
 			tableMetaData.getFailedBatchDetails().setBno(fbno);
 			
 		} catch (Exception e) {
-			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.Fail);
+			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.FAIL);
 			tableMetaData.getFailedBatchDetails().setEndedAt(LocalDateTime.now());
-			tableMetaData.getFailedBatchDetails().setReason(AuditMessage.Execption_Msg + e);
+			tableMetaData.getFailedBatchDetails().setReason(AuditMessage.EXECPTION_MSG + e);
 			if (fbno!=0) {  //doubt
 				tableMetaData.getFailedBatchDetails().setBno(fbno);
 			}
@@ -207,12 +217,19 @@ public class As400DaoImpl implements As400Dao {
 			tableProcess.setMaxRrn(tableMetaData.getMaxRrn());
 			tableMetaData.setTableProcess(tableProcess);
 		} catch (Exception e) {
+			log.info("Table not found at source..",e);
 			if (fromTableCreate) {
-				tableProcess = new TableProcess(tableName,TableStatus.Table_Not_Found_At_Source,
-						AuditMessage.Table_Not_Found_At_Source_Msg + AuditMessage.Execption_Msg + e);
-				postgresDao.saveIntoTableProcess(tableProcess.getSaveObjArray());
+				postgresDao.saveIntoTableProcess(new TableProcess(tableName,TableStatus.TABLE_NOT_FOUND_AT_SOURCE).getSaveObjArray());
+				postgresDao.saveIntoTableProcessDetail(new TableProcessDetail(tableName, 
+						AuditMessage.TABLE_NOT_FOUND_AT_SOURCE_MSG + AuditMessage.EXECPTION_MSG + e).getSaveObjArray());
 			}else {
-				throw e;
+				postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),
+						TableStatus.TABLE_NOT_FOUND_AT_SOURCE).getUpdateObjArray());
+				postgresDao.saveIntoTableProcessDetail(new TableProcessDetail(tableName,
+						AuditMessage.SYNC_FAIL_AT_SOURCE_MSG + 
+						AuditMessage.TABLE_NOT_FOUND_AT_SOURCE_MSG + AuditMessage.EXECPTION_MSG + e).getSaveObjArray());
+				
+				//throw e;
 			}
 			
 		}

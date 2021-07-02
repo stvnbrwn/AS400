@@ -19,17 +19,12 @@ public interface As400Dao {
 	// 4)TEST
 	public List<Object[]> fetchFirst5RecordsFromTable(String tableName, List<SQLColumn> columns);
 
-	/*
-	 * public List<Object[]> performReadOprationOnTable(String tableName, long
-	 * MinRrn, long Offset, List<SQLColumn> columns);
-	 */
-
 	public TableMetaData getTableMetaData(String tableName,boolean fromTableCreate);
 
 	public List<Object[]> readOprationOnTable(TableMetaData tableMetaData);
 
 	public List<Object[]> readOprationOnFailedBatch(TableMetaData tableMetaData);
 
-	public List<SQLColumn> getTableDesc(TableMetaData tableMetaData);
+	public List<SQLColumn> getTableDesc(TableMetaData tableMetaData,boolean isCreate);
 
 }

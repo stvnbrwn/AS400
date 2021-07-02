@@ -2,17 +2,14 @@ package com.as400datamigration.audit;
 
 public enum BatchDetailStatus {
 	
-	Started_At_Source,
-	Failed_At_Source,
-	Ended_At_Source,
+	STARTED_AT_SOURCE,
+	FAILED_AT_SOURCE,
+	ENDED_AT_SOURCE,
 	
-	Started_At_Destination,
-	Failed_At_Destination,
-	Ended_At_Destination,
+	STARTED_AT_DESTINATION,
+	FAILED_AT_DESTINATION,
+	ENDED_AT_DESTINATION,
 	
-	Batch_Refactored
+	BATCH_REFACTORED
 	
-	/*
-	 * RUNNING, COMPLETED, FAILED
-	 */
 }

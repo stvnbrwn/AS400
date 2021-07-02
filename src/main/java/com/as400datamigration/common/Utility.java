@@ -1,12 +1,17 @@
 package com.as400datamigration.common;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -84,7 +89,7 @@ public class Utility {
 				return "bigInt";
 
 			default:
-				throw new Exception(sqlColumn.getColumnType());
+				return "VARCHAR";
 
 			}
 		} catch (Exception e) {
@@ -121,11 +126,6 @@ public class Utility {
 	public String getInsertIntoTableProcess() {
 		return String.format(Constant.P_LOG_INTO_TABLE_PROCESS, auditSchema);
 	}
-	
-	/*
-	 * public String getUpdateTableProcessMetaData() { return
-	 * String.format(Constant.P_LOG_UPDATE_TABLE_PROCESS_METADATA, schema); }
-	 */
 	
 	public String getUpdateTableProcessStatus() {
 		return String.format(Constant.P_LOG_UPDATE_TABLE_PROCESS_STATUS, auditSchema);
@@ -184,6 +184,42 @@ public class Utility {
 		InputStream in = getClass().getResourceAsStream(helpManuFilePath);
         Stream<String> lines = new BufferedReader(new InputStreamReader(in)).lines();
         lines.forEach(System.out::println);
+	}
+
+	/**
+	 * @return Query String which Insert data Into all_table_process_details
+	 */
+	public String getInsertIntoTableProcessDetail() {
+		return String.format(Constant.P_LOG_INSERT_INTO_ALL_TABLE_PROCESS_DETAILS, auditSchema);
+	}
+
+	/**
+	 * @return Query String which update all detail ( total_row, min_rrn, max_rrn, status, column_json )
+	 */
+	public String updateTableDeatil() {
+		return String.format(Constant.P_LOG_UPDATE_ALL_TABLE_PROCESS, auditSchema);
+	}
+
+	/**
+	 * @param tableName
+	 * @return Query String which fetch last batch detail from all_batch_details table
+	 */
+	public String getlastBatchDetails(String tableName) {
+		return String.format(Constant.P_FETCH_LAST_BATCH_FROM_BATCH_DETAIL, auditSchema, tableName);
+	}
+
+	/**
+	 * @param filePath
+	 * @throws IOException 
+	 */
+	public List<String> getInputFileData(String filePath) throws IOException {
+		FileReader fr = new FileReader(new File(filePath));
+        BufferedReader bf= new BufferedReader(fr);
+        Stream<String> lines = bf.lines();
+        List<String> tableList = lines.filter(p->!p.isEmpty()).map(table->table.trim()).collect(Collectors.toList());
+        fr.close();
+        bf.close();
+		return tableList;
 	}
 
 	

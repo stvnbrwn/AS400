@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
@@ -55,7 +53,8 @@ public class PostgresDaoImpl implements PostgresDao {
 		try {
 			postgresTemplate.update(utility.getUpdateTableProcessStatus(), allTableProcess);
 		} catch (Exception e) {
-			log.error(AuditMessage.Execption_Msg + "updateTableProcessStatus", e);
+			log.error(AuditMessage.EXECPTION_MSG + "updateTableProcessStatus", e);
+			
 		}
 
 	}
@@ -90,14 +89,14 @@ public class PostgresDaoImpl implements PostgresDao {
 		try {
 			log.info("Batch insert start :-" + "batch size : " + tableDataList.size() + " " + LocalDateTime.now());
 
-			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.Started_At_Destination);
+			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.STARTED_AT_DESTINATION);
 			tableMetaData.getBatchDetail().setStartedAtDestination(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray());
 
 			postgresTemplate.batchUpdate(tableMetaData.getPostgresQueries().getInsertTable(), tableDataList);
 
-			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.Ended_At_Destination);
+			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.ENDED_AT_DESTINATION);
 			tableMetaData.getBatchDetail().setEndedAtDestination(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray());
@@ -105,11 +104,11 @@ public class PostgresDaoImpl implements PostgresDao {
 			log.info("Batch insert end   :-" + "batch size : " + tableDataList.size() + " " + LocalDateTime.now());
 		} catch (Exception e) {
 			log.error("Batch insert fail !!!", e);
-			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.Failed_At_Destination);
+			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.FAILED_AT_DESTINATION);
 			tableMetaData.getBatchDetail().setEndedAtDestination(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setColumnsJson(tableMetaData.getTableProcess().getColumnsJson());
-			tableMetaData.getBatchDetail().setReason(AuditMessage.Execption_Msg + e);
+			tableMetaData.getBatchDetail().setReason(AuditMessage.EXECPTION_MSG + e);
 			updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
 
 			// pending
@@ -129,31 +128,17 @@ public class PostgresDaoImpl implements PostgresDao {
 			postgresTemplate.update(utility.getPrepareStatement(utility.getInsertIntoBatchDetail(), allBatchDetails, 
 					new String[] {"bno"}), keyHolder);
 		} catch (Exception e) {
-			log.error(AuditMessage.Execption_Msg + "saveBatchDetail", e);
+			log.error(AuditMessage.EXECPTION_MSG + "saveBatchDetail", e);
 		}
 		return keyHolder.getKey().longValue();
 	}
 	
-	
-	
-	@Override
-	public long saveBatchDetail_t(BatchDetail batchDetail) {
-		KeyHolder keyHolder = new GeneratedKeyHolder();
-		try {
-			 SqlParameterSource data = new BeanPropertySqlParameterSource(batchDetail);
-			postgresTemplate.update(utility.getInsertIntoBatchDetail(), data,keyHolder);
-		} catch (Exception e) {
-			log.error(AuditMessage.Execption_Msg + "saveBatchDetail", e);
-		}
-		return keyHolder.getKey().longValue();
-	}
-
 	@Override
 	public void updateBatchDetail(Object[] allBatchDetails) {
 		try {
 			postgresTemplate.update(utility.getUpdateBatchDetail(), allBatchDetails);
 		} catch (Exception e) {
-			log.error(AuditMessage.Execption_Msg + "updateBatchDetail", e);
+			log.error(AuditMessage.EXECPTION_MSG + "updateBatchDetail", e);
 		}
 
 	}
@@ -166,7 +151,7 @@ public class PostgresDaoImpl implements PostgresDao {
 					new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
 			 //constructor
 		} catch (Exception e) {
-			log.error(AuditMessage.Execption_Msg + "updateBatchDetail", e);
+			log.error(AuditMessage.EXECPTION_MSG + "updateBatchDetail", e);
 		}
 		return batchDetails;
 	}
@@ -177,7 +162,7 @@ public class PostgresDaoImpl implements PostgresDao {
 		try {
 			postgresTemplate.update(utility.getInsertIntoFailedBatch(), saveObjArray, keyHolder);
 		} catch (Exception e) {
-			log.error(AuditMessage.Execption_Msg + "saveBatchDetail", e);
+			log.error(AuditMessage.EXECPTION_MSG + "saveBatchDetail", e);
 		}
 		return keyHolder.getKey().longValue();
 	}
@@ -187,7 +172,7 @@ public class PostgresDaoImpl implements PostgresDao {
 		try {
 			postgresTemplate.update(utility.getUpdateFailedBatchDetail(), UpdateObjArray);
 		} catch (Exception e) {
-			log.error(AuditMessage.Execption_Msg + "updateBatchDetail", e);
+			log.error(AuditMessage.EXECPTION_MSG + "updateBatchDetail", e);
 		}
 
 	}
@@ -199,15 +184,15 @@ public class PostgresDaoImpl implements PostgresDao {
 
 			postgresTemplate.batchUpdate(tableMetaData.getPostgresQueries().getInsertTable(), tableDataList);
 
-			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.Pass);
+			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.PASS);
 			tableMetaData.getFailedBatchDetails().setEndedAt(LocalDateTime.now());
 			updateFailedBatchDetail(tableMetaData.getFailedBatchDetails().getUpdateObjArray());
 			log.info("Batch writeOpraionFailedBatch end   :-" + "batch size : " + tableDataList.size() + " " + LocalDateTime.now());
 		} catch (Exception e) {
 			log.error("Batch insert fail !!!", e);
-			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.Fail);
+			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.FAIL);
 			tableMetaData.getFailedBatchDetails().setEndedAt(LocalDateTime.now());
-			tableMetaData.getFailedBatchDetails().setReason(AuditMessage.Execption_Msg + e);
+			tableMetaData.getFailedBatchDetails().setReason(AuditMessage.EXECPTION_MSG + e);
 			updateFailedBatchDetail(tableMetaData.getFailedBatchDetails().getUpdateObjArray());
 
 			// pending
@@ -219,7 +204,7 @@ public class PostgresDaoImpl implements PostgresDao {
 	}
 
 	@Override
-	public TableProcess getTableMetaDataFromDestination(String tableName) {
+	public TableProcess getTableMetaData(String tableName) {
 		TableProcess tableProcess=null;
 		try {
 			tableProcess = (TableProcess) postgresTemplate.queryForObject(
@@ -227,6 +212,7 @@ public class PostgresDaoImpl implements PostgresDao {
 					new BeanPropertyRowMapper<TableProcess>(TableProcess.class));
 		} catch (Exception e) {
 			log.error("Connection error at Destination, or table not found ");
+			throw e;
 		}
 		return tableProcess;
 	}
@@ -236,13 +222,23 @@ public class PostgresDaoImpl implements PostgresDao {
 		BatchDetail batchDetail = null;
 		try {
 			batchDetail=(BatchDetail) postgresTemplate.queryForObject(
-					utility.getTableProcessMetaData(tableName),
+					utility.getlastBatchDetails(tableName),
 					new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
 		} catch (Exception e) {
-			log.error("Connection error at Destination, or table batch details not found ",e);
+			log.error("Connection error at Destination, or last batch details not found ",e);
 		}
 		
 		return batchDetail;
+	}
+
+	@Override
+	public void saveIntoTableProcessDetail(Object[] saveObjArray) {
+		postgresTemplate.update(utility.getInsertIntoTableProcessDetail(), saveObjArray);
+	}
+
+	@Override
+	public void updateTableDeatil(Object[] tableDetailsObjArray) {
+		postgresTemplate.update(utility.updateTableDeatil(), tableDetailsObjArray);
 	}
 
 	

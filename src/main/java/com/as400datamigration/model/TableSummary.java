@@ -1,7 +1,6 @@
 package com.as400datamigration.model;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import com.as400datamigration.audit.TestOutPutStatus;
 

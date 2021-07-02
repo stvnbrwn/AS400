@@ -19,6 +19,5 @@ public class SQLColumn {
 	int columnSize;
 	int scale;
 	String columnHeading;
-	
 
 }

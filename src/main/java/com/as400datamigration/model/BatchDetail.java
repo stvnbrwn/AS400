@@ -47,7 +47,7 @@ public class BatchDetail {
 		this.startingRrn = tableMetaData.getMinRrn();
 		this.endingRrn = tableMetaData.getMaxRrn();
 		this.startedAtSource = LocalDateTime.now();
-		this.status = BatchDetailStatus.Started_At_Source;
+		this.status = BatchDetailStatus.STARTED_AT_SOURCE;
 		this.modifiedAt = LocalDateTime.now();
 		
 	}
@@ -60,7 +60,7 @@ public class BatchDetail {
 				this.endingRrn,           
 				this.startedAtSource     ,
 				this.startedAtDestination,
-				this.status.toString()              ,
+				this.status.toString()  ,
 				this.endedAtSource       ,
 				this.endedAtDestination ,	
 				this.modifiedAt 		,
@@ -72,7 +72,7 @@ public class BatchDetail {
 		return new Object[] {
 			//update	
 				this.startedAtDestination,
-				this.status.toString()              ,
+				this.status.toString()   ,
 				this.endedAtSource       ,
 				this.endedAtDestination ,	
 				this.modifiedAt 		,
@@ -82,10 +82,5 @@ public class BatchDetail {
 				this.bno,     				  
 			};
 	}
-
 	
-
-	
-
-		
 }

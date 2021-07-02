@@ -9,49 +9,49 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class TableMetaData {
-	
-	
+
 	Long totalRows;
 	Long minRrn;
 	Long maxRrn;
-	String tableName="";
+	String tableName = "";
 	List<SQLColumn> columns;
-	PostgresQueries postgresQueries ;
-	
+	PostgresQueries postgresQueries;
+
 	TableProcess tableProcess;
 	BatchDetail batchDetail;
 	FailedBatchDetails failedBatchDetails;
-	
+
 	public TableMetaData(String tableName) {
 		this.tableName = tableName;
 	}
-	
+
 	public TableMetaData(Long totalRows, Long minRrn, Long maxRrn) {
 		super();
 		this.totalRows = totalRows;
 		this.minRrn = minRrn;
 		this.maxRrn = maxRrn;
-		
+
 	}
-	
-	public TableMetaData(String tableName, long startingRrn, long endingRrn, List<SQLColumn> columns,FailedBatchDetails failedBatchDetails) {
+
+	public TableMetaData(String tableName, long startingRrn, long endingRrn, List<SQLColumn> columns,
+			FailedBatchDetails failedBatchDetails) {
 		super();
 		this.tableName = tableName;
 		this.minRrn = startingRrn;
 		this.maxRrn = startingRrn;
-		this.columns=columns;
-		this.failedBatchDetails= failedBatchDetails;
+		this.columns = columns;
+		this.failedBatchDetails = failedBatchDetails;
 	}
-
-
-	
 
 	public Long getTotalRows() {
 		return totalRows;
 	}
 
 	public void setTotalRows(Long totalRows) {
-		this.totalRows = totalRows;
+		if (Objects.isNull(totalRows))
+			this.totalRows = 0l;
+		else
+			this.totalRows = totalRows;
 	}
 
 	public Long getMinRrn() {
@@ -59,8 +59,8 @@ public class TableMetaData {
 	}
 
 	public void setMinRrn(Long minRrn) {
-		if(Objects.isNull(minRrn))
-			this.minRrn =0l;
+		if (Objects.isNull(minRrn))
+			this.minRrn = 0l;
 		else
 			this.minRrn = minRrn;
 	}
@@ -70,8 +70,8 @@ public class TableMetaData {
 	}
 
 	public void setMaxRrn(Long maxRrn) {
-		if(Objects.isNull(maxRrn))
-			this.maxRrn =0l;
+		if (Objects.isNull(maxRrn))
+			this.maxRrn = 0l;
 		else
 			this.maxRrn = maxRrn;
 	}
@@ -124,12 +124,4 @@ public class TableMetaData {
 		this.tableProcess = tableProcess;
 	}
 
-	
-
-	
-
-
-	
-	
-	
 }

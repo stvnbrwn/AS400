@@ -1,6 +1,5 @@
 package com.as400datamigration.reposistory.impl;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -70,13 +69,8 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 			case "INTEGER": // B //only zero 4 digit
 				return rs.getInt(ColumnName);
 
-			/*
-			 * case "DECIMAL": // P -> decimal // scale > 0 // vikas sir scale=6 or 2 //
-			 * only 4 fields return rs.getBigDecimal(ColumnName);
-			 */
-
 			default:
-				throw new Exception(columnType);
+				return rs.getString(ColumnName);
 
 			}
 		} catch (Exception e) {

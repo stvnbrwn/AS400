@@ -31,13 +31,20 @@ public interface PostgresDao {
 
 	public void writeOpraionFailedBatch(TableMetaData tableMetaData, List<Object[]> tableData);
 
-	/* public void updateTableProcessMetaData(Object[] updateObjArray); */
-
-	public TableProcess getTableMetaDataFromDestination(String tableName);
-
-	long saveBatchDetail_t(BatchDetail batchDetail);
+	public TableProcess getTableMetaData(String tableName);
 
 	public BatchDetail getlastBatchDetails(String tableName);
 
+	/**
+	 * @param TableProcessDetail's ObjArray
+	 */
+	public void saveIntoTableProcessDetail(Object[] saveObjArray);
+
+	/**
+	 * @param tableDetailsObjArray
+	 */
+	public void updateTableDeatil(Object[] tableDetailsObjArray);
+
+	
 
 }

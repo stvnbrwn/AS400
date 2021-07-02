@@ -1,7 +1,6 @@
 package com.as400datamigration.model;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 import com.as400datamigration.audit.TableStatus;
 
@@ -20,10 +19,9 @@ public class TableProcess {
 	Long maxRrn;
 	LocalDateTime createdAt;
 	TableStatus status;
-	String reason="";
 	String columnJson;
 	
-
+	
 	public TableProcess(String tableName) {
 		super();
 		this.tableName = tableName;
@@ -34,6 +32,12 @@ public class TableProcess {
 		this.tableName = tableName;
 		this.status = status;
 	}
+	
+	public TableProcess(String tableName, TableStatus status , String reason) {
+		this.tableName = tableName;
+		this.status = status;
+		this.createdAt=LocalDateTime.now();
+	}
 
 	public Object[] getSaveObjArray() {
 
@@ -43,19 +47,36 @@ public class TableProcess {
 				this.minRrn,
 				this.maxRrn,
 				this.status.toString(),
-				this.reason,
 				this.columnJson,
-				this.createdAt
+				this.createdAt=LocalDateTime.now()
 		};
 
 	}
 	
+	/**
+	 * @return object array which we can use for update all details in all_table_process
+	 */
+	public Object[] getTableDetailsObjArray() {
+		return new Object[] { 
+				//update
+				this.totalRows,
+				this.minRrn,
+				this.maxRrn,
+				this.status.toString(),
+				this.columnJson,
+				//where
+				this.tableName
+		};
+	}
+	
+	/**
+	 * @return object array which we can use for update status in all_table_process
+	 */
 	public Object[] getUpdateObjArray() {
 
 		return new Object[] { 
 				//update
 				this.status.toString(),
-				this.reason,
 				//where
 				this.tableName };
 
@@ -86,18 +107,6 @@ public class TableProcess {
 		this.status = status;
 	}
 
-	public String getReason() {
-		return reason;
-	}
-
-	public void setReason(String reason) {
-		if (Objects.isNull(reason)) {
-			reason = "";
-		}
-		this.reason = reason;
-	}
-
-	
 
 	public Long getMaxRrn() {
 		return this.maxRrn;
@@ -105,14 +114,6 @@ public class TableProcess {
 
 	public void setMaxRrn(Long maxRrn) {
 		this.maxRrn = maxRrn;
-	}
-
-	public TableProcess(String tableName, TableStatus status , String reason) {
-		this.tableName = tableName;
-		this.status = status;
-		this.reason=reason;
-		this.createdAt=LocalDateTime.now();
-		
 	}
 
 	public String getColumnsJson() {
@@ -138,5 +139,23 @@ public class TableProcess {
 	public void setCreateAt(LocalDateTime createdAt) {
 		this.createdAt = createdAt;
 	}
+
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getColumnJson() {
+		return columnJson;
+	}
+
+	public void setColumnJson(String columnJson) {
+		this.columnJson = columnJson;
+	}
+
+	
 
 }

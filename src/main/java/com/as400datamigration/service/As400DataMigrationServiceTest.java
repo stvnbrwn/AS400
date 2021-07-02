@@ -87,25 +87,25 @@ public class As400DataMigrationServiceTest {
 		TableSummary tableSummary = new TableSummary(tableName);
 		//List<String> summeryList = new ArrayList<String>();
 
-		TableProcess tableProcessdata = postgresDao.getTableMetaDataFromDestination(tableName);
+		TableProcess tableProcessdata = postgresDao.getTableMetaData(tableName);
 		if (Objects.nonNull(tableProcessdata)) {
-			if (tableProcessdata.getStatus().equals(TableStatus.Table_Not_Found_At_Source)) {
+			if (tableProcessdata.getStatus().equals(TableStatus.TABLE_NOT_FOUND_AT_SOURCE)) {
 				tableSummary.setSummary("Table was Not Found At Source.");
 				tableSummary.setTestOutPutStatus(TestOutPutStatus.FAIL);
-			} else if (tableProcessdata.getStatus().equals(TableStatus.Table_Desc_Not_Found_At_Source)) {
+			} else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_DESC_NOT_FOUND_AT_SOURCE)) {
 				tableSummary.setSummary("Table's Columns Details Are Not Found At Source.");
 				tableSummary.setTestOutPutStatus(TestOutPutStatus.FAIL);
-			} else if (tableProcessdata.getStatus().equals(TableStatus.Table_Creation_Failed)) {
+			} else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_CREATION_FAILED)) {
 				tableSummary.setSummary("Table Creation Failed,  Table was performed previously "
-						+ "but batch processing was not started." + "for more details : -" + tableProcessdata.getReason());
+						+ "but batch processing was not started." + "for more details please check all_table_process_details");
 				tableSummary.setTestOutPutStatus(TestOutPutStatus.FAIL);
-			}else if (tableProcessdata.getStatus().equals(TableStatus.Table_Created_And_InRunning)) {
+			}else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_CREATED_AND_IN_RUNNING)) {
 				tableSummary.setSummary("Table Created And Start Performming But Data Is Not Completely Migrated. batch fail !!!");
 				tableSummary.setTestOutPutStatus(TestOutPutStatus.FAIL);
-			}else if (tableProcessdata.getStatus().equals(TableStatus.Table_Created_With_NO_Data)) {
+			}else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_CREATED_WITH_NO_DATA)) {
 				tableSummary.setSummary("Table Created With NO Data.");
 				tableSummary.setTestOutPutStatus(TestOutPutStatus.PASS);
-			} else if (tableProcessdata.getStatus().equals(TableStatus.Table_Created_And_AllBatchCompleted)) {
+			} else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_CREATED_AND_ALL_BATCH_COMPLETED)) {
 				tableSummary.setSummary("Table Created And All Batch Completed");
 				tableSummary.setTestOutPutStatus(TestOutPutStatus.PASS);
 			}

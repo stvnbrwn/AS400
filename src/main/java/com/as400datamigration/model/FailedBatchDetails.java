@@ -26,7 +26,7 @@ public class FailedBatchDetails {
 		  
 		  	this.bno = bno;
 			this.startedAt = LocalDateTime.now();
-			this.status = FailBatchStatus.Attempt;
+			this.status = FailBatchStatus.ATTEMPT;
 			
 		}
 

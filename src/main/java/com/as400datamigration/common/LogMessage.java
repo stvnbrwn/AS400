@@ -18,7 +18,7 @@ public interface LogMessage {
 
 	String FINISH_PROCESS_MSG = "Process finish. Press any key to end...";
 
-	String APPLICATION_TSTING_MSG = "*** TESTING MODULE STARTS ***";
+	String APPLICATION_TESTING_MSG = "*** TESTING MODULE STARTS ***";
 
 	String RETRY_MSG = "Retry with Specified Input.";
 
