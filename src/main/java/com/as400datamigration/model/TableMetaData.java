@@ -32,6 +32,16 @@ public class TableMetaData {
 		this.maxRrn = maxRrn;
 
 	}
+	
+	public TableMetaData(String tableName,Long totalRows, Long minRrn, Long maxRrn,List<SQLColumn> columns) {
+		super();
+		this.tableName = tableName;
+		this.totalRows = totalRows;
+		this.minRrn = minRrn;
+		this.maxRrn = maxRrn;
+		this.columns=columns;
+
+	}
 
 	public TableMetaData(String tableName, long startingRrn, long endingRrn, List<SQLColumn> columns,
 			FailedBatchDetails failedBatchDetails) {

@@ -199,6 +199,13 @@ public class Utility {
 	public String updateTableDeatil() {
 		return String.format(Constant.P_LOG_UPDATE_ALL_TABLE_PROCESS, auditSchema);
 	}
+	
+	/**
+	 * @return Query String which update all detail ( total_row, min_rrn, max_rrn, status, column_json )
+	 */
+	public String updateTableDeatilWithoutCoulmns() {
+		return String.format(Constant.P_LOG_UPDATE_ALL_TABLE_PROCESS_WITHOUT_COLUMNS, auditSchema);
+	}
 
 	/**
 	 * @param tableName

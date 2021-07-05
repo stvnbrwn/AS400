@@ -2,6 +2,7 @@ package com.as400datamigration.reposistory.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -93,7 +94,10 @@ public class PostgresDaoImpl implements PostgresDao {
 			tableMetaData.getBatchDetail().setStartedAtDestination(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray());
-
+			
+			if( Objects.isNull(tableMetaData.getPostgresQueries()) || Objects.isNull(tableMetaData.getPostgresQueries().getInsertTable()))
+				tableMetaData.setPostgresQueries(utility.getPostgresQueries(tableMetaData));
+				
 			postgresTemplate.batchUpdate(tableMetaData.getPostgresQueries().getInsertTable(), tableDataList);
 
 			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.ENDED_AT_DESTINATION);
@@ -211,7 +215,7 @@ public class PostgresDaoImpl implements PostgresDao {
 					utility.getTableProcessMetaData(tableName),
 					new BeanPropertyRowMapper<TableProcess>(TableProcess.class));
 		} catch (Exception e) {
-			log.error("Connection error at Destination, or table not found ");
+			log.error("Connection error at Destination, or table not found " + tableName);
 			throw e;
 		}
 		return tableProcess;
@@ -237,8 +241,12 @@ public class PostgresDaoImpl implements PostgresDao {
 	}
 
 	@Override
-	public void updateTableDeatil(Object[] tableDetailsObjArray) {
-		postgresTemplate.update(utility.updateTableDeatil(), tableDetailsObjArray);
+	public void updateTableDeatil(Object[] tableDetailsObjArray, boolean withCoulmns) {
+		
+		if(withCoulmns)
+			postgresTemplate.update(utility.updateTableDeatil(), tableDetailsObjArray);
+		else
+			postgresTemplate.update(utility.updateTableDeatilWithoutCoulmns(), tableDetailsObjArray);
 	}
 
 	

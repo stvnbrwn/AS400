@@ -223,7 +223,7 @@ public class As400DaoImpl implements As400Dao {
 				postgresDao.saveIntoTableProcessDetail(new TableProcessDetail(tableName, 
 						AuditMessage.TABLE_NOT_FOUND_AT_SOURCE_MSG + AuditMessage.EXECPTION_MSG + e).getSaveObjArray());
 			}else {
-				postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),
+				postgresDao.updateTableProcessStatus(new TableProcess(tableName,
 						TableStatus.TABLE_NOT_FOUND_AT_SOURCE).getUpdateObjArray());
 				postgresDao.saveIntoTableProcessDetail(new TableProcessDetail(tableName,
 						AuditMessage.SYNC_FAIL_AT_SOURCE_MSG + 

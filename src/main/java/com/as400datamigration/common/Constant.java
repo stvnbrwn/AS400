@@ -32,7 +32,7 @@ public interface Constant {
 	
 	
 	String P_LOG_UPDATE_ALL_TABLE_PROCESS = "update %s.all_table_process set "
-			+ "total_row = ?, "
+			+ "total_rows = ?, "
 			+ "min_rrn=?, "
 			+ "max_rrn= ?, "
 			+ "status=?, "
@@ -65,7 +65,7 @@ public interface Constant {
 	
 	String P_FETCH_LAST_BATCH_FROM_BATCH_DETAIL = 
 			"select * from %s.all_batch_details "
-			+ "where all_batch_details.table_name= '%s' order by minRrn desc limit 1";
+			+ "where all_batch_details.table_name= '%s' order by starting_rrn desc limit 1";
 	 
 	String P_LOG_INTO_FAILED_BATCH_DETAILS=
 			  "INSERT INTO %s.failed_batch_details "
@@ -93,6 +93,13 @@ public interface Constant {
 			"INSERT INTO %s.all_table_process_details "
 					  + "(table_name,reason) "
 					  + "values (?,?)";
+
+	String P_LOG_UPDATE_ALL_TABLE_PROCESS_WITHOUT_COLUMNS =  "update %s.all_table_process set "
+			+ "total_rows = ?, "
+			+ "min_rrn=?, "
+			+ "max_rrn= ?, "
+			+ "status=? "
+			+ "where table_name=?";
 
 
 }

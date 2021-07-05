@@ -56,7 +56,7 @@ public class TableProcess {
 	/**
 	 * @return object array which we can use for update all details in all_table_process
 	 */
-	public Object[] getTableDetailsObjArray() {
+	public Object[] getTableDetailsWithColumnsObjArray() {
 		return new Object[] { 
 				//update
 				this.totalRows,
@@ -68,6 +68,23 @@ public class TableProcess {
 				this.tableName
 		};
 	}
+	
+	/**
+	 * @return object array which we can use for update all details without columns in all_table_process
+	 */
+	public Object[] getTableDetailsWithoutColumnsObjArray() {
+		return new Object[] { 
+				//update
+				this.totalRows,
+				this.minRrn,
+				this.maxRrn,
+				this.status.toString(),
+				//where
+				this.tableName
+		};
+	}
+	
+	
 	
 	/**
 	 * @return object array which we can use for update status in all_table_process

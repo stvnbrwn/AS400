@@ -13,6 +13,7 @@ com\as400datamigration\reposistory\impl\PostgresDaoImpl.class
 com\as400datamigration\service\As400DataMigrationService.class
 com\as400datamigration\As400DataMigrationApplication.class
 com\as400datamigration\runner\TableThread.class
+com\as400datamigration\model\TableProcessDetail.class
 com\as400datamigration\model\TableProcess.class
 com\as400datamigration\service\As400DataMigrationService$1.class
 com\as400datamigration\audit\AuditMessage.class
@@ -27,6 +28,7 @@ com\as400datamigration\common\Utility$1.class
 com\as400datamigration\runner\As400DataMigrationRunner.class
 com\as400datamigration\common\Constant.class
 com\as400datamigration\model\TableMetaData.class
+com\as400datamigration\audit\ProgramOption.class
 com\as400datamigration\common\Utility.class
 com\as400datamigration\model\TableSummary.class
 com\as400datamigration\reposistory\As400Dao.class

@@ -42,9 +42,9 @@ public interface PostgresDao {
 
 	/**
 	 * @param tableDetailsObjArray
+	 * @param withCoulmns
 	 */
-	public void updateTableDeatil(Object[] tableDetailsObjArray);
+	public void updateTableDeatil(Object[] tableDetailsObjArray,boolean withCoulmns);
 
 	
-
 }
