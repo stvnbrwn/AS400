@@ -1,7 +1,6 @@
 package com.as400datamigration.service;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.as400datamigration.audit.AuditMessage;
+import com.as400datamigration.audit.BatchDetailStatus;
 import com.as400datamigration.audit.TableStatus;
 import com.as400datamigration.common.LogMessage;
 import com.as400datamigration.common.Utility;
@@ -35,9 +35,13 @@ public class As400DataMigrationService {
 
 	@Value("${batch.size}")
 	private int batchSize;
+	
+	@Value("${max.attempt}")
+	private int maxAttempt;
 
 	@Autowired
 	Utility utility;
+	
 
 	@Autowired
 	As400Dao as400Dao;
@@ -82,19 +86,7 @@ public class As400DataMigrationService {
 		log.info("start performReadWriteOnTable execution ..!");
 		if (tableMetaData.getTotalRows() > 0) {
 			long maxRrn = tableMetaData.getMaxRrn();
-			/*
-			 * long totalBatch = maxRrn / batchSize; if (maxRrn % batchSize > 0)
-			 * totalBatch++; long startFrom=tableMetaData.getMinRrn()/batchSize;
-			 * if(tableMetaData.getMinRrn()%batchSize>0) startFrom++; for (long i =
-			 * startFrom; i < totalBatch -startFrom - 1; i++) {
-			 * tableMetaData.setMaxRrn(tableMetaData.getMinRrn() + batchSize - 1);
-			 * allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
-			 * tableMetaData.setMinRrn(tableMetaData.getMinRrn() + batchSize); }
-			 * tableMetaData.setMinRrn(tableMetaData.getMinRrn() - batchSize);
-			 * tableMetaData.setMaxRrn(maxRrn); allBatchInsert =
-			 * batchOpration(tableMetaData, allBatchInsert);
-			 */
-
+			
 			while (tableMetaData.getMinRrn() <= maxRrn) {
 				tableMetaData.setMaxRrn(tableMetaData.getMinRrn() + batchSize - 1);
 				if(tableMetaData.getMaxRrn()>=maxRrn)
@@ -109,7 +101,6 @@ public class As400DataMigrationService {
 				allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
  
 		}
-		// System.out.println("stop !!!");
 		log.info("End performReadWriteOnTable execution ..!");
 		return allBatchInsert;
 	}
@@ -225,8 +216,7 @@ public class As400DataMigrationService {
 									postgresDao.updateTableDeatil(tableMetaDataSource.getTableProcess().getTableDetailsWithoutColumnsObjArray(),
 											false);
 								}
-								
-								
+							
 							}
 						}
 					}
@@ -271,25 +261,48 @@ public class As400DataMigrationService {
 		}
 	}
 
-	public void processFailedBatches(BatchDetail batch) {
-		List<Object[]> tableData = null;
-
-		List<SQLColumn> columns = null;
+	public Boolean processFailedBatches(List<BatchDetail> tableFailedBatchList) {
+		Boolean allBatchProcess = true;
 		try {
-			columns = new ObjectMapper().readValue(batch.getColumnsJson(), new TypeReference<List<SQLColumn>>() {
-			});
-			TableMetaData tableMetaData = new TableMetaData(batch.getTableName(), batch.getStartingRrn(),
-					batch.getEndingRrn(), columns, new FailedBatchDetails(batch.getBno()));
-
-			tableData = as400Dao.readOprationOnFailedBatch(tableMetaData);
-			if (Objects.nonNull(tableData)) {
-				postgresDao.writeOpraionFailedBatch(tableMetaData, tableData);
+			for (BatchDetail batch : tableFailedBatchList) {
+				int curAttempt = 0;
+				try {
+					curAttempt = postgresDao.getFailedBatchAttempt(batch);
+				} catch (Exception e) {
+					throw e;
+				}
+				if (maxAttempt > curAttempt) {
+					if (Objects.nonNull(batch) && Objects.nonNull(batch.getColumnJson())) {
+						List<SQLColumn> columns = null;
+						try {
+							columns = new ObjectMapper().readValue(batch.getColumnJson(),
+									new TypeReference<List<SQLColumn>>() {
+									});
+						} catch (IOException e) {
+							log.error(AuditMessage.EXECPTION_MSG + " Columns Prasing Performed ", e);
+							throw e;
+						}
+						TableMetaData tableMetaData = new TableMetaData(batch.getTableName(), batch.getStartingRrn(),
+								batch.getEndingRrn(), columns, new FailedBatchDetails(batch.getBno()));
+						List<Object[]> tableData = as400Dao.readOprationOnFailedBatch(tableMetaData);
+						if (Objects.nonNull(tableData)) {
+							boolean dataInsert = postgresDao.writeOpraionFailedBatch(tableMetaData, tableData);
+							if (dataInsert)
+								postgresDao.updateBatchDetailStatus(
+										new BatchDetail(batch.getBno(),BatchDetailStatus.REFACTORED).getUpdateStatusObjArry());
+							allBatchProcess = allBatchProcess && dataInsert;
+						}
+					}
+				}
+				else {
+					postgresDao.updateBatchDetailStatus(
+							new BatchDetail(batch.getBno(),BatchDetailStatus.MAX_ATTEMPTS_REACHED).getUpdateStatusObjArry());
+				}
 			}
-		} catch (IOException e) {
-			// doubt
-			log.error("columns parsing :-", e);
+		} catch (Exception e) {
+			log.error(AuditMessage.EXECPTION_MSG + " processFailedBatches :- ", e);
 		}
-
+		return allBatchProcess;
 	}
 
 }

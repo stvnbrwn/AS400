@@ -111,7 +111,7 @@ public class PostgresDaoImpl implements PostgresDao {
 			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.FAILED_AT_DESTINATION);
 			tableMetaData.getBatchDetail().setEndedAtDestination(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
-			tableMetaData.getBatchDetail().setColumnsJson(tableMetaData.getTableProcess().getColumnsJson());
+			tableMetaData.getBatchDetail().setColumnJson(tableMetaData.getTableProcess().getColumnsJson());
 			tableMetaData.getBatchDetail().setReason(AuditMessage.EXECPTION_MSG + e);
 			updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
 
@@ -164,7 +164,9 @@ public class PostgresDaoImpl implements PostgresDao {
 	public long saveFailedBatchDetail(Object[] saveObjArray) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		try {
-			postgresTemplate.update(utility.getInsertIntoFailedBatch(), saveObjArray, keyHolder);
+			postgresTemplate.update(utility.getPrepareStatement(utility.getInsertIntoFailedBatch(), saveObjArray, 
+					new String[] {"fbno"}), keyHolder);
+			//postgresTemplate.update(utility.getInsertIntoFailedBatch(),saveObjArray , keyHolder);
 		} catch (Exception e) {
 			log.error(AuditMessage.EXECPTION_MSG + "saveBatchDetail", e);
 		}
@@ -182,16 +184,21 @@ public class PostgresDaoImpl implements PostgresDao {
 	}
 
 	@Override
-	public void writeOpraionFailedBatch(TableMetaData tableMetaData, List<Object[]> tableDataList) {
+	@Transactional
+	public boolean writeOpraionFailedBatch(TableMetaData tableMetaData, List<Object[]> tableDataList) {
 		try {
 			log.info("Batch writeOpraionFailedBatch start :-" + "batch size : " + tableDataList.size() + " " + LocalDateTime.now());
-
+			
+			if( Objects.isNull(tableMetaData.getPostgresQueries()) || Objects.isNull(tableMetaData.getPostgresQueries().getInsertTable()))
+				tableMetaData.setPostgresQueries(utility.getPostgresQueries(tableMetaData));
+			
 			postgresTemplate.batchUpdate(tableMetaData.getPostgresQueries().getInsertTable(), tableDataList);
 
 			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.PASS);
 			tableMetaData.getFailedBatchDetails().setEndedAt(LocalDateTime.now());
 			updateFailedBatchDetail(tableMetaData.getFailedBatchDetails().getUpdateObjArray());
 			log.info("Batch writeOpraionFailedBatch end   :-" + "batch size : " + tableDataList.size() + " " + LocalDateTime.now());
+			return true;
 		} catch (Exception e) {
 			log.error("Batch insert fail !!!", e);
 			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.FAIL);
@@ -205,6 +212,7 @@ public class PostgresDaoImpl implements PostgresDao {
 			 * TableStatus.Table_Created_With_FailedBatch) .getUpdateObjArray());
 			 */
 		}
+		return false;
 	}
 
 	@Override
@@ -247,6 +255,44 @@ public class PostgresDaoImpl implements PostgresDao {
 			postgresTemplate.update(utility.updateTableDeatil(), tableDetailsObjArray);
 		else
 			postgresTemplate.update(utility.updateTableDeatilWithoutCoulmns(), tableDetailsObjArray);
+	}
+
+	@Override
+	public List<BatchDetail> getTenBatch(List<Integer> batchNoList) {
+		List<BatchDetail> batchDetails=null;
+		if(!batchNoList.isEmpty()) {
+			 batchDetails= postgresTemplate.query(utility.getAllBatchFromList(batchNoList),
+						new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
+		}
+		else {
+			 batchDetails= postgresTemplate.query(utility.getAllBatch(),
+						new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
+		}
+				/*
+				 * List<Integer> allbatchDetails=
+				 * postgresTemplate.queryForList(utility.getAllBatch(), Integer.class);
+				 */
+		
+		return batchDetails;
+	}
+
+	@Override
+	public void updateBatchDetailStatus(Object[] updateStatusObjArry) {
+		try {
+			postgresTemplate.update(utility.getUpdateBatchDetailStatus(), updateStatusObjArry);
+		} catch (Exception e) {
+			log.error(AuditMessage.EXECPTION_MSG + "updateBatchDetailStatus", e);
+		}
+	}
+
+	@Override
+	public int getFailedBatchAttempt(BatchDetail batch) {
+		try {
+			return postgresTemplate.queryForObject(utility.getFailedBatchAttemptQry(batch), Integer.class);
+		} catch (Exception e) {
+			log.error(AuditMessage.EXECPTION_MSG + "getFailedBatchAttempt", e);
+			throw e;
+		}
 	}
 
 	

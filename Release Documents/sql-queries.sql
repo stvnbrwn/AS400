@@ -1,24 +1,17 @@
--- drop 
+DROP schema adm CASCADE;
 
-drop schema adm CASCADE;
-drop schema adm_audit CASCADE;
+DROP schema adm_audit CASCADE;
 
+DROP FUNCTION IF EXISTS all_table_process_modified_at CASCADE ;
 
-SELECT *
+DROP FUNCTION IF EXISTS all_table_process_details_create_at CASCADE;
+
+SELECT  *
 FROM pg_catalog.pg_tables
-WHERE schemaname != 'pg_catalog' AND 
-    schemaname != 'adm_audit'
-    and
-    schemaname != 'information_schema';
+WHERE schemaname != 'pg_catalog' 
+AND schemaname != 'adm_audit' 
+AND schemaname != 'information_schema'; 
 
-select * from adm_audit.all_table_process;
-
-
-
-
-
-
-
-
-
+SELECT  *
+FROM adm_audit.all_table_process;
 

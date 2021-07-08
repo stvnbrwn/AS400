@@ -35,7 +35,7 @@ public class FailedBatchDetails {
 			return new Object[] {
 					this.bno ,
 					this.startedAt ,
-					this.status ,
+					this.status.toString() ,
 					this.endedAt ,
 					this.reason 
 			};
@@ -45,7 +45,7 @@ public class FailedBatchDetails {
 		
 		return new Object[] {
 				//update
-				this.status ,
+				this.status.toString() ,
 				this.endedAt ,
 				this.reason ,
 				//where

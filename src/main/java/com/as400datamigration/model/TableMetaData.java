@@ -48,7 +48,7 @@ public class TableMetaData {
 		super();
 		this.tableName = tableName;
 		this.minRrn = startingRrn;
-		this.maxRrn = startingRrn;
+		this.maxRrn = endingRrn;
 		this.columns = columns;
 		this.failedBatchDetails = failedBatchDetails;
 	}

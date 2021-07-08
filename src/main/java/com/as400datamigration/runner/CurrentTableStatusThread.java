@@ -2,7 +2,6 @@ package com.as400datamigration.runner;
 
 import java.util.concurrent.Callable;
 
-import com.as400datamigration.audit.TestOutPutStatus;
 import com.as400datamigration.model.TableSummary;
 import com.as400datamigration.service.As400DataMigrationServiceTest;
 

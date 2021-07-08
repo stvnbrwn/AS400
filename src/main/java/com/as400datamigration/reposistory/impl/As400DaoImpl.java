@@ -160,7 +160,7 @@ public class As400DaoImpl implements As400Dao {
 			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.FAILED_AT_SOURCE);
 			tableMetaData.getBatchDetail().setEndedAtSource(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
-			tableMetaData.getBatchDetail().setColumnsJson(tableMetaData.getTableProcess().getColumnsJson());
+			tableMetaData.getBatchDetail().setColumnJson(tableMetaData.getTableProcess().getColumnsJson());
 			tableMetaData.getBatchDetail().setReason(AuditMessage.EXECPTION_MSG + e);
 			       // if(bno!=0)// 0== throw
 			tableMetaData.getBatchDetail().setBno(bno); 
@@ -189,15 +189,17 @@ public class As400DaoImpl implements As400Dao {
 			String sqlData = utility.getSelectQueryForBatch(tableMetaData.getTableName(), tableMetaData.getMinRrn(),
 					tableMetaData.getMaxRrn());
 			tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(tableMetaData.getColumns()));
-			tableMetaData.getFailedBatchDetails().setBno(fbno);
+			tableMetaData.getFailedBatchDetails().setFbno(fbno);
 			
 		} catch (Exception e) {
+			
+			if(fbno==0)
+				throw e;
+			
 			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.FAIL);
 			tableMetaData.getFailedBatchDetails().setEndedAt(LocalDateTime.now());
 			tableMetaData.getFailedBatchDetails().setReason(AuditMessage.EXECPTION_MSG + e);
-			if (fbno!=0) {  //doubt
-				tableMetaData.getFailedBatchDetails().setBno(fbno);
-			}
+			tableMetaData.getFailedBatchDetails().setFbno(fbno);
 			postgresDao.updateFailedBatchDetail(tableMetaData.getFailedBatchDetails().getUpdateObjArray()); // pending
 		}
 		return tableDataList;

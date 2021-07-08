@@ -2,7 +2,6 @@ package com.as400datamigration.common;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Component;
 
+import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.PostgresQueries;
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableMetaData;
@@ -31,9 +31,9 @@ public class Utility {
 	@Value("${postgres.schema}")
 	private String schema;
 	
+	
 	@Value("${postgres.audit.schema}")
 	private String auditSchema;
-	
 	@Value("${main.menu}")
 	private String mainManuFilePath;
 	
@@ -163,7 +163,6 @@ public class Utility {
 		return new PreparedStatementCreator() {
 			public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
 				PreparedStatement ps = conn.prepareStatement(insertIntoBatchDetail, keyNameArray);
-				
 				for (int i = 1; i < allBatchDetails.length+1; i++) {
 					ps.setObject(i, allBatchDetails[i-1]);
 				}
@@ -227,6 +226,29 @@ public class Utility {
         fr.close();
         bf.close();
 		return tableList;
+	}
+
+	public String getAllBatch() {
+		return String.format(Constant.P_LOG_FETCH_ALL_BATCH, auditSchema);
+	}
+
+	public String getUpdateBatchDetailStatus() {
+		return String.format(Constant.P_LOG_UPDATE_BATCH_DETAILS_STATUS, auditSchema);
+	}
+
+	public String getFailedBatchAttemptQry(BatchDetail batch) {
+		return String.format(Constant.P_LOG_FETCH_FAILED_BATCH_ATTEMPT, auditSchema,batch.getBno());
+	}
+
+	public String getAllBatchFromList(List<Integer> batchNoList) {
+		String sql=String.format(Constant.P_LOG_FETCH_ALL_BATCH_IN_LIST, auditSchema);
+		for (Integer intdata : batchNoList) {
+			sql=sql+intdata+", ";
+		}
+		sql=sql.substring(0,sql.lastIndexOf(","))+")";
+		return sql;
+		
+		
 	}
 
 	

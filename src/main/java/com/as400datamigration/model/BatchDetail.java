@@ -31,14 +31,20 @@ public class BatchDetail {
 	LocalDateTime modifiedAt;
 	String reason;
 	
-	String ColumnsJson;
+	String columnJson;
 	
-	public BatchDetail(int bno,String tableName, long startingRrn, long endingRrn) {
+	public BatchDetail(long bno,String tableName, long startingRrn, long endingRrn) {
 		super();
 		this.bno=bno;
 		this.tableName = tableName;
 		this.startingRrn = startingRrn;
 		this.endingRrn = endingRrn;
+	}
+	
+	public BatchDetail(long bno,BatchDetailStatus status) {
+		super();
+		this.bno=bno;
+		this.status=status;
 	}
 	
 	public BatchDetail(TableMetaData tableMetaData) {
@@ -77,10 +83,23 @@ public class BatchDetail {
 				this.endedAtDestination ,	
 				this.modifiedAt 		,
 				this.reason 		,
-				this.ColumnsJson,
+				this.columnJson,
 			//where
 				this.bno,     				  
 			};
 	}
+
+	public Object[] getUpdateStatusObjArry() {
+		
+		return new Object[] {
+				//update	
+				this.status.toString()   ,
+				this.modifiedAt=LocalDateTime.now(),
+				//where
+				this.bno     				  
+			};
+	}
+
+	
 	
 }

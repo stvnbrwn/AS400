@@ -19,7 +19,7 @@ public class TableSummary {
 	
 	
 	String tableName;
-	TestOutPutStatus  testOutPutStatus;
+	TestOutPutStatus  status;
 	LocalDateTime modifiedAt;
 	String summary;
 	

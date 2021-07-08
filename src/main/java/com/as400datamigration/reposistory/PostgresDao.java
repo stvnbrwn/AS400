@@ -1,5 +1,6 @@
 package com.as400datamigration.reposistory;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -29,7 +30,7 @@ public interface PostgresDao {
 
 	public void updateFailedBatchDetail(Object[] updateObjArray);
 
-	public void writeOpraionFailedBatch(TableMetaData tableMetaData, List<Object[]> tableData);
+	public boolean writeOpraionFailedBatch(TableMetaData tableMetaData, List<Object[]> tableData);
 
 	public TableProcess getTableMetaData(String tableName);
 
@@ -45,6 +46,12 @@ public interface PostgresDao {
 	 * @param withCoulmns
 	 */
 	public void updateTableDeatil(Object[] tableDetailsObjArray,boolean withCoulmns);
+
+	public List<BatchDetail> getTenBatch(List<Integer> batchNoList) throws SQLException;
+
+	public void updateBatchDetailStatus(Object[] updateStatusObjArry);
+
+	public int getFailedBatchAttempt(BatchDetail batch);
 
 	
 }

@@ -22,17 +22,52 @@ CREATE TABLE IF NOT EXISTS ADM_AUDIT.all_table_process
 	-- Table_Created_And_AllBatchCompleted
     -- sync failed at source
     -- sync failed at destination
-    -- modified_timestamp TIMESTAMP,
-    reason	VARCHAR,	
+    -- sync_completed_and_allbatchcompleted
+    modified_at TIMESTAMP default now(),  
+    -- reason	VARCHAR,	
     column_json varchar
 ); 
 
+-- trigger and funtion for all_table_process_modified_at
+CREATE FUNCTION ADM_AUDIT.all_table_process_modified_at() RETURNS trigger AS $$
+BEGIN
+  NEW.modified_at := NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER
+  sync_all_table_process_modified_at
+BEFORE INSERT or UPDATE ON
+  ADM_AUDIT.all_table_process
+FOR EACH ROW EXECUTE PROCEDURE
+  ADM_AUDIT.all_table_process_modified_at();
+
+-- table all_table_process_details
 create TABLE if not EXISTS ADM_AUDIT.all_table_process_details (
     tpd_no serial,
     table_name VARCHAR,
     reason	VARCHAR,
-    create_timestamp TIMESTAMP
+    create_at TIMESTAMP default now(),
+    CONSTRAINT all_table_process_details_fkey FOREIGN KEY (table_name)
+        REFERENCES ADM_AUDIT.all_table_process (table_name)
 );
+
+-- trigger and funtion for all_table_process_details_create_at
+CREATE FUNCTION ADM_AUDIT.all_table_process_details_create_at() RETURNS trigger AS $$
+BEGIN
+  NEW.create_at := NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER
+  sync_all_table_process_details_create_at
+BEFORE INSERT or UPDATE ON
+  ADM_AUDIT.all_table_process_details
+FOR EACH ROW EXECUTE PROCEDURE
+  ADM_AUDIT.all_table_process_details_create_at();
+
 
 
 CREATE TABLE IF NOT EXISTS ADM_AUDIT.all_batch_details
@@ -52,7 +87,7 @@ CREATE TABLE IF NOT EXISTS ADM_AUDIT.all_batch_details
     
     modified_at	               TIMESTAMP ,
     reason                     varchar,
-    columns                    varchar,
+    column_json                    varchar,
    -- INDEX status (status),
     CONSTRAINT all_batch_details_fkey FOREIGN KEY (table_name)
         REFERENCES ADM_AUDIT.all_table_process (table_name)
@@ -71,15 +106,3 @@ CREATE TABLE IF NOT EXISTS ADM_AUDIT.failed_batch_details(
     CONSTRAINT fkey FOREIGN KEY (bno)
         REFERENCES ADM_AUDIT.all_batch_details (bno)
 );
-
-
--- SELECT  bno
---        ,table_name 
---        ,starting_rrn 
---        ,ending_rrn 
---        ,status
--- FROM all_betch_details 
--- WHERE status = 'Failed_At_Source' or status = 'Failed_At_Destination' ; 
-
-
-  

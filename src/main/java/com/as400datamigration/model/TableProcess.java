@@ -96,9 +96,7 @@ public class TableProcess {
 				this.status.toString(),
 				//where
 				this.tableName };
-
 	}
-	
 	
 	public String getTableName() {
 		return tableName;

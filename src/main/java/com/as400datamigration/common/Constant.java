@@ -60,7 +60,7 @@ public interface Constant {
 			+ "ended_at_destination=?,"
 			+ "modified_at=?,"
 			+ "reason=?,"
-			+ "columns=?"
+			+ "column_json=?"
 			+ " where bno= ?";
 	
 	String P_FETCH_LAST_BATCH_FROM_BATCH_DETAIL = 
@@ -81,13 +81,9 @@ public interface Constant {
 			+ "where fbno =?";
 
 	String P_FETCH_FAILED_BATCH = 
-			    "SELECT  bno "
-			  + "       ,table_name  "
-			  + "       ,starting_rrn  "
-			  + "       ,ending_rrn  "
-			  + "       ,columns "
-			  + "FROM %s.all_batch_details  "
-			  + "WHERE status = 'Failed_At_Source' or status = 'Failed_At_Destination' ";
+			    "SELECT * FROM %s.all_batch_details  "
+			  + "WHERE status = 'FAILED_AT_DESTINATION' or status = 'FAILED_AT_SOURCE' or "
+			  + "status ='MAX_ATTEMPTS_REACHED' ";
 
 	String P_LOG_INSERT_INTO_ALL_TABLE_PROCESS_DETAILS = 
 			"INSERT INTO %s.all_table_process_details "
@@ -100,6 +96,17 @@ public interface Constant {
 			+ "max_rrn= ?, "
 			+ "status=? "
 			+ "where table_name=?";
+
+	String P_LOG_FETCH_ALL_BATCH = "select * from %s.all_batch_details order by random() limit 10";
+
+	String P_LOG_UPDATE_BATCH_DETAILS_STATUS = "UPDATE %s.all_batch_details set "
+			+ "status =? ,"
+			+ "modified_at=? "
+			+ "where bno= ?";
+
+	String P_LOG_FETCH_FAILED_BATCH_ATTEMPT = "select count(*) from %s.failed_batch_details where bno=%s";
+
+	String P_LOG_FETCH_ALL_BATCH_IN_LIST = "select * from %s.all_batch_details where bno in (";
 
 
 }
