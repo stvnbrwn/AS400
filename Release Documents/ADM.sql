@@ -14,17 +14,7 @@ CREATE TABLE IF NOT EXISTS ADM_AUDIT.all_table_process
     max_rrn NUMERIC,
     created_at TIMESTAMP,
     status	VARCHAR, 
-    -- Table_Not_Found_At_Source,
-	-- Table_Desc_Not_Found_At_Source,
-	-- Table_Creation_Failed,	
-	-- Table_Created_With_NO_Data,
-	-- Table_Created_And_InProcess, -->update
-	-- Table_Created_And_AllBatchCompleted
-    -- sync failed at source
-    -- sync failed at destination
-    -- sync_completed_and_allbatchcompleted
     modified_at TIMESTAMP default now(),  
-    -- reason	VARCHAR,	
     column_json varchar
 ); 
 
@@ -77,18 +67,12 @@ CREATE TABLE IF NOT EXISTS ADM_AUDIT.all_batch_details
     ending_rrn                 NUMERIC,
     started_at_source          TIMESTAMP,
     started_at_destination     TIMESTAMP,
-    
     status	                   VARCHAR,	
-                                 -- Started_At_Source,	Failed_At_Source,	Ended_At_Source,
-	                             -- Started_At_Destination,	Failed_At_Destination,	Ended_At_Destination,
-	                             -- Batch_Refactored , Max_Attemp_Reached
     ended_at_source	           TIMESTAMP,
     ended_at_destination	   TIMESTAMP,
-    
     modified_at	               TIMESTAMP ,
     reason                     varchar,
     column_json                    varchar,
-   -- INDEX status (status),
     CONSTRAINT all_batch_details_fkey FOREIGN KEY (table_name)
         REFERENCES ADM_AUDIT.all_table_process (table_name)
 ); 
@@ -106,3 +90,7 @@ CREATE TABLE IF NOT EXISTS ADM_AUDIT.failed_batch_details(
     CONSTRAINT fkey FOREIGN KEY (bno)
         REFERENCES ADM_AUDIT.all_batch_details (bno)
 );
+
+
+
+  

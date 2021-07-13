@@ -143,8 +143,8 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 					break;
 					
 				case 777:
-					System.out.print(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_OPT1_MSG);
-					System.out.print(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_OPT2_MSG);
+					System.out.println(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_OPT1_MSG);
+					System.out.println(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_OPT2_MSG);
 					System.out.print(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_INPUT_MSG);
 					try {
 						createFailBatch(reader.nextInt());
