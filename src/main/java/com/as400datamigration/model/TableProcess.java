@@ -19,6 +19,7 @@ public class TableProcess {
 	Long maxRrn;
 	LocalDateTime createdAt;
 	TableStatus status;
+	LocalDateTime modifiedAt;
 	String columnJson;
 	
 	
@@ -169,6 +170,14 @@ public class TableProcess {
 
 	public void setColumnJson(String columnJson) {
 		this.columnJson = columnJson;
+	}
+
+	public LocalDateTime getModifiedAt() {
+		return modifiedAt;
+	}
+
+	public void setModifiedAt(LocalDateTime modifiedAt) {
+		this.modifiedAt = modifiedAt;
 	}
 
 	

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,12 @@ import org.springframework.stereotype.Service;
 
 import com.as400datamigration.audit.BatchDetailStatus;
 import com.as400datamigration.audit.TableStatus;
-import com.as400datamigration.audit.TestOutPutStatus;
 import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableProcess;
 import com.as400datamigration.model.TableSummary;
+import com.as400datamigration.model.TableSummaryJson;
 import com.as400datamigration.reposistory.As400Dao;
 import com.as400datamigration.reposistory.PostgresDao;
 
@@ -82,36 +83,19 @@ public class As400DataMigrationServiceTest {
 
 	}
 
-	public TableSummary getTableSummary(String tableName) {
+	public TableSummary getTableSummary(String tableName, Map<String, TableSummaryJson> tableSummaryMap) {
 
 		TableSummary tableSummary = new TableSummary(tableName);
 		//List<String> summeryList = new ArrayList<String>();
-
+		
 		TableProcess tableProcessdata = postgresDao.getTableMetaData(tableName);
 		if (Objects.nonNull(tableProcessdata)) {
-			if (tableProcessdata.getStatus().equals(TableStatus.TABLE_NOT_FOUND_AT_SOURCE)) {
-				tableSummary.setSummary("Table was Not Found At Source.");
-				tableSummary.setStatus(TestOutPutStatus.FAIL);
-			} else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_DESC_NOT_FOUND_AT_SOURCE)) {
-				tableSummary.setSummary("Table's Columns Details Are Not Found At Source.");
-				tableSummary.setStatus(TestOutPutStatus.FAIL);
-			} else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_CREATION_FAILED)) {
-				tableSummary.setSummary("Table Creation Failed,  Table was performed previously "
-						+ "but batch processing was not started." + "for more details please check all_table_process_details");
-				tableSummary.setStatus(TestOutPutStatus.FAIL);
-			}else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_CREATED_AND_IN_RUNNING)) {
-				tableSummary.setSummary("Table Created And Start Performming But Data Is Not Completely Migrated. batch fail !!!");
-				tableSummary.setStatus(TestOutPutStatus.FAIL);
-			}else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_CREATED_WITH_NO_DATA)) {
-				tableSummary.setSummary("Table Created With NO Data.");
-				tableSummary.setStatus(TestOutPutStatus.PASS);
-			} else if (tableProcessdata.getStatus().equals(TableStatus.TABLE_CREATED_AND_ALL_BATCH_COMPLETED)) {
-				tableSummary.setSummary("Table Created And All Batch Completed");
-				tableSummary.setStatus(TestOutPutStatus.PASS);
-			}
-			tableSummary.setModifiedAt(tableProcessdata.getCreateAt());
+				TableSummaryJson tableSummaryJson = tableSummaryMap.get(tableProcessdata.getStatus().toString());
+				tableSummary.setStatus(tableSummaryJson.getResult());
+				tableSummary.setSummary(tableSummaryJson.getSummary());
+				tableSummary.setModifiedAt(tableProcessdata.getModifiedAt());
 		} else {
-			tableSummary.setStatus(TestOutPutStatus.NOT_PERFORMED);
+			tableSummary.setStatus("NOT_PERFORMED");
 			tableSummary.setSummary(
 					"Table has not performed yet, or may be connection issue.");
 		}
@@ -132,7 +116,6 @@ public class As400DataMigrationServiceTest {
 						allBatch=postgresDao.getTenBatch(list);
 						System.out.println();
 					}
-						
 			
 			allBatch.forEach(batch->{
 				if(batch.getBno()%2>0) 
@@ -142,55 +125,12 @@ public class As400DataMigrationServiceTest {
 				batch.setColumnJson(postgresDao.getTableMetaData(batch.getTableName()).getColumnJson());
 				
 				postgresDao.updateBatchDetail(batch.getUpdateObjArray());
+				postgresDao.updateTableProcessStatus(new TableProcess(batch.getTableName(),
+						TableStatus.MIGRATION_FAILED).getUpdateObjArray());
 			});
 		} catch (Exception e) {
 			log.error("Exception in createfailedBatch ",e);
 		}
 	}
 
-	/*
-	 * private TableMetaData verifyAtSource(String tableName, List<TestOutPut>
-	 * testingOutputDestinationList) { TableMetaData tableMetaDataSource = null; try
-	 * { tableMetaDataSource = as400Dao.getTableMetaData(tableName, false);
-	 * testingOutputDestinationList .add(new TestOutPut(tableName,
-	 * TestOutPutStatus.PASS, AuditMessage.Table_Found_At_Source_Msg)); } catch
-	 * (Exception e) { log.error(tableName + "Found at Source ...!!");
-	 * testingOutputDestinationList .add(new TestOutPut(tableName,
-	 * TestOutPutStatus.PASS, AuditMessage.Table_Not_Found_At_Source_Msg)); } return
-	 * tableMetaDataSource; }
-	 * 
-	 * private TableProcess verifyAtDestination(String tableName, List<TestOutPut>
-	 * testingOutputSourceList) { TableProcess tableMetaDataDestination = null; try
-	 * { tableMetaDataDestination =
-	 * postgresDao.getTableMetaDataFromDestination(tableName); } catch (Exception e)
-	 * { log.error(tableName + "Found at Destination ...!!");
-	 * testingOutputSourceList.add( new TestOutPut(tableName, TestOutPutStatus.PASS,
-	 * AuditMessage.Table_Not_Found_At_Destination_Msg)); } return
-	 * tableMetaDataDestination; }
-	 */
-
-	/*
-	 * List<TestOutPut> testingOutputSourceList=new ArrayList<>(); List<TestOutPut>
-	 * testingOutputDestinationList=new ArrayList<>();
-	 * 
-	 * List<TestOutPut> ResultList=new ArrayList<>();
-	 * 
-	 * TableMetaData tableMetaDataSource = verifyAtSource(tableName,
-	 * testingOutputSourceList); if(Objects.nonNull(tableMetaDataSource)) {
-	 * TableProcess tableMetaDataDestination
-	 * =verifyAtDestination(tableName,testingOutputDestinationList);
-	 * if(Objects.nonNull(tableMetaDataDestination)) {
-	 * 
-	 * 
-	 * 
-	 * } }
-	 */
-
-	/*
-	 * if(tableProcessdata.getTotalRows()>0) { BatchDetail lastBatchDetail=
-	 * postgresDao.getlastBatchDetails(tableName);
-	 * testOutPut.setModifiedAt(lastBatchDetail.getModifiedAt()); } else {
-	 * testOutPut.setModifiedAt(tableProcessdata.get);
-	 * summeryList.add(tableProcessdata.getStatus().toString()); }
-	 */
 }

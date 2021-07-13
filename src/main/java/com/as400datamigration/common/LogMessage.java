@@ -22,4 +22,12 @@ public interface LogMessage {
 
 	String RETRY_MSG = "Retry with Specified Input.";
 
+	String APPLICATION_CURRENT_SUMMARY_START_MSG = "*** CURRENT SUMMARY MODULE STARTS ***";
+
+	String FAILED_BATCH_INPUT_MSG = "Give input(1/2) for create failed batch :";
+
+	String FAILED_BATCH_OPT1_MSG = "1) For create random 10 failed batch";
+
+	String FAILED_BATCH_OPT2_MSG = "2) create 4,5,6 batch no as failed batch";
+
 }

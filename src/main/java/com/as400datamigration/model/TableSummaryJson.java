@@ -1,28 +1,27 @@
 package com.as400datamigration.model;
 
-import java.time.LocalDateTime;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+/** 
+ * This class for
+ * 
+ * @author Programmers.io - Mohit Kachhwaha - 08-Jul-2021
+ * 	
+ * 			Modification - MohitKachhwaha - 08-Jul-2021
+ *          
+ */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class TableSummary {
+public class TableSummaryJson {
 	
-	
-	String tableName;
-	String  status;
-	LocalDateTime modifiedAt;
+	String result;
 	String summary;
-	
-	public TableSummary(String tableName) {
-		this.tableName=tableName;
-	}
 
 }

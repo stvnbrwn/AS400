@@ -48,6 +48,9 @@ public class As400DataMigrationService {
 
 	@Autowired
 	PostgresDao postgresDao;
+	
+	@Value("${completeMigration}")
+	private boolean completeMigrationFlag;
 
 	@Async("ThreadExecutor")
 	public void processCompleteMigration(TableMetaData tableMetaData, TableStatus tableStatus) {
@@ -64,7 +67,10 @@ public class As400DataMigrationService {
 				boolean allBatchInsert = performReadWriteOnTable(tableMetaData);
 				if (allBatchInsert) {
 					postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),
-							TableStatus.TABLE_CREATED_AND_ALL_BATCH_COMPLETED).getUpdateObjArray());
+							TableStatus.MIGRATION_SUCCESSFUL).getUpdateObjArray());
+				}else {
+					postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),
+							TableStatus.MIGRATION_FAILED).getUpdateObjArray());
 				}
 			}
 		} catch (DuplicateKeyException e) {
@@ -93,13 +99,16 @@ public class As400DataMigrationService {
 					break;
 				allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
 				tableMetaData.setMinRrn(tableMetaData.getMinRrn() + batchSize);
+				if(!completeMigrationFlag) {
+					log.info("End performReadWriteOnTable execution ..!");
+					return allBatchInsert;
+				}
 			}
 			if(tableMetaData.getMinRrn() > maxRrn) {
 				tableMetaData.setMinRrn(tableMetaData.getMinRrn()-batchSize);
 			}
 				tableMetaData.setMaxRrn(maxRrn);
 				allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
- 
 		}
 		log.info("End performReadWriteOnTable execution ..!");
 		return allBatchInsert;
@@ -114,7 +123,6 @@ public class As400DataMigrationService {
 		if (Objects.nonNull(tableData)) {
 			boolean batchInsert = postgresDao.writeOpraionOnTable(tableMetaData, tableData);
 			allBatchInsert = allBatchInsert && batchInsert;
-
 		} else {
 			allBatchInsert = false;
 		}
@@ -140,7 +148,7 @@ public class As400DataMigrationService {
 					postgresDao.createTable(tableMetaData);
 
 					if (tableMetaData.getTotalRows() > 0) {
-						tableMetaData.getTableProcess().setStatus(TableStatus.TABLE_CREATED_AND_IN_RUNNING);
+						tableMetaData.getTableProcess().setStatus(TableStatus.MIGRATION_PROCESS_IN_RUNNING);
 					} else {
 						tableMetaData.getTableProcess().setStatus(TableStatus.TABLE_CREATED_WITH_NO_DATA);
 					}
@@ -198,21 +206,11 @@ public class As400DataMigrationService {
 										tableMetaDataSource.getMaxRrn(),columns));
 								}
 								if (isSynced) {
-									/*
-									 * postgresDao.updateTableProcessStatus( new TableProcess(tableName,
-									 * TableStatus.TABLE_SYNC_SECCUSSFUL) .getUpdateObjArray());
-									 */
-									// vikas sir
-									tableMetaDataSource.getTableProcess().setStatus(TableStatus.TABLE_SYNC_SECCUSSFUL);
+									tableMetaDataSource.getTableProcess().setStatus(TableStatus.MIGRATION_SYNC_SUCCESSFUL);
 									postgresDao.updateTableDeatil(tableMetaDataSource.getTableProcess().getTableDetailsWithoutColumnsObjArray(),
 											false);
 								} else {
-									/*
-									 * postgresDao.updateTableProcessStatus( new TableProcess(tableName,
-									 * TableStatus.TABLE_SYNC_FAIL) .getUpdateObjArray());
-									 */
-									// vikas sir
-									tableMetaDataSource.getTableProcess().setStatus(TableStatus.TABLE_SYNC_FAIL);
+									tableMetaDataSource.getTableProcess().setStatus(TableStatus.MIGRATION_SYNC_FAIL);
 									postgresDao.updateTableDeatil(tableMetaDataSource.getTableProcess().getTableDetailsWithoutColumnsObjArray(),
 											false);
 								}
@@ -238,7 +236,7 @@ public class As400DataMigrationService {
 				postgresDao.createTable(tableMetaDataSource);
 
 				if (tableMetaDataSource.getTotalRows() > 0) {
-					tableMetaDataSource.getTableProcess().setStatus(TableStatus.TABLE_CREATED_AND_IN_RUNNING);
+					tableMetaDataSource.getTableProcess().setStatus(TableStatus.MIGRATION_PROCESS_IN_RUNNING);
 				} else {
 					tableMetaDataSource.getTableProcess().setStatus(TableStatus.TABLE_CREATED_WITH_NO_DATA);
 				}

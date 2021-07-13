@@ -144,7 +144,6 @@ public class PostgresDaoImpl implements PostgresDao {
 		} catch (Exception e) {
 			log.error(AuditMessage.EXECPTION_MSG + "updateBatchDetail", e);
 		}
-
 	}
 
 	@Override

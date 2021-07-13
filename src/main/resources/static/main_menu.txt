@@ -4,9 +4,9 @@
                                     
                                            1) Perform Complete Migration
                                     
-                                           2) Perform Sync ( future feature )
+                                           2) Perform Sync 
                                     
-                                           3) Re-Execute Failed batches ( future feature )
+                                           3) Re-Execute Failed batches 
                                     
                                            4) Current Status Summary
                                            

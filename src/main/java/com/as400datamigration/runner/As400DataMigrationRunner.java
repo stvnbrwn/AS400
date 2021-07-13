@@ -1,8 +1,10 @@
 package com.as400datamigration.runner;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +26,7 @@ import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.TableProcess;
 import com.as400datamigration.model.TableSummary;
+import com.as400datamigration.model.TableSummaryJson;
 import com.as400datamigration.reposistory.PostgresDao;
 import com.as400datamigration.service.As400DataMigrationService;
 import com.as400datamigration.service.As400DataMigrationServiceTest;
@@ -119,7 +122,7 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 					break;
 
 				case 4:
-					log.info(LogMessage.APPLICATION_TESTING_MSG);
+					log.info(LogMessage.APPLICATION_CURRENT_SUMMARY_START_MSG);
 					System.out.print(LogMessage.INPUT_FILE_MSG);
 					try {
 						String filePath = reader.next();
@@ -140,7 +143,9 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 					break;
 					
 				case 777:
-					System.out.print(LogMessage.INPUT_FILE_MSG);
+					System.out.print(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_OPT1_MSG);
+					System.out.print(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_OPT2_MSG);
+					System.out.print(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_INPUT_MSG);
 					try {
 						createFailBatch(reader.nextInt());
 					} catch (Exception e) {
@@ -180,11 +185,14 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			System.out.println(LogMessage.ALIEN_CENTER + "Total Tables : " + tableList.size());
 			List<TableSummary> outPutList = new ArrayList<TableSummary>(tableList.size());
 
+			Map<String, TableSummaryJson> tableSummaryMap = utility.getTableStatusMap();
+			
 			for (int i = 0; i < tableList.size(); i++) {
 				As400DataMigrationServiceTest as400DataMigrationServiceTest = new As400DataMigrationServiceTest();
 				applicationContext.getAutowireCapableBeanFactory().autowireBean(as400DataMigrationServiceTest);
 				Future<TableSummary> futureCall = executor
-						.submit(new CurrentTableStatusThread(tableList.get(i), as400DataMigrationServiceTest));
+						.submit(new CurrentTableStatusThread(tableList.get(i), as400DataMigrationServiceTest,
+								tableSummaryMap));
 				outPutList.add(i, futureCall.get());
 			}
 			executor.shutdown();
@@ -194,10 +202,12 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			outPutList.forEach(tableSummary -> System.out.println(tableSummary));
 			System.out.println(LogMessage.ALIEN_CENTER + "Process Current Status Summary Complete..!");
 
+		} catch (FileNotFoundException e) {
+			log.error("Table Summery Json File Not Found !!!", e);
 		} catch (IOException e) {
-			log.error("File Not Found !!!", e);
+			log.error("Input File Not Found !!!", e);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception At Current Status Summary Process !!!");
 		}
 
 	}
@@ -258,7 +268,7 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 				for (Boolean allFailedBatchPass : outPutList) {
 					if(allFailedBatchPass) {
 						postgresDao.updateTableProcessStatus(new TableProcess(tableList.get(i),
-								TableStatus.TABLE_CREATED_AND_ALL_BATCH_COMPLETED).getUpdateObjArray());
+								TableStatus.MIGRATION_SUCCESSFUL).getUpdateObjArray());
 					}
 					i++;
 				}

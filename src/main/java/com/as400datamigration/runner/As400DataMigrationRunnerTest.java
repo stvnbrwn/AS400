@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@Profile("test")
 public class As400DataMigrationRunnerTest implements CommandLineRunner {
 
 	@Autowired
@@ -29,12 +28,11 @@ public class As400DataMigrationRunnerTest implements CommandLineRunner {
 			if (args.length > 0)
 				filePath = args[0];
 			log.info("Starting of AS400_DATAMIGRATION TESTING POINT. . .! " + LocalDateTime.now());
-			as400DataMigrationServiceTest.process(filePath);
+			//as400DataMigrationServiceTest.process(filePath);
 			log.info("Ending   of AS400_DATAMIGRATION TESTING POINT. . .! " + LocalDateTime.now());
 
 		} catch (Exception e) {
 
-			e.printStackTrace();
 			StringWriter sw = new StringWriter();
 			e.printStackTrace(new PrintWriter(sw));
 			String exceptionAsString = sw.toString();

@@ -6,21 +6,27 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ResourceUtils;
 
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.PostgresQueries;
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableMetaData;
+import com.as400datamigration.model.TableSummaryJson;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -249,6 +255,19 @@ public class Utility {
 		return sql;
 		
 		
+	}
+
+	/**
+	 * @return Map<String, TableSummaryJson>
+	 * @throws IOException 
+	 */
+	public Map<String, TableSummaryJson> getTableStatusMap() throws IOException {
+		InputStream in = getClass().getResourceAsStream("/static/table_summary_json.txt");
+		Stream<String> lines = new BufferedReader(new InputStreamReader(in)).lines();
+		String jsonContent = lines.collect(Collectors.joining());
+		Map<String, TableSummaryJson> map = new ObjectMapper().readValue(jsonContent, new TypeReference<Map<String, TableSummaryJson>>() {
+        });
+		return map;
 	}
 
 	

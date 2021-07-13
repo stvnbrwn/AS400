@@ -19,13 +19,13 @@
   				|
   				|--> configuration folder
   				|     |
-  				|     |--> application.property File
+  				|     |--> property File <Example name : test.properties or production.properties>
   				|
   				|--> logs folder
   				      |
   				      |--> logFile.log
   				      
-	3. Set Application Configuration.
+	3. Set properties in property File.
 
    		a) Logging Configuration : Log file contains the detailed description of what is going in the application.
    		   If any issue is encountered in future then it can be analyzed by checking the logs.
@@ -76,16 +76,18 @@
 			postgres.audit.schema=ADM_AUDIT
 			Note : Here these two properties will be set according to ADM.sql script.
 
-		b) Thread Configuration : pool.size= "5" ,its define thread pool size 
-		c) Batch configuration : batch.size= "2" , its define size of batch, which will processed in one time.
-		d) specail.chars.in.columns-name=[#@$] , its contains all special characters which we will replace with 
+		b) Thread Configuration : pool.size= 5 ,its define thread pool size 
+		c) Batch configuration : batch.size= 2 , its define size of batch, which will processed in one time.
+		d) Max attempt : max.attempt = 5 , its define the max number of attempt for which we can run failed batch for 
+											refactor.
+		e) specail.chars.in.columns-name=[#@$] , its contains all special characters which we will replace with 
 												 underscore ["_"] for columns name in postgres.
 		                                    
     #Command to run with default configuration :-
-    	java -jar -Dspring.config.location=<Directory location>\application.properties 
+    	java -jar -Dspring.config.location=classpath:/,<Directory location>\test.properties 
     			  <Directory location>\ADM-v1.0.jar
     #Example : -
-    		"java -jar -Dspring.config.location=E:\ADM\configuration\application.properties 
+    		"java -jar -Dspring.config.location=classpath:/,E:\ADM\configuration\production.properties 
     			  E:\ADM\ADM-v1.0.jar"
     			  
     #Imp Note :- 1) For running above cmd please open cmd at project directory(at ADM Folder),
