@@ -58,7 +58,7 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 
 			case "CHAR":
 			case "VARCHAR":
-				return rs.getString(ColumnName).trim().replace("ÔððõòðÈÖÕÔÁ", "");
+				return rs.getString(ColumnName).trim().replace("\u0000", "");
 
 			case "DECIMAL": // P -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
 			case "NUMERIC": // S -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields

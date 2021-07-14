@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -113,10 +114,12 @@ public class Utility {
 		String insertQuery = String.format(Constant.P_INSERT_INTO, schema)
 				+ tableMetaData.getTableName().substring(tableMetaData.getTableName().lastIndexOf(".") + 1) + " ( ";
 		String aftrValues = "values ( ";
+		
+		Map<String,String> spclCharMap= getSpclCharMap(spclCharInColumnsName);
 
 		for (SQLColumn sqlColumn : tableMetaData.getColumns()) {
-			crtQuery += sqlColumn.getName().replaceAll(spclCharInColumnsName, "_") + " " + getPostgresDataType(sqlColumn) + ",";
-			insertQuery += sqlColumn.getName().replaceAll(spclCharInColumnsName, "_") + " , ";
+			crtQuery += getColumnsName(sqlColumn.getName(),spclCharMap) + " " + getPostgresDataType(sqlColumn) + ",";
+			insertQuery += getColumnsName(sqlColumn.getName(),spclCharMap) + " , ";
 			aftrValues += " ?,";
 		}
 		// remove last comma
@@ -127,6 +130,33 @@ public class Utility {
 
 		return new PostgresQueries(crtQuery, insertQuery + aftrValues);
 
+	}
+
+	/**
+	 * @param columnName
+	 * @param spclCharMap 
+	 * @return columnName after replace spcl character
+	 */
+	private String getColumnsName(String columnName, Map<String, String> spclCharMap) {
+		for (Map.Entry<String,String> pair : spclCharMap.entrySet()) {
+			columnName=columnName.replace(pair.getKey(), pair.getValue());
+		}
+		return columnName;
+	}
+
+	/**
+	 * @param spclCharInColumnsName
+	 * @return return Map which key contain spcl char and value has replacing char
+	 */
+	private Map<String, String> getSpclCharMap(String spclCharInColumnsName) {
+		
+		String[] spclCharPair=spclCharInColumnsName.split(",");
+		Map<String,String> spclCharMap= new HashMap<>();
+		
+		for (String pair : spclCharPair) {
+			spclCharMap.put(pair.substring(0, pair.indexOf(":")), pair.substring(pair.indexOf(":")+1));
+		}
+		return spclCharMap;
 	}
 
 	public String getInsertIntoTableProcess() {
