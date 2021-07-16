@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]>> {
 
 	List<SQLColumn> columns = new ArrayList<SQLColumn>();
-	// int totalRecords;
 
 	@Override
 	public List<Object[]> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -31,7 +30,6 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 					objList.add(getColumnValue(rs, columns.get(j).getColumnType(), columns.get(j).getName(),
 							columns.get(j).getScale()));
 				}
-				// SQLColumn.setColumnvalues();
 				tableDataList.add(objList.toArray());
 			}
 			log.info("Get all data form table ENDS   , Total Columns " + columns.size() + "Total  fetch  records : "

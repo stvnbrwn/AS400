@@ -48,14 +48,12 @@ public class BatchDetail {
 	}
 	
 	public BatchDetail(TableMetaData tableMetaData) {
-		
 		this.tableName = tableMetaData.getTableName();
 		this.startingRrn = tableMetaData.getMinRrn();
 		this.endingRrn = tableMetaData.getMaxRrn();
 		this.startedAtSource = LocalDateTime.now();
 		this.status = BatchDetailStatus.STARTED_AT_SOURCE;
 		this.modifiedAt = LocalDateTime.now();
-		
 	}
 
 	public Object[] getSaveObjArray() {

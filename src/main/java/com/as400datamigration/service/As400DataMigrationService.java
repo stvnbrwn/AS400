@@ -35,26 +35,25 @@ public class As400DataMigrationService {
 
 	@Value("${batch.size}")
 	private int batchSize;
-	
+
 	@Value("${max.attempt}")
 	private int maxAttempt;
 
 	@Autowired
 	Utility utility;
-	
 
 	@Autowired
 	As400Dao as400Dao;
 
 	@Autowired
 	PostgresDao postgresDao;
-	
+
 	@Value("${completeMigration}")
 	private boolean completeMigrationFlag;
 
 	@Async("ThreadExecutor")
 	public void processCompleteMigration(TableMetaData tableMetaData, TableStatus tableStatus) {
-		String tableName=tableMetaData.getTableName();
+		String tableName = tableMetaData.getTableName();
 		try {
 			if (tableStatus.equals(TableStatus.TABLE_NOT_CREATED))
 				tableMetaData = createTable(tableMetaData.getTableName());
@@ -66,56 +65,56 @@ public class As400DataMigrationService {
 			if (Objects.nonNull(tableMetaData) && Objects.nonNull(tableMetaData.getColumns())) {
 				boolean allBatchInsert = performReadWriteOnTable(tableMetaData);
 				if (allBatchInsert) {
-					postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),
-							TableStatus.MIGRATION_SUCCESSFUL).getUpdateObjArray());
-				}else {
-					postgresDao.updateTableProcessStatus(new TableProcess(tableMetaData.getTableName(),
-							TableStatus.MIGRATION_FAILED).getUpdateObjArray());
+					postgresDao.updateTableProcessStatus(
+							new TableProcess(tableMetaData.getTableName(), TableStatus.MIGRATION_SUCCESSFUL)
+									.getUpdateObjArray());
+				} else {
+					postgresDao.updateTableProcessStatus(
+							new TableProcess(tableMetaData.getTableName(), TableStatus.MIGRATION_FAILED)
+									.getUpdateObjArray());
 				}
 			}
 		} catch (DuplicateKeyException e) {
-			System.out.println(
-					LogMessage.ALIEN_CENTER + tableName + " Table migration is already performed.");
+			System.out.println(LogMessage.ALIEN_CENTER + tableName + " Table migration is already performed.");
 			System.out.println(LogMessage.ALIEN_CENTER
 					+ "Please select option 2 from main menu for syncing the additional data for this table.");
 		} catch (Exception e) {
-			System.out.println(LogMessage.ALIEN_CENTER + "Please check connection or " + tableName
-					+ " already performed");
+			System.out.println(
+					LogMessage.ALIEN_CENTER + "Please check connection or " + tableName + " already performed");
 			log.error(AuditMessage.EXECPTION_MSG + " May be columns meta data not found \n"
-					+ "Error at processCompleteMigration ", e);
-			//
+					+ "Error at processCompleteMigration method", e);
 		}
 	}
 
 	private boolean performReadWriteOnTable(TableMetaData tableMetaData) {
 		boolean allBatchInsert = true;
-		log.info("start performReadWriteOnTable execution ..!");
+		log.info("Start performReadWriteOnTable execution ..!");
 		if (tableMetaData.getTotalRows() > 0) {
 			long maxRrn = tableMetaData.getMaxRrn();
-			
+
 			while (tableMetaData.getMinRrn() <= maxRrn) {
 				tableMetaData.setMaxRrn(tableMetaData.getMinRrn() + batchSize - 1);
-				if(tableMetaData.getMaxRrn()>=maxRrn)
+				if (tableMetaData.getMaxRrn() >= maxRrn)
 					break;
 				allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
 				tableMetaData.setMinRrn(tableMetaData.getMinRrn() + batchSize);
-				if(!completeMigrationFlag) {
+				if (!completeMigrationFlag) {
 					log.info("End performReadWriteOnTable execution ..!");
 					return allBatchInsert;
 				}
 			}
-			if(tableMetaData.getMinRrn() > maxRrn) {
-				tableMetaData.setMinRrn(tableMetaData.getMinRrn()-batchSize);
+			if (tableMetaData.getMinRrn() > maxRrn) {
+				tableMetaData.setMinRrn(tableMetaData.getMinRrn() - batchSize);
 			}
-				tableMetaData.setMaxRrn(maxRrn);
-				allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
+			tableMetaData.setMaxRrn(maxRrn);
+			allBatchInsert = batchOpration(tableMetaData, allBatchInsert);
 		}
 		log.info("End performReadWriteOnTable execution ..!");
 		return allBatchInsert;
 	}
 
 	private boolean batchOpration(TableMetaData tableMetaData, boolean allBatchInsert) {
-		log.info("start batchOpration execution..! ");
+		log.info("Start batchOpration execution..! ");
 		List<Object[]> tableData = null;
 		tableMetaData.setBatchDetail(new BatchDetail(tableMetaData));
 		tableData = as400Dao.readOprationOnTable(tableMetaData);
@@ -132,9 +131,8 @@ public class As400DataMigrationService {
 
 	@Transactional
 	private TableMetaData createTable(String tableName) {
-		log.info("start createTable execution ...! ");
+		log.info("Start createTable execution ...! ");
 		TableMetaData tableMetaData = null;
-		// TableProcess tableProcess = new TableProcess(tableName);
 		try {
 			tableMetaData = as400Dao.getTableMetaData(tableName, true);
 			if (Objects.nonNull(tableMetaData)) {
@@ -152,15 +150,12 @@ public class As400DataMigrationService {
 					} else {
 						tableMetaData.getTableProcess().setStatus(TableStatus.TABLE_CREATED_WITH_NO_DATA);
 					}
-
-					// tableMetaData.getTableProcess().setCreateAt(LocalDateTime.now());
-					// tableMetaData.setTableProcess(tableProcess);
 					postgresDao.saveIntoTableProcess(tableMetaData.getTableProcess().getSaveObjArray());
 				}
 			}
 
 		} catch (Exception e) {
-			log.info("Exception At createTable !!! ");
+			log.error("Exception At createTable !!! ");
 			TableProcess tableProcess = new TableProcess(tableName);
 			tableProcess.setTotalRows(tableMetaData.getTotalRows());
 			tableProcess.setStatus(TableStatus.TABLE_CREATION_FAILED);
@@ -178,43 +173,45 @@ public class As400DataMigrationService {
 			TableProcess tableProcessDestination = postgresDao.getTableMetaData(tableName);
 			if (Objects.nonNull(tableProcessDestination)) {
 				tableMetaDataSource = as400Dao.getTableMetaData(tableName, false); // source pr dono bar ni mili
-																			// nhi mili to source s delete kar
-																					// di
+				// nhi mili to source s delete kar
+				// di
 				if (Objects.nonNull(tableMetaDataSource)) {
-					tableMetaDataSource.setTableName(tableName);		
+					tableMetaDataSource.setTableName(tableName);
 					if (tableProcessDestination.getStatus().equals(TableStatus.TABLE_NOT_FOUND_AT_SOURCE)
 							|| tableProcessDestination.getStatus().equals(TableStatus.TABLE_DESC_NOT_FOUND_AT_SOURCE)
 							|| tableProcessDestination.getStatus().equals(TableStatus.TABLE_CREATION_FAILED)) {
 						processCompleteMigration(tableMetaDataSource, tableProcessDestination.getStatus());
 					} else {
-		//no need safety purpose
+						// no need safety purpose
 						BatchDetail lastBatchDetail = postgresDao.getlastBatchDetails(tableName);
 						if (Objects.nonNull(lastBatchDetail) && Objects.nonNull(tableProcessDestination.getColumnJson())
 								&& !tableProcessDestination.getColumnJson().isEmpty()) {
-							//||tableMetaDataSource.getTableProcess().getMaxRrn() >	tableProcessDestination.getMaxRrn()
-							if (tableMetaDataSource.getTableProcess().getMaxRrn() >  lastBatchDetail.getEndingRrn()) 
-							{
+							// ||tableMetaDataSource.getTableProcess().getMaxRrn() >
+							// tableProcessDestination.getMaxRrn()
+							if (tableMetaDataSource.getTableProcess().getMaxRrn() > lastBatchDetail.getEndingRrn()) {
 								List<SQLColumn> columns = new ObjectMapper().readValue(
 										tableProcessDestination.getColumnsJson(), new TypeReference<List<SQLColumn>>() {
 										});
-								boolean isSynced=false;
-								if(Objects.nonNull(columns)) {
-								 isSynced = performReadWriteOnTable(new TableMetaData(tableMetaDataSource.getTableName(),
-										tableMetaDataSource.getTotalRows(), lastBatchDetail.getEndingRrn()+1, // minRrn
-																													// from
-																													// destination
-										tableMetaDataSource.getMaxRrn(),columns));
+								boolean isSynced = false;
+								if (Objects.nonNull(columns)) {
+									isSynced = performReadWriteOnTable(new TableMetaData(
+											tableMetaDataSource.getTableName(), tableMetaDataSource.getTotalRows(),
+											lastBatchDetail.getEndingRrn() + 1, // minRrn
+																				// from
+																				// destination
+											tableMetaDataSource.getMaxRrn(), columns));
 								}
 								if (isSynced) {
-									tableMetaDataSource.getTableProcess().setStatus(TableStatus.MIGRATION_SYNC_SUCCESSFUL);
-									postgresDao.updateTableDeatil(tableMetaDataSource.getTableProcess().getTableDetailsWithoutColumnsObjArray(),
-											false);
+									tableMetaDataSource.getTableProcess()
+											.setStatus(TableStatus.MIGRATION_SYNC_SUCCESSFUL);
+									postgresDao.updateTableDeatil(tableMetaDataSource.getTableProcess()
+											.getTableDetailsWithoutColumnsObjArray(), false);
 								} else {
 									tableMetaDataSource.getTableProcess().setStatus(TableStatus.MIGRATION_SYNC_FAIL);
-									postgresDao.updateTableDeatil(tableMetaDataSource.getTableProcess().getTableDetailsWithoutColumnsObjArray(),
-											false);
+									postgresDao.updateTableDeatil(tableMetaDataSource.getTableProcess()
+											.getTableDetailsWithoutColumnsObjArray(), false);
 								}
-							
+
 							}
 						}
 					}
@@ -222,7 +219,7 @@ public class As400DataMigrationService {
 			}
 		} catch (Exception e) {
 
-			log.info("May be table not performed, we are starting complete migration for it." + tableName , e);
+			log.error("May be table not performed, we are starting complete migration for it." + tableName, e);
 			processCompleteMigration(tableMetaDataSource, TableStatus.TABLE_NOT_CREATED);
 		}
 	}
@@ -241,19 +238,20 @@ public class As400DataMigrationService {
 					tableMetaDataSource.getTableProcess().setStatus(TableStatus.TABLE_CREATED_WITH_NO_DATA);
 				}
 				// status and other details ----------
-				postgresDao.updateTableDeatil(tableMetaDataSource.getTableProcess().getTableDetailsWithColumnsObjArray(),true);
+				postgresDao.updateTableDeatil(
+						tableMetaDataSource.getTableProcess().getTableDetailsWithColumnsObjArray(), true);
 				postgresDao.saveIntoTableProcessDetail(new TableProcessDetail(tableMetaDataSource.getTableName(),
-						"Table Creation From Sync" + "Privious table Status was :- " + tableStatus.toString())
+						"Table creation from sync" + " privious table status was :- " + tableStatus.toString())
 								.getSaveObjArray());
 			}
 		} catch (Exception e) {
-			log.info("Exception At createTable while Sync !!! ");
+			log.error("Exception at createTable while sync !!! ");
 			TableProcess tableProcess = new TableProcess(tableMetaDataSource.getTableName());
 			tableProcess.setTotalRows(tableMetaDataSource.getTotalRows());
 			tableProcess.setStatus(TableStatus.TABLE_CREATION_FAILED);
 			postgresDao.updateTableProcessStatus(tableProcess.getUpdateObjArray());
 			postgresDao.saveIntoTableProcessDetail(
-					new TableProcessDetail(tableMetaDataSource.getTableName(), "Table Creation Fail at Sync "
+					new TableProcessDetail(tableMetaDataSource.getTableName(), "Table creation fail at Sync "
 							+ AuditMessage.TABLE_CREATION_FAILED_MSG + AuditMessage.EXECPTION_MSG + e)
 									.getSaveObjArray());
 		}
@@ -277,7 +275,7 @@ public class As400DataMigrationService {
 									new TypeReference<List<SQLColumn>>() {
 									});
 						} catch (IOException e) {
-							log.error(AuditMessage.EXECPTION_MSG + " Columns Prasing Performed ", e);
+							log.error(AuditMessage.EXECPTION_MSG + " Columns prasing performed ", e);
 							throw e;
 						}
 						TableMetaData tableMetaData = new TableMetaData(batch.getTableName(), batch.getStartingRrn(),
@@ -287,14 +285,15 @@ public class As400DataMigrationService {
 							boolean dataInsert = postgresDao.writeOpraionFailedBatch(tableMetaData, tableData);
 							if (dataInsert)
 								postgresDao.updateBatchDetailStatus(
-										new BatchDetail(batch.getBno(),BatchDetailStatus.REFACTORED).getUpdateStatusObjArry());
+										new BatchDetail(batch.getBno(), BatchDetailStatus.REFACTORED)
+												.getUpdateStatusObjArry());
 							allBatchProcess = allBatchProcess && dataInsert;
 						}
 					}
-				}
-				else {
+				} else {
 					postgresDao.updateBatchDetailStatus(
-							new BatchDetail(batch.getBno(),BatchDetailStatus.MAX_ATTEMPTS_REACHED).getUpdateStatusObjArry());
+							new BatchDetail(batch.getBno(), BatchDetailStatus.MAX_ATTEMPTS_REACHED)
+									.getUpdateStatusObjArry());
 				}
 			}
 		} catch (Exception e) {

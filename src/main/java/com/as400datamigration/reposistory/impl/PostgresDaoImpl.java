@@ -41,46 +41,18 @@ public class PostgresDaoImpl implements PostgresDao {
 
 	@Override
 	public void saveIntoTableProcess(Object[] tableProcess) {
-		/*
-		 * try { postgresTemplate.update(utility.getInsertIntoTableProcess(),
-		 * tableProcess); } catch (Exception e) {
-		 * log.error("saveIntoTableProcess insert fail !!!", e); throw e; }
-		 */
 		postgresTemplate.update(utility.getInsertIntoTableProcess(), tableProcess);
 	}
-	
+
 	@Override
 	public void updateTableProcessStatus(Object[] allTableProcess) {
 		try {
 			postgresTemplate.update(utility.getUpdateTableProcessStatus(), allTableProcess);
 		} catch (Exception e) {
 			log.error(AuditMessage.EXECPTION_MSG + "updateTableProcessStatus", e);
-			
 		}
 
 	}
-	
-	/*
-	 * @Override public void updateTableProcessMetaData(Object[] updateObjArray) {
-	 * try { postgresTemplate.update(utility.getUpdateTableProcessMetaData(),
-	 * updateObjArray); } catch (Exception e) { log.error(AuditMessage.Execption_Msg
-	 * + "updateTableProcessStatus", e); } }
-	 */
-
-	/*
-	 * public void saveAllBatchDetail(String tableName, Long minRrn, Long maxRrn,
-	 * LocalDateTime startedAt, BatchDetailStatus status, LocalDateTime endedAt,
-	 * LocalDateTime modified) {
-	 * 
-	 * try { // log.info("Batch insert start :-" + "batch size : " +
-	 * tableDataList.size() +" // "+ LocalDateTime.now()); //
-	 * postgresTemplate.update(utility.getAllBatchDeatil(tableName), tableProcess);
-	 * // log.info("Batch insert end :-" + "batch size : " + tableDataList.size()
-	 * +" "+ // LocalDateTime.now()); } catch (Exception e) {
-	 * log.error("Batch insert fail !!!"); e.printStackTrace(); }
-	 * 
-	 * }
-	 */
 
 	@Override
 	@Transactional
@@ -94,10 +66,11 @@ public class PostgresDaoImpl implements PostgresDao {
 			tableMetaData.getBatchDetail().setStartedAtDestination(LocalDateTime.now());
 			tableMetaData.getBatchDetail().setModifiedAt(LocalDateTime.now());
 			updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray());
-			
-			if( Objects.isNull(tableMetaData.getPostgresQueries()) || Objects.isNull(tableMetaData.getPostgresQueries().getInsertTable()))
+
+			if (Objects.isNull(tableMetaData.getPostgresQueries())
+					|| Objects.isNull(tableMetaData.getPostgresQueries().getInsertTable()))
 				tableMetaData.setPostgresQueries(utility.getPostgresQueries(tableMetaData));
-				
+
 			postgresTemplate.batchUpdate(tableMetaData.getPostgresQueries().getInsertTable(), tableDataList);
 
 			tableMetaData.getBatchDetail().setStatus(BatchDetailStatus.ENDED_AT_DESTINATION);
@@ -115,11 +88,6 @@ public class PostgresDaoImpl implements PostgresDao {
 			tableMetaData.getBatchDetail().setReason(AuditMessage.EXECPTION_MSG + e);
 			updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
 
-			// pending
-			/*
-			 * updateTableProcessStatus( new TableProcess(tableMetaData.getTableName(),
-			 * TableStatus.Table_Created_With_FailedBatch) .getUpdateObjArray());
-			 */
 		}
 		return insertbatch;
 	}
@@ -128,15 +96,14 @@ public class PostgresDaoImpl implements PostgresDao {
 	public long saveBatchDetail(Object[] allBatchDetails) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		try {
-			//postgresTemplate.update();
-			postgresTemplate.update(utility.getPrepareStatement(utility.getInsertIntoBatchDetail(), allBatchDetails, 
-					new String[] {"bno"}), keyHolder);
+			postgresTemplate.update(utility.getPrepareStatement(utility.getInsertIntoBatchDetail(), allBatchDetails,
+					new String[] { "bno" }), keyHolder);
 		} catch (Exception e) {
 			log.error(AuditMessage.EXECPTION_MSG + "saveBatchDetail", e);
 		}
 		return keyHolder.getKey().longValue();
 	}
-	
+
 	@Override
 	public void updateBatchDetail(Object[] allBatchDetails) {
 		try {
@@ -148,11 +115,11 @@ public class PostgresDaoImpl implements PostgresDao {
 
 	@Override
 	public List<BatchDetail> getfailedbatch() {
-		List<BatchDetail> batchDetails=null;
+		List<BatchDetail> batchDetails = null;
 		try {
-			 batchDetails= postgresTemplate.query(utility.fetchFailedbatch(),
+			batchDetails = postgresTemplate.query(utility.fetchFailedbatch(),
 					new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
-			 //constructor
+			// constructor
 		} catch (Exception e) {
 			log.error(AuditMessage.EXECPTION_MSG + "updateBatchDetail", e);
 		}
@@ -163,15 +130,16 @@ public class PostgresDaoImpl implements PostgresDao {
 	public long saveFailedBatchDetail(Object[] saveObjArray) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		try {
-			postgresTemplate.update(utility.getPrepareStatement(utility.getInsertIntoFailedBatch(), saveObjArray, 
-					new String[] {"fbno"}), keyHolder);
-			//postgresTemplate.update(utility.getInsertIntoFailedBatch(),saveObjArray , keyHolder);
+			postgresTemplate.update(utility.getPrepareStatement(utility.getInsertIntoFailedBatch(), saveObjArray,
+					new String[] { "fbno" }), keyHolder);
+			// postgresTemplate.update(utility.getInsertIntoFailedBatch(),saveObjArray ,
+			// keyHolder);
 		} catch (Exception e) {
 			log.error(AuditMessage.EXECPTION_MSG + "saveBatchDetail", e);
 		}
 		return keyHolder.getKey().longValue();
 	}
-	
+
 	@Override
 	public void updateFailedBatchDetail(Object[] UpdateObjArray) {
 		try {
@@ -186,17 +154,20 @@ public class PostgresDaoImpl implements PostgresDao {
 	@Transactional
 	public boolean writeOpraionFailedBatch(TableMetaData tableMetaData, List<Object[]> tableDataList) {
 		try {
-			log.info("Batch writeOpraionFailedBatch start :-" + "batch size : " + tableDataList.size() + " " + LocalDateTime.now());
-			
-			if( Objects.isNull(tableMetaData.getPostgresQueries()) || Objects.isNull(tableMetaData.getPostgresQueries().getInsertTable()))
+			log.info("Batch writeOpraionFailedBatch start :-" + "batch size : " + tableDataList.size() + " "
+					+ LocalDateTime.now());
+
+			if (Objects.isNull(tableMetaData.getPostgresQueries())
+					|| Objects.isNull(tableMetaData.getPostgresQueries().getInsertTable()))
 				tableMetaData.setPostgresQueries(utility.getPostgresQueries(tableMetaData));
-			
+
 			postgresTemplate.batchUpdate(tableMetaData.getPostgresQueries().getInsertTable(), tableDataList);
 
 			tableMetaData.getFailedBatchDetails().setStatus(FailBatchStatus.PASS);
 			tableMetaData.getFailedBatchDetails().setEndedAt(LocalDateTime.now());
 			updateFailedBatchDetail(tableMetaData.getFailedBatchDetails().getUpdateObjArray());
-			log.info("Batch writeOpraionFailedBatch end   :-" + "batch size : " + tableDataList.size() + " " + LocalDateTime.now());
+			log.info("Batch writeOpraionFailedBatch end   :-" + "batch size : " + tableDataList.size() + " "
+					+ LocalDateTime.now());
 			return true;
 		} catch (Exception e) {
 			log.error("Batch insert fail !!!", e);
@@ -204,22 +175,15 @@ public class PostgresDaoImpl implements PostgresDao {
 			tableMetaData.getFailedBatchDetails().setEndedAt(LocalDateTime.now());
 			tableMetaData.getFailedBatchDetails().setReason(AuditMessage.EXECPTION_MSG + e);
 			updateFailedBatchDetail(tableMetaData.getFailedBatchDetails().getUpdateObjArray());
-
-			// pending
-			/*
-			 * updateTableProcessStatus( new TableProcess(tableMetaData.getTableName(),
-			 * TableStatus.Table_Created_With_FailedBatch) .getUpdateObjArray());
-			 */
 		}
 		return false;
 	}
 
 	@Override
 	public TableProcess getTableMetaData(String tableName) {
-		TableProcess tableProcess=null;
+		TableProcess tableProcess = null;
 		try {
-			tableProcess = (TableProcess) postgresTemplate.queryForObject(
-					utility.getTableProcessMetaData(tableName),
+			tableProcess = (TableProcess) postgresTemplate.queryForObject(utility.getTableProcessMetaData(tableName),
 					new BeanPropertyRowMapper<TableProcess>(TableProcess.class));
 		} catch (Exception e) {
 			log.error("Connection error at Destination, or table not found " + tableName);
@@ -232,13 +196,12 @@ public class PostgresDaoImpl implements PostgresDao {
 	public BatchDetail getlastBatchDetails(String tableName) {
 		BatchDetail batchDetail = null;
 		try {
-			batchDetail=(BatchDetail) postgresTemplate.queryForObject(
-					utility.getlastBatchDetails(tableName),
+			batchDetail = (BatchDetail) postgresTemplate.queryForObject(utility.getlastBatchDetails(tableName),
 					new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
 		} catch (Exception e) {
-			log.error("Connection error at Destination, or last batch details not found ",e);
+			log.error("Connection error at Destination, or last batch details not found ", e);
 		}
-		
+
 		return batchDetail;
 	}
 
@@ -249,8 +212,8 @@ public class PostgresDaoImpl implements PostgresDao {
 
 	@Override
 	public void updateTableDeatil(Object[] tableDetailsObjArray, boolean withCoulmns) {
-		
-		if(withCoulmns)
+
+		if (withCoulmns)
 			postgresTemplate.update(utility.updateTableDeatil(), tableDetailsObjArray);
 		else
 			postgresTemplate.update(utility.updateTableDeatilWithoutCoulmns(), tableDetailsObjArray);
@@ -258,20 +221,15 @@ public class PostgresDaoImpl implements PostgresDao {
 
 	@Override
 	public List<BatchDetail> getTenBatch(List<Integer> batchNoList) {
-		List<BatchDetail> batchDetails=null;
-		if(!batchNoList.isEmpty()) {
-			 batchDetails= postgresTemplate.query(utility.getAllBatchFromList(batchNoList),
-						new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
+		List<BatchDetail> batchDetails = null;
+		if (!batchNoList.isEmpty()) {
+			batchDetails = postgresTemplate.query(utility.getAllBatchFromList(batchNoList),
+					new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
+		} else {
+			batchDetails = postgresTemplate.query(utility.getAllBatch(),
+					new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
 		}
-		else {
-			 batchDetails= postgresTemplate.query(utility.getAllBatch(),
-						new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
-		}
-				/*
-				 * List<Integer> allbatchDetails=
-				 * postgresTemplate.queryForList(utility.getAllBatch(), Integer.class);
-				 */
-		
+
 		return batchDetails;
 	}
 
@@ -294,5 +252,10 @@ public class PostgresDaoImpl implements PostgresDao {
 		}
 	}
 
-	
+	@Override
+	public List<Integer> fetchDataFromDes(String selectDesQry) {
+		List<Integer> desTablesRowCuntList = postgresTemplate.queryForList(selectDesQry, Integer.class);
+		return desTablesRowCuntList;
+	}
+
 }

@@ -20,6 +20,7 @@ import com.as400datamigration.audit.TableStatus;
 import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.SQLColumn;
+import com.as400datamigration.model.SelectQryDesAndSrc;
 import com.as400datamigration.model.TableProcess;
 import com.as400datamigration.model.TableSummary;
 import com.as400datamigration.model.TableSummaryJson;
@@ -42,6 +43,7 @@ public class As400DataMigrationServiceTest {
 
 	static int i = 1;
 
+	// testing purpose -- was called from testRunner
 	public void process(String filePath) {
 		Path path;
 		List<String> tableList = new ArrayList<>();
@@ -86,51 +88,82 @@ public class As400DataMigrationServiceTest {
 	public TableSummary getTableSummary(String tableName, Map<String, TableSummaryJson> tableSummaryMap) {
 
 		TableSummary tableSummary = new TableSummary(tableName);
-		//List<String> summeryList = new ArrayList<String>();
-		
+
 		TableProcess tableProcessdata = postgresDao.getTableMetaData(tableName);
 		if (Objects.nonNull(tableProcessdata)) {
-				TableSummaryJson tableSummaryJson = tableSummaryMap.get(tableProcessdata.getStatus().toString());
-				tableSummary.setStatus(tableSummaryJson.getResult());
-				tableSummary.setSummary(tableSummaryJson.getSummary());
-				tableSummary.setModifiedAt(tableProcessdata.getModifiedAt());
+			TableSummaryJson tableSummaryJson = tableSummaryMap.get(tableProcessdata.getStatus().toString());
+			tableSummary.setStatus(tableSummaryJson.getResult());
+			tableSummary.setSummary(tableSummaryJson.getSummary());
+			tableSummary.setModifiedAt(tableProcessdata.getModifiedAt());
+
+			tableSummary.setTableStatus(tableProcessdata.getStatus());
 		} else {
 			tableSummary.setStatus("NOT_PERFORMED");
-			tableSummary.setSummary(
-					"Table has not performed yet, or may be connection issue.");
+			tableSummary.setSummary("Table has not performed yet, or may be connection issue.");
 		}
-
 		return tableSummary;
 	}
 
 	public void createfailedBatch(int i) {
 		try {
-			
-			List<BatchDetail> allBatch=new ArrayList<>();
-					if(i==1)
-						allBatch=postgresDao.getTenBatch(new ArrayList<Integer>());
-					else {
-						System.out.println();
-						List<Integer> list= new ArrayList<>();
-						Collections.addAll(list, 4,5,6);
-						allBatch=postgresDao.getTenBatch(list);
-						System.out.println();
-					}
-			
-			allBatch.forEach(batch->{
-				if(batch.getBno()%2>0) 
+
+			List<BatchDetail> allBatch = new ArrayList<>();
+			if (i == 1)
+				allBatch = postgresDao.getTenBatch(new ArrayList<Integer>());
+			else {
+				System.out.println();
+				List<Integer> list = new ArrayList<>();
+				Collections.addAll(list, 4, 5, 6);
+				allBatch = postgresDao.getTenBatch(list);
+				System.out.println();
+			}
+
+			allBatch.forEach(batch -> {
+				if (batch.getBno() % 2 > 0)
 					batch.setStatus(BatchDetailStatus.FAILED_AT_DESTINATION);
 				else
 					batch.setStatus(BatchDetailStatus.FAILED_AT_SOURCE);
 				batch.setColumnJson(postgresDao.getTableMetaData(batch.getTableName()).getColumnJson());
-				
+
 				postgresDao.updateBatchDetail(batch.getUpdateObjArray());
-				postgresDao.updateTableProcessStatus(new TableProcess(batch.getTableName(),
-						TableStatus.MIGRATION_FAILED).getUpdateObjArray());
+				postgresDao.updateTableProcessStatus(
+						new TableProcess(batch.getTableName(), TableStatus.MIGRATION_FAILED).getUpdateObjArray());
 			});
 		} catch (Exception e) {
-			log.error("Exception in createfailedBatch ",e);
+			log.error("Exception in createfailedBatch ", e);
 		}
+	}
+
+	/**
+	 * @param selectQryDesAndSrc
+	 * @param tableList
+	 */
+	public boolean runSelectDesAndSource(SelectQryDesAndSrc selectQryDesAndSrc, List<String> tableList) {
+		List<Integer> tableRowDest;
+		List<Integer> tableRowSrc;
+		boolean hasMissMatchedRows = false;
+		try {
+			tableRowDest = postgresDao.fetchDataFromDes(selectQryDesAndSrc.getSelectDenQry());
+		} catch (Exception e) {
+			throw e;
+		}
+
+		try {
+			tableRowSrc = as400Dao.fetchDataFromSource(selectQryDesAndSrc.getSelectSrcQry());
+		} catch (Exception e) {
+			throw e;
+		}
+
+		int count = 1;
+		for (int i = 0; i < tableRowSrc.size() - 1; i++) {
+			if (tableRowSrc.get(i) != tableRowDest.get(i)) {
+				System.out.println("Rows are not matched : " + (count++) + " : " + tableList.get(i) + " Source : "
+						+ tableRowSrc.get(i) + " Destination : " + tableRowDest.get(i));
+				hasMissMatchedRows = true;
+			}
+		}
+		return hasMissMatchedRows;
+
 	}
 
 }

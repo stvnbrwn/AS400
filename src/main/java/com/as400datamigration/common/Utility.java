@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -19,11 +18,11 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.PostgresQueries;
 import com.as400datamigration.model.SQLColumn;
+import com.as400datamigration.model.SelectQryDesAndSrc;
 import com.as400datamigration.model.TableMetaData;
 import com.as400datamigration.model.TableSummaryJson;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -38,7 +37,6 @@ public class Utility {
 	@Value("${postgres.schema}")
 	private String schema;
 	
-	
 	@Value("${postgres.audit.schema}")
 	private String auditSchema;
 	@Value("${main.menu}")
@@ -47,7 +45,7 @@ public class Utility {
 	@Value("${help.menu}")
 	private String helpManuFilePath;
 	
-	@Value("${specail.chars.in.columns-name}")
+	@Value("${special.chars.in.columns-name}")
 	private String spclCharInColumnsName;
 	
 	// AS400
@@ -283,8 +281,6 @@ public class Utility {
 		}
 		sql=sql.substring(0,sql.lastIndexOf(","))+")";
 		return sql;
-		
-		
 	}
 
 	/**
@@ -298,6 +294,30 @@ public class Utility {
 		Map<String, TableSummaryJson> map = new ObjectMapper().readValue(jsonContent, new TypeReference<Map<String, TableSummaryJson>>() {
         });
 		return map;
+	}
+
+	/**
+	 * @param tableList 
+	 * @return both select queries for destination row count and source row count
+	 * 
+	 */
+	public SelectQryDesAndSrc fetchSelectFromDestinationAndSource(List<String> tableList) {
+		String selectDest="select count(*) from ";
+		String resDes="";
+		String selectSource="select count(*) from ";
+		String resSource="";
+		String unionAll=" union all ";
+		for (String tableName : tableList) {
+			resDes +=  (selectDest + schema + 
+						 tableName.substring(tableName.lastIndexOf(".")) + 
+						 unionAll);
+			resSource += (selectSource + tableName + unionAll);
+		}
+		selectDest = resDes.substring(0,resDes.lastIndexOf(unionAll));
+		selectSource = resSource.substring(0,resSource.lastIndexOf(unionAll));
+		
+		SelectQryDesAndSrc selectQryDesAndSrc= new SelectQryDesAndSrc(selectDest,selectSource);
+		return selectQryDesAndSrc;
 	}
 
 	

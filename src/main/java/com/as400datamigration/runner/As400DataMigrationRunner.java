@@ -24,6 +24,7 @@ import com.as400datamigration.audit.TableStatus;
 import com.as400datamigration.common.LogMessage;
 import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.BatchDetail;
+import com.as400datamigration.model.SelectQryDesAndSrc;
 import com.as400datamigration.model.TableProcess;
 import com.as400datamigration.model.TableSummary;
 import com.as400datamigration.model.TableSummaryJson;
@@ -59,20 +60,20 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		boolean start = true;
 		boolean wrongInput = false;
-
+		Scanner reader = new Scanner(System.in);
+		
 		while (start) {
-			Scanner reader = new Scanner(System.in);
 			try {
 				if (!wrongInput)
 					utility.printMainManu();
-				
-				System.out.print(LogMessage.OPT_MSG);
+
+				System.out.print(LogMessage.ALIEN_CENTER+LogMessage.OPT_MSG);
 				int opt = reader.nextInt();
 
 				switch (opt) {
 				case 1:
 					log.info(LogMessage.APPLICATION_START_MSG);
-					System.out.print(LogMessage.INPUT_FILE_MSG);
+					System.out.print(LogMessage.ALIEN_CENTER + LogMessage.INPUT_FILE_MSG);
 					try {
 						String filePath = reader.next();
 						if (!filePath.trim().isEmpty()) {
@@ -80,57 +81,69 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 							tableList = utility.getInputFileData(filePath);
 							if (Objects.nonNull(tableList) && !tableList.isEmpty()) {
 								processCompleteMigration(tableList);
-								// perform failed batch ----> automaitcally 
+								// perform failed batch ----> automaitcally
 								try {
-										processFailedBatches(tableList);
+									processFailedBatches(tableList);
 								} catch (Exception e) {
-									log.error("Failed Batch Processing Fail !!!", e);
+									log.error("Failed batch processing fail !!!", e);
 								}
 							}
 						}
 					} catch (IOException io) {
-						log.error("File Not Found While Starting ...!", io);
+						log.error("File not found while starting ...!", io);
 					} catch (Exception e) {
-						log.error("File Not Found While Starting ...!", e);
+						log.error("Error at starting ...!", e);
 					}
 					break;
 
 				case 2:
 					log.info(LogMessage.APPLICATION_START_MSG);
-					System.out.print(LogMessage.INPUT_FILE_MSG);
+					System.out.print(LogMessage.ALIEN_CENTER + LogMessage.INPUT_FILE_MSG);
 					try {
 						String filePath = reader.next();
 						if (!filePath.trim().isEmpty()) {
-							processSyncInsert(filePath);
+							List<String> tableList = new ArrayList<>();
+							tableList = utility.getInputFileData(filePath);
+							if (Objects.nonNull(tableList) && !tableList.isEmpty()) {
+								processSyncInsert(tableList);
+								// perform failed batch ----> automaitcally
+								try {
+									processFailedBatches(tableList);
+								} catch (Exception e) {
+									log.error("Failed batch processing fail !!!", e);
+								}
+							}
 						}
+					}catch (IOException io) {
+						log.error("File not found while starting ...!", io);
 					} catch (Exception e) {
-						log.error("File Not Found While Starting ...!", e);
+						log.error("Error at starting ...!", e);
 					}
 					break;
 
 				case 3:
 					log.info(LogMessage.APPLICATION_START_MSG);
-					System.out.print(LogMessage.INPUT_FILE_MSG);
+					System.out.print(LogMessage.ALIEN_CENTER + LogMessage.INPUT_FILE_MSG);
 					try {
 						String filePath = reader.next();
 						if (!filePath.trim().isEmpty()) {
 							processFailedBatches(utility.getInputFileData(filePath));
 						}
 					} catch (Exception e) {
-						log.error("Failed Batch Processing Fail !!!", e);
+						log.error("Failed batch processing fail !!!", e);
 					}
 					break;
 
 				case 4:
 					log.info(LogMessage.APPLICATION_CURRENT_SUMMARY_START_MSG);
-					System.out.print(LogMessage.INPUT_FILE_MSG);
+					System.out.print(LogMessage.ALIEN_CENTER +LogMessage.INPUT_FILE_MSG);
 					try {
 						String filePath = reader.next();
 						if (!filePath.trim().isEmpty()) {
 							getCurrentStatusSummery(filePath);
 						}
 					} catch (Exception e) {
-						log.error("File Not Found While Starting ...!", e);
+						log.error("File not found while starting ...!", e);
 					}
 					break;
 
@@ -141,18 +154,30 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 				case 6:
 					start = false;
 					break;
-					
+
 				case 777:
-					System.out.println(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_OPT1_MSG);
-					System.out.println(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_OPT2_MSG);
-					System.out.print(LogMessage.ALIEN_CENTER+LogMessage.FAILED_BATCH_INPUT_MSG);
+					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_BATCH_OPT1_MSG);
+					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_BATCH_OPT2_MSG);
+					System.out.print(LogMessage.ALIEN_CENTER + LogMessage.FAILED_BATCH_INPUT_MSG);
 					try {
 						createFailBatch(reader.nextInt());
 					} catch (Exception e) {
-						log.error("Error While Creating failed batch ...!",e);
+						log.error("Error while creating failed batch ...!", e);
 					}
 					break;
-					
+
+				case 888:
+					log.info(LogMessage.APPLICATION_START_MSG);
+					System.out.print(LogMessage.ALIEN_CENTER+LogMessage.INPUT_FILE_MSG);
+					try {
+						String filePath = reader.next();
+						if (!filePath.trim().isEmpty()) {
+							verifyTableRow(filePath);
+						}
+					} catch (Exception e) {
+						log.error("File not found while starting ...!", e);
+					}
+					break;
 
 				default:
 					wrongInput = true;
@@ -163,17 +188,36 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 				if (!reader.next().equalsIgnoreCase("y"))
 					start = false;
 			} catch (Exception e) {
-				log.error("Error While Starting ...!",e);
+				log.error("Error while starting ...!", e);
 				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.RETRY_MSG);
-			}finally {
-				//reader.close();
-			}
+			} 
 		}
-		// System.out.println("exit");
+			reader.close();
+	}
+
+	/**
+	 * @param filePath
+	 */
+	private void verifyTableRow(String filePath) {
+		List<String> tableList = new ArrayList<>();
+		try {
+			tableList = utility.getInputFileData(filePath);
+			SelectQryDesAndSrc selectQryDesAndSrc = utility.fetchSelectFromDestinationAndSource(tableList);
+			boolean hasMissMatchedRows = as400DataMigrationServiceTest.runSelectDesAndSource(selectQryDesAndSrc,
+					tableList);
+			if (!hasMissMatchedRows) {
+				System.out.println(LogMessage.NO_MISS_MATCH_ROWS_IN_PASSED_TABLES);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	private void createFailBatch(int i) {
-			as400DataMigrationServiceTest.createfailedBatch(i);
+		as400DataMigrationServiceTest.createfailedBatch(i);
 	}
 
 	private void getCurrentStatusSummery(String filePath) {
@@ -182,42 +226,90 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			tableList = utility.getInputFileData(filePath);
 			ExecutorService executor = Executors.newCachedThreadPool(); // takefrom app pro
 
-			System.out.println(LogMessage.ALIEN_CENTER + "Total Tables : " + tableList.size());
+			System.out.println(LogMessage.ALIEN_CENTER + "Total tables : " + tableList.size());
 			List<TableSummary> outPutList = new ArrayList<TableSummary>(tableList.size());
 
 			Map<String, TableSummaryJson> tableSummaryMap = utility.getTableStatusMap();
-			
+
 			for (int i = 0; i < tableList.size(); i++) {
 				As400DataMigrationServiceTest as400DataMigrationServiceTest = new As400DataMigrationServiceTest();
 				applicationContext.getAutowireCapableBeanFactory().autowireBean(as400DataMigrationServiceTest);
-				Future<TableSummary> futureCall = executor
-						.submit(new CurrentTableStatusThread(tableList.get(i), as400DataMigrationServiceTest,
-								tableSummaryMap));
+				Future<TableSummary> futureCall = executor.submit(
+						new CurrentTableStatusThread(tableList.get(i), as400DataMigrationServiceTest, tableSummaryMap));
 				outPutList.add(i, futureCall.get());
 			}
 			executor.shutdown();
 			while (!executor.isTerminated()) {
 			}
-			System.out.println(LogMessage.ALIEN_CENTER + "** Result Summary **");
+			System.out.println(LogMessage.ALIEN_CENTER + LogMessage.RS_START_MSG);
 			outPutList.forEach(tableSummary -> System.out.println(tableSummary));
-			System.out.println(LogMessage.ALIEN_CENTER + "Process Current Status Summary Complete..!");
+
+			getRowSummery(outPutList);
+
+			System.out.println(LogMessage.ALIEN_CENTER + LogMessage.CURRENT_SUMMARY_COMPLETE);
 
 		} catch (FileNotFoundException e) {
 			log.error("Table Summery Json File Not Found !!!", e);
 		} catch (IOException e) {
 			log.error("Input File Not Found !!!", e);
 		} catch (Exception e) {
-			log.error("Exception At Current Status Summary Process !!!");
+			log.error("Exception At Current Status Summary Process !!!", e);
 		}
 
 	}
 
-	private void processSyncInsert(String filePath) {
-		List<String> tableList = new ArrayList<>();
+	private void getRowSummery(List<TableSummary> outPutList) {
 		try {
-			tableList = utility.getInputFileData(filePath);
+			List<String> outPutListOfFailTables = outPutList.stream().filter(
+					tableSummary -> tableSummary.getTableStatus().equals(TableStatus.MIGRATION_PROCESS_IN_RUNNING)
+							|| tableSummary.getTableStatus().equals(TableStatus.MIGRATION_SYNC_FAIL)
+							|| tableSummary.getTableStatus().equals(TableStatus.MIGRATION_FAILED))
+					.map(tableSummary -> tableSummary.getTableName()).collect(Collectors.toList());
+
+			if (!outPutListOfFailTables.isEmpty()) {
+				SelectQryDesAndSrc selectQryDesAndSrc = utility.fetchSelectFromDestinationAndSource(outPutListOfFailTables);
+				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_TABLES_SUMMERY_START);
+				System.out.println("Failed tables includs these status :-"
+						+ TableStatus.MIGRATION_PROCESS_IN_RUNNING.toString() + " , "
+						+ TableStatus.MIGRATION_SYNC_FAIL.toString() + " , " + TableStatus.MIGRATION_FAILED.toString());
+				boolean hasMissMatchedRows = as400DataMigrationServiceTest.runSelectDesAndSource(selectQryDesAndSrc,
+						outPutListOfFailTables);
+				if (!hasMissMatchedRows)
+					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.NO_MISS_MATCH_ROWS_IN_FAILED_TABLES_MSG);
+				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_TABLES_SUMMERY_END);
+			}
+
+			List<String> outPutListOfPassTables = outPutList.stream()
+					.filter(tableSummary -> tableSummary.getTableStatus().equals(TableStatus.TABLE_CREATED_WITH_NO_DATA)
+							|| tableSummary.getTableStatus().equals(TableStatus.MIGRATION_SUCCESSFUL)
+							|| tableSummary.getTableStatus().equals(TableStatus.MIGRATION_SYNC_SUCCESSFUL))
+					.map(tableSummary -> tableSummary.getTableName()).collect(Collectors.toList());
+
+			if (!outPutListOfPassTables.isEmpty()) {
+
+				SelectQryDesAndSrc selectQryDesAndSrc = utility.fetchSelectFromDestinationAndSource(outPutListOfPassTables);
+				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.PASSED_TABLES_ROWS_SUMMERY_STARTS);
+				System.out.println(
+						"Passed tables includs these status :-" + TableStatus.TABLE_CREATED_WITH_NO_DATA.toString()
+								+ " , " + TableStatus.MIGRATION_SUCCESSFUL.toString() + " , "
+								+ TableStatus.MIGRATION_SYNC_SUCCESSFUL.toString());
+				boolean hasMissMatchedRows = as400DataMigrationServiceTest.runSelectDesAndSource(selectQryDesAndSrc,
+						outPutListOfPassTables);
+
+				if (!hasMissMatchedRows)
+					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.NO_MISS_MATCH_ROWS_IN_PASSED_TABLES);
+				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.PASSED_TABLES_ROWS_SUMMERY_ENDS);
+			}
+		} catch (Exception e) {
+			throw e;
+		}
+
+	}
+
+	private void processSyncInsert(List<String> tableList) {
+		try {
 			ExecutorService executor = Executors.newFixedThreadPool(poolSize);
-			System.out.println(LogMessage.ALIEN_CENTER + "Total Tables : " + tableList.size());
+			System.out.println(LogMessage.ALIEN_CENTER + "Total tables : " + tableList.size());
 
 			tableList.forEach(tableName -> {
 				As400DataMigrationService as400DataMigrationService = new As400DataMigrationService();
@@ -229,10 +321,8 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			executor.shutdown();
 			while (!executor.isTerminated()) {
 			}
-			System.out.println(LogMessage.ALIEN_CENTER + "Process Sync Finished ..!");
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
+			System.out.println(LogMessage.ALIEN_CENTER + LogMessage.PROCESS_SYNC_FINISH);
+		}  catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -241,22 +331,21 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 		try {
 			List<BatchDetail> failedBatchList = postgresDao.getfailedbatch(); // doubt max attempt
 			ExecutorService executor = Executors.newFixedThreadPool(poolSize);
-			System.out.println(LogMessage.ALIEN_CENTER + "Total Failed Batches : " + failedBatchList.size());
+			System.out.println(LogMessage.ALIEN_CENTER + "Total failed batches : " + failedBatchList.size());
 			if (Objects.nonNull(failedBatchList)) {
 				List<Boolean> outPutList = new ArrayList<Boolean>(tableList.size());
-				int i=0;
+				int i = 0;
 				for (String table : tableList) {
-					List<BatchDetail> tableFailedBatch=failedBatchList.stream()
-							.filter(batch->table.equalsIgnoreCase( batch.getTableName())).collect(Collectors.toList());
-					if(!tableFailedBatch.isEmpty()) {
+					List<BatchDetail> tableFailedBatch = failedBatchList.stream()
+							.filter(batch -> table.equalsIgnoreCase(batch.getTableName())).collect(Collectors.toList());
+					if (!tableFailedBatch.isEmpty()) {
 						As400DataMigrationService as400DataMigrationService = new As400DataMigrationService();
 						applicationContext.getAutowireCapableBeanFactory().autowireBean(as400DataMigrationService);
-						
+
 						Future<Boolean> futureCall = executor
 								.submit(new FailedBatchThread(tableFailedBatch, as400DataMigrationService));
 						outPutList.add(i++, futureCall.get());
-					}
-					else {
+					} else {
 						i++;
 						outPutList.add(false);
 					}
@@ -264,15 +353,16 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 				executor.shutdown();
 				while (!executor.isTerminated()) {
 				}
-				i=0;
+				i = 0;
 				for (Boolean allFailedBatchPass : outPutList) {
-					if(allFailedBatchPass) {
-						postgresDao.updateTableProcessStatus(new TableProcess(tableList.get(i),
-								TableStatus.MIGRATION_SUCCESSFUL).getUpdateObjArray());
+					if (allFailedBatchPass) {
+						postgresDao.updateTableProcessStatus(
+								new TableProcess(tableList.get(i), TableStatus.MIGRATION_SUCCESSFUL)
+										.getUpdateObjArray());
 					}
 					i++;
 				}
-				System.out.println(LogMessage.ALIEN_CENTER + "Process Failed Batches Finished ..!");
+				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.PROCESS_FAILED_BATCH_COMPLETE);
 			}
 		} catch (Exception e) {
 			log.error(AuditMessage.EXECPTION_MSG + e);
@@ -282,7 +372,7 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 	private void processCompleteMigration(List<String> tableList) {
 		try {
 			ExecutorService executor = Executors.newFixedThreadPool(poolSize); // takefrom app pro
-			System.out.println(LogMessage.ALIEN_CENTER + "Total Tables : " + tableList.size());
+			System.out.println(LogMessage.ALIEN_CENTER + "Total tables : " + tableList.size());
 
 			for (int i = 0; i < tableList.size(); i++) {
 				As400DataMigrationService as400DataMigrationService = new As400DataMigrationService();
@@ -294,71 +384,11 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			executor.shutdown();
 			while (!executor.isTerminated()) {
 			}
-			System.out.println(LogMessage.ALIEN_CENTER + "Process Complete Migration Finished ..!");
-			// latch.await();
+			System.out.println(LogMessage.ALIEN_CENTER + LogMessage.PROCESS_COMPLETE_MIGRATION_COMPLETE);
 		} catch (Exception e) {
 			log.error("File Not Found !!!", e);
 		}
 
 	}
 
-	/*
-	 * public class ThreadClass extends Thread { private CountDownLatch latch;
-	 * private String tableName; private As400DataMigrationService
-	 * as400DataMigrationService; private As400DataMigrationServiceTest
-	 * as400DataMigrationServiceTest;
-	 * 
-	 * ThreadClass() { }
-	 * 
-	 * public ThreadClass(CountDownLatch latch, String tableName,
-	 * As400DataMigrationService as400DataMigrationService) { super(); this.latch =
-	 * latch; this.tableName = tableName; this.as400DataMigrationService =
-	 * as400DataMigrationService; }
-	 * 
-	 * public ThreadClass(CountDownLatch latch, String tableName,
-	 * As400DataMigrationServiceTest as400DataMigrationServiceTest) { super();
-	 * this.latch = latch; this.tableName = tableName;
-	 * this.as400DataMigrationServiceTest = as400DataMigrationServiceTest; }
-	 * 
-	 * public void run() {
-	 * 
-	 * if(Objects.nonNull(as400DataMigrationService))
-	 * as400DataMigrationService.processCompleteMigration(tableName); else if
-	 * (Objects.nonNull(as400DataMigrationServiceTest))
-	 * as400DataMigrationServiceTest.startTesting(tableName); latch.countDown(); } }
-	 */
-
-	/*
-	 * void data() { try { //String filePath = null;
-	 * 
-	 * if (args.length > 0) filePath = args[0];
-	 * 
-	 * // CompletableFuture.allOf();
-	 * 
-	 * tableList.forEach(tableName -> { if (!tableName.isEmpty()) {
-	 * //As400DataMigrationService as400DataMigrationService= new
-	 * As400DataMigrationService();
-	 * //applicationContext.getAutowireCapableBeanFactory().autowireBean(
-	 * as400DataMigrationService);
-	 * as400DataMigrationService.processCompleteMigration(tableName); } });
-	 * 
-	 * 
-	 * log.info("Starting of AS400_DATAMIGRATION Failed Process. . .! " +
-	 * LocalDateTime.now()); // processSyncInsert(filePath);
-	 * log.info("Ending   of AS400_DATAMIGRATION Failed Process. . .! " +
-	 * LocalDateTime.now());
-	 * 
-	 * log.info("Starting of AS400_DATAMIGRATION Failed Process. . .! " +
-	 * LocalDateTime.now()); // processFailedBatches();
-	 * log.info("Ending   of AS400_DATAMIGRATION Failed Process. . .! " +
-	 * LocalDateTime.now());
-	 * 
-	 * } catch (Exception e) {
-	 * 
-	 * e.printStackTrace(); StringWriter sw = new StringWriter();
-	 * e.printStackTrace(new PrintWriter(sw)); String exceptionAsString =
-	 * sw.toString(); log.trace(exceptionAsString);
-	 * 
-	 * } }
-	 */
 }

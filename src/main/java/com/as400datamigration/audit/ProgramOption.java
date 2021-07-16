@@ -11,6 +11,5 @@ public enum ProgramOption {
 	
 	PERFORM_COMPLETE_MIGRATION,
 	PERFORM_SYNC,
-	PERFORM_FAILED_BATCH,
-	
+
 }

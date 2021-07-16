@@ -27,4 +27,11 @@ public interface As400Dao {
 
 	public List<SQLColumn> getTableDesc(TableMetaData tableMetaData,boolean isCreate);
 
+	/**
+	 * @param selectSrcQry
+	 * @return list  list of rows for all table
+	 */
+	public List<Integer> fetchDataFromSource(String selectSrcQry);
+
+	
 }

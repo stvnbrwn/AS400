@@ -23,15 +23,12 @@ public class FailedBatchDetails {
 	  String reason;
 	  
 	  public FailedBatchDetails(long bno) {
-		  
 		  	this.bno = bno;
 			this.startedAt = LocalDateTime.now();
 			this.status = FailBatchStatus.ATTEMPT;
-			
 		}
 
 	public Object[] getSaveObjArray() {
-			
 			return new Object[] {
 					this.bno ,
 					this.startedAt ,
@@ -42,7 +39,6 @@ public class FailedBatchDetails {
 	}
 
 	public Object[] getUpdateObjArray() {
-		
 		return new Object[] {
 				//update
 				this.status.toString() ,
@@ -52,7 +48,5 @@ public class FailedBatchDetails {
 				this.fbno 
 		};
 	}
-
-	
 	  
 }

@@ -53,5 +53,12 @@ public interface PostgresDao {
 
 	public int getFailedBatchAttempt(BatchDetail batch);
 
+	/**
+	 * @param selectDesQry
+	 * @return list of rows for all table
+	 */
+	public List<Integer> fetchDataFromDes(String selectDesQry);
+
+	
 	
 }

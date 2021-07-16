@@ -10,8 +10,6 @@ public class As400DataMigrationApplication {
 
 	public static void main(String[] args) {
 		
-		//SpringApplication.run(As400DataMigrationApplication.class, args);
-
 		new SpringApplicationBuilder(As400DataMigrationApplication.class).logStartupInfo(false).run(args);
  
 	}
