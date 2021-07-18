@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableMetaData;
+import com.as400datamigration.model.AllTableRows;
 
 @Repository
 public interface As400Dao {
@@ -29,9 +30,9 @@ public interface As400Dao {
 
 	/**
 	 * @param selectSrcQry
-	 * @return list  list of rows for all table
+	 * @return list of rows for all table
 	 */
-	public List<Integer> fetchDataFromSource(String selectSrcQry);
+	public List<AllTableRows> fetchDataFromSource(String selectSrcQry);
 
 	
 }

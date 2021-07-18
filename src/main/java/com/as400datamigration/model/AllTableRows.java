@@ -1,7 +1,5 @@
 package com.as400datamigration.model;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,21 +9,19 @@ import lombok.ToString;
 /** 
  * This class for
  * 
- * @author Programmers.io - Mohit Kachhwaha - 15-Jul-2021
+ * @author Programmers.io - Mohit Kachhwaha - 16-Jul-2021
  * 	
- * 			Modification - MohitKachhwaha - 15-Jul-2021
+ * 			Modification - MohitKachhwaha - 16-Jul-2021
  *          
  */
-
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class SelectQryDesAndSrc {
+public class AllTableRows {
 	
-	String selectDenQry;
-	String selectSrcQry;
-	
-	
+	int totalRows;
+	String tableName;
+
 }

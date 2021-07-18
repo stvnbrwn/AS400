@@ -8,9 +8,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ import org.springframework.stereotype.Service;
 import com.as400datamigration.audit.BatchDetailStatus;
 import com.as400datamigration.audit.TableStatus;
 import com.as400datamigration.common.Utility;
+import com.as400datamigration.model.AllTableRows;
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.SelectQryDesAndSrc;
@@ -139,26 +143,37 @@ public class As400DataMigrationServiceTest {
 	 * @param tableList
 	 */
 	public boolean runSelectDesAndSource(SelectQryDesAndSrc selectQryDesAndSrc, List<String> tableList) {
-		List<Integer> tableRowDest;
-		List<Integer> tableRowSrc;
+		List<AllTableRows> tableRowDest;
+		List<AllTableRows> tableRowSrc;
 		boolean hasMissMatchedRows = false;
 		try {
 			tableRowDest = postgresDao.fetchDataFromDes(selectQryDesAndSrc.getSelectDenQry());
 		} catch (Exception e) {
 			throw e;
 		}
-
+		tableRowDest = tableRowDest.stream()
+		        .sorted((o1, o2) -> {return o1.getTableName().compareTo(o2.getTableName());})
+		        .collect(Collectors.toList());
 		try {
 			tableRowSrc = as400Dao.fetchDataFromSource(selectQryDesAndSrc.getSelectSrcQry());
 		} catch (Exception e) {
 			throw e;
 		}
+		tableRowSrc = tableRowSrc.stream()
+		        .sorted((o1, o2) -> {return o1.getTableName().compareTo(o2.getTableName());})
+		        .collect(Collectors.toList());
+
+		Map<String, String> LibraryAndTableNameMap = new HashMap<>();
+		tableList.forEach(table->{
+			LibraryAndTableNameMap.put(table.substring(table.lastIndexOf(".")+1),table);
+			// error if two library have same table name
+		});
 
 		int count = 1;
 		for (int i = 0; i < tableRowSrc.size() - 1; i++) {
-			if (tableRowSrc.get(i) != tableRowDest.get(i)) {
-				System.out.println("Rows are not matched : " + (count++) + " : " + tableList.get(i) + " Source : "
-						+ tableRowSrc.get(i) + " Destination : " + tableRowDest.get(i));
+			if (tableRowSrc.get(i).getTotalRows() != tableRowDest.get(i).getTotalRows()) {
+				System.out.println("Rows are not matched : " + (count++) + " : " + LibraryAndTableNameMap.get(tableRowSrc.get(i).getTableName())   + " Source : "
+						+ tableRowSrc.get(i).getTotalRows() + " Destination : " + tableRowDest.get(i).getTotalRows());
 				hasMissMatchedRows = true;
 			}
 		}

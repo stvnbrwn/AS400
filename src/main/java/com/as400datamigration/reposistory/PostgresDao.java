@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.TableMetaData;
 import com.as400datamigration.model.TableProcess;
+import com.as400datamigration.model.AllTableRows;
 
 @Repository
 public interface PostgresDao {
@@ -57,7 +58,7 @@ public interface PostgresDao {
 	 * @param selectDesQry
 	 * @return list of rows for all table
 	 */
-	public List<Integer> fetchDataFromDes(String selectDesQry);
+	public List<AllTableRows> fetchDataFromDes(String selectDesQry);
 
 	
 	

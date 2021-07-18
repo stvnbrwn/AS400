@@ -18,6 +18,7 @@ import com.as400datamigration.model.SQLColumn;
 import com.as400datamigration.model.TableMetaData;
 import com.as400datamigration.model.TableProcess;
 import com.as400datamigration.model.TableProcessDetail;
+import com.as400datamigration.model.AllTableRows;
 import com.as400datamigration.reposistory.As400Dao;
 import com.as400datamigration.reposistory.PostgresDao;
 import com.google.gson.Gson;
@@ -214,8 +215,9 @@ public class As400DaoImpl implements As400Dao {
 	}
 
 	@Override
-	public List<Integer> fetchDataFromSource(String selectSrcQry) {
-		List<Integer> srcRowCountList = as400Template.queryForList(selectSrcQry, Integer.class);
+	public List<AllTableRows> fetchDataFromSource(String selectSrcQry) {
+		List<AllTableRows> srcRowCountList = as400Template.query(selectSrcQry, 
+				new BeanPropertyRowMapper<AllTableRows>(AllTableRows.class));
 		return srcRowCountList;
 	}
 

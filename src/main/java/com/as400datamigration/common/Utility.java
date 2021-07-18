@@ -10,8 +10,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -257,6 +259,11 @@ public class Utility {
         BufferedReader bf= new BufferedReader(fr);
         Stream<String> lines = bf.lines();
         List<String> tableList = lines.filter(p->!p.isEmpty()).map(table->table.trim()).collect(Collectors.toList());
+        //remove duplicate tables from list
+        Set<String> set = new HashSet<>(tableList);
+        tableList.clear();
+        tableList.addAll(set);
+        
         fr.close();
         bf.close();
 		return tableList;
@@ -302,16 +309,16 @@ public class Utility {
 	 * 
 	 */
 	public SelectQryDesAndSrc fetchSelectFromDestinationAndSource(List<String> tableList) {
-		String selectDest="select count(*) from ";
+		String selectDest="select count(*) as total_rows, ";
 		String resDes="";
-		String selectSource="select count(*) from ";
+		String selectSource="select count(*) as total_rows, ";
 		String resSource="";
 		String unionAll=" union all ";
 		for (String tableName : tableList) {
-			resDes +=  (selectDest + schema + 
-						 tableName.substring(tableName.lastIndexOf(".")) + 
+			resDes +=  (selectDest +"'"+tableName.substring(tableName.lastIndexOf(".")+1) +"' as table_name from "+
+						 schema + tableName.substring(tableName.lastIndexOf(".")) +
 						 unionAll);
-			resSource += (selectSource + tableName + unionAll);
+			resSource += (selectSource + "'"+tableName.substring(tableName.lastIndexOf(".")+1) +"' as table_name from "+ tableName + unionAll);
 		}
 		selectDest = resDes.substring(0,resDes.lastIndexOf(unionAll));
 		selectSource = resSource.substring(0,resSource.lastIndexOf(unionAll));

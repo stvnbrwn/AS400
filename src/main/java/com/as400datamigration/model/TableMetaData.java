@@ -24,6 +24,12 @@ public class TableMetaData {
 	public TableMetaData(String tableName) {
 		this.tableName = tableName;
 	}
+	
+	public TableMetaData(Long totalRows, String tableName) {
+		super();
+		this.totalRows = totalRows;
+		this.tableName = tableName;
+	}
 
 	public TableMetaData(Long totalRows, Long minRrn, Long maxRrn) {
 		super();
@@ -133,5 +139,9 @@ public class TableMetaData {
 	public void setTableProcess(TableProcess tableProcess) {
 		this.tableProcess = tableProcess;
 	}
+
+
+
+	
 
 }

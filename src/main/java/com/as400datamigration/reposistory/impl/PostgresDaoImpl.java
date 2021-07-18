@@ -20,6 +20,7 @@ import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.TableMetaData;
 import com.as400datamigration.model.TableProcess;
+import com.as400datamigration.model.AllTableRows;
 import com.as400datamigration.reposistory.PostgresDao;
 
 import lombok.extern.slf4j.Slf4j;
@@ -119,7 +120,6 @@ public class PostgresDaoImpl implements PostgresDao {
 		try {
 			batchDetails = postgresTemplate.query(utility.fetchFailedbatch(),
 					new BeanPropertyRowMapper<BatchDetail>(BatchDetail.class));
-			// constructor
 		} catch (Exception e) {
 			log.error(AuditMessage.EXECPTION_MSG + "updateBatchDetail", e);
 		}
@@ -132,8 +132,6 @@ public class PostgresDaoImpl implements PostgresDao {
 		try {
 			postgresTemplate.update(utility.getPrepareStatement(utility.getInsertIntoFailedBatch(), saveObjArray,
 					new String[] { "fbno" }), keyHolder);
-			// postgresTemplate.update(utility.getInsertIntoFailedBatch(),saveObjArray ,
-			// keyHolder);
 		} catch (Exception e) {
 			log.error(AuditMessage.EXECPTION_MSG + "saveBatchDetail", e);
 		}
@@ -253,8 +251,9 @@ public class PostgresDaoImpl implements PostgresDao {
 	}
 
 	@Override
-	public List<Integer> fetchDataFromDes(String selectDesQry) {
-		List<Integer> desTablesRowCuntList = postgresTemplate.queryForList(selectDesQry, Integer.class);
+	public List<AllTableRows> fetchDataFromDes(String selectDesQry) {
+		List<AllTableRows> desTablesRowCuntList = postgresTemplate.query(selectDesQry, 
+				new BeanPropertyRowMapper<AllTableRows>(AllTableRows.class));
 		return desTablesRowCuntList;
 	}
 
