@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,15 +92,17 @@ public class As400DataMigrationServiceTest {
 
 		TableSummary tableSummary = new TableSummary(tableName);
 
-		TableProcess tableProcessdata = postgresDao.getTableMetaData(tableName);
-		if (Objects.nonNull(tableProcessdata)) {
-			TableSummaryJson tableSummaryJson = tableSummaryMap.get(tableProcessdata.getStatus().toString());
-			tableSummary.setStatus(tableSummaryJson.getResult());
-			tableSummary.setSummary(tableSummaryJson.getSummary());
-			tableSummary.setModifiedAt(tableProcessdata.getModifiedAt());
-
-			tableSummary.setTableStatus(tableProcessdata.getStatus());
-		} else {
+		TableProcess tableProcessdata;
+		try {
+			tableProcessdata= postgresDao.getTableMetaData(tableName);
+			if (Objects.nonNull(tableProcessdata)) {
+				TableSummaryJson tableSummaryJson = tableSummaryMap.get(tableProcessdata.getStatus().toString());
+				tableSummary.setStatus(tableSummaryJson.getResult());
+				tableSummary.setSummary(tableSummaryJson.getSummary());
+				tableSummary.setModifiedAt(tableProcessdata.getModifiedAt());
+				tableSummary.setTableStatus(tableProcessdata.getStatus());
+			}
+		} catch (Exception e) {
 			tableSummary.setStatus("NOT_PERFORMED");
 			tableSummary.setSummary("Table has not performed yet, or may be connection issue.");
 		}
@@ -170,7 +171,7 @@ public class As400DataMigrationServiceTest {
 		});
 
 		int count = 1;
-		for (int i = 0; i < tableRowSrc.size() - 1; i++) {
+		for (int i = 0; i < tableRowSrc.size() ; i++) {
 			if (tableRowSrc.get(i).getTotalRows() != tableRowDest.get(i).getTotalRows()) {
 				System.out.println("Rows are not matched : " + (count++) + " : " + LibraryAndTableNameMap.get(tableRowSrc.get(i).getTableName())   + " Source : "
 						+ tableRowSrc.get(i).getTotalRows() + " Destination : " + tableRowDest.get(i).getTotalRows());

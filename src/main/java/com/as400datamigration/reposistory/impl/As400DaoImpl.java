@@ -153,7 +153,7 @@ public class As400DaoImpl implements As400Dao {
 			tableMetaData.getBatchDetail().setBno(bno);
 			postgresDao.updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray());
 		}
-		log.error("End readOprationOnTable for table : " + tableMetaData.getTableName());
+		log.info("End readOprationOnTable for table : " + tableMetaData.getTableName());
 		return tableDataList;
 	}
 
