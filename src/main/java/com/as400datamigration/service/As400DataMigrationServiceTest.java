@@ -97,13 +97,14 @@ public class As400DataMigrationServiceTest {
 			tableProcessdata= postgresDao.getTableMetaData(tableName);
 			if (Objects.nonNull(tableProcessdata)) {
 				TableSummaryJson tableSummaryJson = tableSummaryMap.get(tableProcessdata.getStatus().toString());
-				tableSummary.setStatus(tableSummaryJson.getResult());
+				tableSummary.setResult(tableSummaryJson.getResult());
 				tableSummary.setSummary(tableSummaryJson.getSummary());
 				tableSummary.setModifiedAt(tableProcessdata.getModifiedAt());
 				tableSummary.setTableStatus(tableProcessdata.getStatus());
 			}
 		} catch (Exception e) {
-			tableSummary.setStatus("NOT_PERFORMED");
+			tableSummary.setResult("NOT PERFORMED");
+			tableSummary.setTableStatus(TableStatus.TABLE_NOT_CREATED);
 			tableSummary.setSummary("Table has not performed yet, or may be connection issue.");
 		}
 		return tableSummary;

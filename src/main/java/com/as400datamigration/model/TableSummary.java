@@ -17,7 +17,7 @@ public class TableSummary {
 	
 	
 	String tableName;
-	String  status;
+	String  result;
 	LocalDateTime modifiedAt;
 	String summary;
 	
@@ -29,8 +29,8 @@ public class TableSummary {
 
 	@Override
 	public String toString() {
-		return "TableSummary [tableName=" + tableName + ", status=" + status + ", modifiedAt=" + modifiedAt
-				+ ", summary=" + summary + "]";
+		return "TableSummary [Table name=" + tableName + ", Result=" + result + ", Modified at=" + modifiedAt
+				+ ", Summary=" + summary + "]";
 	}
 	
 	
