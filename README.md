@@ -18,7 +18,8 @@ AS400_Datamigration,
 
 	2. Project Structure. ( preferable project Structure ) 
 	
-				
+				![image](https://user-images.githubusercontent.com/75680603/126644227-9ed12c3d-0886-482e-9e05-9fa39958a2ef.png)
+
   				      
 	3. Set Application Configuration.
 	
