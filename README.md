@@ -2,6 +2,8 @@
 
 AS400_Datamigration,
  it is spring boot console application for data migration from as400(db2) to postgresql
+ 
+ ## INSTRUCTIONS
   						
 						*** INSTRUCTIONS ***
 	1. Run SQL Script File. (Name : ADM.SQL)
@@ -71,8 +73,23 @@ AS400_Datamigration,
     			  E:\ADM\ADM-v1.0.jar"
     			     
     #Imp Note :- you can use "Command sheet.xlsx" from Release Documents Folder. which will create cmd command for you.
+    if you already did these set-up let's continue...
+    
+## How to check source and destination connection
+	
+	#If both connection established 
+![image](https://user-images.githubusercontent.com/75680603/126661325-f7855d8f-ed4b-4aa9-8d70-7a7e8824cbfc.png)
+	
+	#If source is not connected 
+![image](https://user-images.githubusercontent.com/75680603/126661445-1772e8d4-5c8d-4cff-bac4-19e74b513f12.png)
+	 in this case tables are also logged in destination log tables , so can check table
 
-if you already did these set-up let's continue...
+	#If destination is not connected
+![image](https://user-images.githubusercontent.com/75680603/126661560-ae34aae5-3bfa-43f8-a614-f01e55323c93.png)
+
+
+    
+
  
 
  
