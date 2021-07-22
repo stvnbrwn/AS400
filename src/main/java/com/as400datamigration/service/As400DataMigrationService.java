@@ -294,6 +294,7 @@ public class As400DataMigrationService {
 					postgresDao.updateBatchDetailStatus(
 							new BatchDetail(batch.getBno(), BatchDetailStatus.MAX_ATTEMPTS_REACHED)
 									.getUpdateStatusObjArry());
+					allBatchProcess=false;
 				}
 			}
 		} catch (Exception e) {

@@ -8,7 +8,7 @@ public interface Constant {
 	String AS400_SELECT_TABLE_META_DATA="select count(*) totalRows , min(RRN(a)) minRrn ,max(RRN(a)) "
 			+ "maxRrn from %s a";
 	
-	String AS400_SELECT_TABLE_DESC="Select NAME,DATA_TYPE,LENGTH,COLUMN_HEADING,scale from "
+	String AS400_SELECT_TABLE_DESC=" Select NAME,DATA_TYPE,LENGTH,COLUMN_HEADING,scale from "
 			+ "qsys2.syscolumns where TABLE_SCHEMA= '%s' AND tbname = '%s' ";
 	
 	//AS400 - For TESTING POINT

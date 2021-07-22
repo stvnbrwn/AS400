@@ -81,20 +81,108 @@ public class Utility {
 	public String getPostgresDataType(SQLColumn sqlColumn) {
 		try {
 			switch (sqlColumn.getColumnType().toUpperCase()) {
-
-			case "CHAR":
-			case "VARCHAR":
-				return "VARCHAR";
-
+			
+			
+			case "SMALLINT":
+				return "SMALLINT";             	                
+			
+			case "INTEGER": // B //only zero 4 digit
+				return "INTEGER";
+				
+			case "BIGINT":
+			    return "BIGINT" ;       
+			    
 			case "DECIMAL": // P -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
 			case "NUMERIC": // S -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
 				if (sqlColumn.getScale() > 0)
 					return "Numeric";
 				return "bigInt";
-
-			case "INTEGER": // B //only zero 4 digit
-				return "bigInt";
-
+				
+			
+			case "DECFLOAT":
+				return "FLOAT";   // 1
+			
+			case "REAL":
+				return "REAL";
+				                
+			case "DOUBLE":
+				return "DOUBLE"; 
+				
+			case "CHAR":
+			case "CHAR()":
+			case "CHAR ()":
+			case "CHARACTER":
+			case "CHARACTER ()":
+			case "CHARACTER()":
+			case "CHARACTER VARYING":
+			case "CHARACTER VARYING ()":
+			case "CHARACTER VARYING()":
+			case "NCHAR":
+			case "NCHAR ()":
+			case "NCHAR()":
+			case "NCHAR VARYING":
+			case "NCHAR VARYING ()":
+			case "NCHAR VARYING()":
+			case "VARCHAR":
+			case "VARCHAR ()":
+			case "VARCHAR()":
+			case "NVARCHAR":
+			case "NVARCHAR ()":
+			case "NVARCHAR()":
+				return "VARCHAR"; 
+				
+			case "CHAR () FOR BIT DATA":
+			case "VARCHAR () FOR BIT DATA":
+			case "CHAR() FOR BIT DATA":
+			case "VARCHAR() FOR BIT DATA":
+				return "BYTEA";           //2
+						
+				
+			case "BINARY":
+			case "BINARY()":
+			case "BINARY ()":
+			case "VARBINARY":
+			case "VARBINARY()":
+			case "VARBINARY ()":
+			case "BLOB ()":
+			case "BLOB()":
+			case "BLOB":
+				return "BYTEA";            //3
+				
+			case "GRAPHIC":
+			case "GRAPHIC ()":
+			case "GRAPHIC()":
+			case "VARGRAPHIC":
+			case "VARGRAPHIC ()":
+			case "VARGRAPHIC()":	
+				return "VARCHAR";            //4
+				
+			case "DOUBLE PRECISION":
+			case "FLOAT ()":
+			case "FLOAT()":
+			case "FLOAT":   
+				return "DOUBLE PRECISION";
+				
+			case "DATE":
+				return "DATE";
+		
+			case "TIME":
+				return "TIME";
+				
+			case "TIMESTAMP":
+			case "TIMESTAMP ()":
+			case "TIMESTAMP()":
+				return "TIMESTAMP";
+				
+			
+			case "CLOB":
+			case "CLOB ()":
+			case "CLOB()":
+			case "DBCLOB":
+			case "DBCLOB ()":
+			case "DBCLOB()":
+				return "TEXT";
+				
 			default:
 				return "VARCHAR";
 

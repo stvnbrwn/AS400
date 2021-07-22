@@ -242,8 +242,11 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			while (!executor.isTerminated()) {
 			}
 			System.out.println(LogMessage.ALIEN_CENTER + LogMessage.RS_START_MSG);
-			outPutList.forEach(tableSummary -> System.out.println(tableSummary));
-
+			int sno=1;
+			for (TableSummary tableSummary : outPutList) {
+				System.out.println("S.no. : "+ sno++ + " : "+tableSummary);
+			}
+			
 			getRowSummery(outPutList);
 
 			System.out.println(LogMessage.ALIEN_CENTER + LogMessage.CURRENT_SUMMARY_COMPLETE);

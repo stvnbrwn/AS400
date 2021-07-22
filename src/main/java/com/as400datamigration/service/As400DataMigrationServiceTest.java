@@ -172,7 +172,7 @@ public class As400DataMigrationServiceTest {
 		});
 
 		int count = 1;
-		for (int i = 0; i < tableRowSrc.size() ; i++) {
+		for (int i = 0; i < tableRowSrc.size(); i++) {
 			if (tableRowSrc.get(i).getTotalRows() != tableRowDest.get(i).getTotalRows()) {
 				System.out.println("Rows are not matched : " + (count++) + " : " + LibraryAndTableNameMap.get(tableRowSrc.get(i).getTableName())   + " Source : "
 						+ tableRowSrc.get(i).getTotalRows() + " Destination : " + tableRowDest.get(i).getTotalRows());

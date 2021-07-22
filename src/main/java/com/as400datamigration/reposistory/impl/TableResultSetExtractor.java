@@ -54,22 +54,111 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 		try {
 			switch (columnType.toUpperCase()) {
 
-			case "CHAR":
-			case "VARCHAR":
-				return rs.getString(ColumnName).trim().replace("\u0000", "");
-
-			case "DECIMAL": // P -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
-			case "NUMERIC": // S -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
-				if (scale > 0)
-					return rs.getBigDecimal(ColumnName);
-				return rs.getLong(ColumnName);
-
 			case "INTEGER": // B //only zero 4 digit
 				return rs.getInt(ColumnName);
 
+			
+			case "SMALLINT":
+				 return rs.getShort(ColumnName);  
+				 
+			case "DECIMAL": // P -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
+			case "NUMERIC": // S -> decimal // scale > 0 // vikas sir scale=6 or 2 // only 4 fields
+			case "BIGINT":
+				if (scale > 0)
+					return rs.getBigDecimal(ColumnName);
+				return rs.getLong(ColumnName);
+			
+						
+			case "DECFLOAT":
+				return rs.getBigDecimal(ColumnName);
+			
+			case "REAL":
+				return rs.getFloat(ColumnName);
+				                
+			case "DOUBLE":
+				return rs.getDouble(ColumnName);
+				
+			case "CHAR":
+			case "CHAR()":
+			case "CHAR ()":
+			case "CHARACTER":
+			case "CHARACTER ()":
+			case "CHARACTER()":
+			case "CHARACTER VARYING":
+			case "CHARACTER VARYING ()":
+			case "CHARACTER VARYING()":
+			case "NCHAR":
+			case "NCHAR ()":
+			case "NCHAR()":
+			case "NCHAR VARYING":
+			case "NCHAR VARYING ()":
+			case "NCHAR VARYING()":
+			case "VARCHAR":
+			case "VARCHAR ()":
+			case "VARCHAR()":
+			case "NVARCHAR":
+			case "NVARCHAR ()":
+			case "NVARCHAR()":
+				return rs.getString(ColumnName).trim().replace("\u0000", "");
+				
+						
+			case "CHAR () FOR BIT DATA":
+			case "VARCHAR () FOR BIT DATA":
+			case "CHAR() FOR BIT DATA":
+			case "VARCHAR() FOR BIT DATA":
+				return rs.getBytes(ColumnName);
+						
+				
+			case "BINARY":
+			case "BINARY()":
+			case "BINARY ()":
+			case "VARBINARY":
+			case "VARBINARY()":
+			case "VARBINARY ()":
+				return rs.getBytes(ColumnName); 
+				
+			case "BLOB ()":
+			case "BLOB()":
+			case "BLOB":
+				return rs.getBlob(ColumnName);            //3
+				
+			case "GRAPHIC":
+			case "GRAPHIC ()":
+			case "GRAPHIC()":
+			case "VARGRAPHIC":
+			case "VARGRAPHIC ()":
+			case "VARGRAPHIC()":	
+				return rs.getString(ColumnName);           //4
+				
+			case "DOUBLE PRECISION":
+			case "FLOAT ()":
+			case "FLOAT()":
+			case "FLOAT":   
+				return rs.getBigDecimal(ColumnName);
+				
+			case "DATE":
+				return rs.getDate(ColumnName);
+		
+			case "TIME":
+				return rs.getTime(ColumnName);
+				
+			case "TIMESTAMP":
+			case "TIMESTAMP ()":
+			case "TIMESTAMP()":
+				return rs.getTimestamp(ColumnName);
+				
+			
+			case "CLOB":
+			case "CLOB ()":
+			case "CLOB()":
+			case "DBCLOB":
+			case "DBCLOB ()":
+			case "DBCLOB()":
+				return rs.getClob(ColumnName);
+			
 			default:
-				return rs.getString(ColumnName);
-
+				return rs.getObject(ColumnName).toString();
+		
 			}
 		} catch (Exception e) {
 			log.error("column Type not available mismatch :" + e.getMessage());

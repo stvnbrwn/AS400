@@ -77,7 +77,7 @@
 			Note : Here these two properties will be set according to ADM.sql script.
 
 		b) Thread Configuration : pool.size= 5 ,it defines thread pool size 
-		c) Batch configuration : batch.size= 2 , it defines size of batch, which will processed in one time.
+		c) Batch configuration : batch.size= 1000 , it defines size of batch, which will processed in one time.
 		d) Max attempt : max.attempt = 5 , it define the max number of attempt for which we can run failed batch for 
 											refactor.
 		e) special.chars.in.columns-name=#:_H_,$:_D_,@:_A_
