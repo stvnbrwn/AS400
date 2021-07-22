@@ -2,7 +2,7 @@
 
 AS400_Datamigration,
  it is spring boot console application for data migration from as400(db2) to postgresql
- 						***  INSTRUCTIONS  ***
+  						*** INSTRUCTIONS ***
 	1. Run SQL Script File. (Name : ADM.SQL)
 	#NOTE : if you want to change schema name at destination, then open SQL script file and change schema. (**Not Preferable**) 
 	#Example : - 
