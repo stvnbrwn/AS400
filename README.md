@@ -2,6 +2,8 @@
 
 AS400_Datamigration,
  it is spring boot console application for data migration from as400(db2) to postgresql
+ ![image](https://user-images.githubusercontent.com/75680603/126644337-f8dea28c-ad89-4eef-9b61-b1d790dcbbb0.png)
+
  
                                       ***  INSTRUCTIONS  ***
 
