@@ -155,30 +155,6 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 					start = false;
 					break;
 
-				case 777:
-					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_BATCH_OPT1_MSG);
-					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_BATCH_OPT2_MSG);
-					System.out.print(LogMessage.ALIEN_CENTER + LogMessage.FAILED_BATCH_INPUT_MSG);
-					try {
-						createFailBatch(reader.nextInt());
-					} catch (Exception e) {
-						log.error("Error while creating failed batch ...!", e);
-					}
-					break;
-
-				case 888:
-					log.info(LogMessage.APPLICATION_START_MSG);
-					System.out.print(LogMessage.ALIEN_CENTER+LogMessage.INPUT_FILE_MSG);
-					try {
-						String filePath = reader.next();
-						if (!filePath.trim().isEmpty()) {
-							verifyTableRow(filePath);
-						}
-					} catch (Exception e) {
-						log.error("File not found while starting ...!", e);
-					}
-					break;
-
 				default:
 					wrongInput = true;
 					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.SELECT_VALID_OPT);

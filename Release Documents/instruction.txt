@@ -1,4 +1,4 @@
-                                      ***  HELP MANU  ***
+                                      ***  INSTRUCTIONS  ***
 
 	1. Run SQL Script File. (Name : ADM.SQL)
 	#NOTE : if you want to change schema name at destination, then open SQL script file and change schema. (**Not Preferable**)
