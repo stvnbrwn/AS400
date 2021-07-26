@@ -65,22 +65,34 @@ AS400_Datamigration,
 			Note : Here these two properties will be set according to ADM.sql script.
 		b) Thread Configuration : pool.size= "5" ,its define thread pool size 
 		c) Batch configuration : batch.size= "2" , its define size of batch, which will processed in one time.
-    #Command to run with default configuration :-
-    	java -jar -Dspring.config.location=<Directory location>\application.properties 
+    		
+	#Command to run with default configuration :-
+    		java -jar -Dspring.config.location=<Directory location>\application.properties 
     			  <Directory location>\ADM-v1.0.jar
-    #Example : -
+   	#Example : -
     		"java -jar -Dspring.config.location=E:\ADM\configuration\application.properties 
     			  E:\ADM\ADM-v1.0.jar"
     			     
-    #Imp Note :- you can use "Command sheet.xlsx" from Release Documents Folder. which will create cmd command for you.
+   	##Imp Note 
+   		we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which available in Release Documents Folder. 
+		which will create cmd command for you.
     if you already did these set-up let's continue...
     
-## Options available in utility
+## Application Module
+	this application have 2 modules
+	1) Console Module
+		for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which available in 
+		Release Documents Folder. which will create cmd command for you.
+	2) Cron Module
+		for cron module we can use "CRON - Cheat Sheet" from "Command sheet.xlsx" which available in 
+		Release Documents Folder. which will create cmd command for verious application options.
+    
+## Options available in both module
 
-	1) For console utility 
+	1) For Console Module 
 ![image](https://user-images.githubusercontent.com/75680603/126996396-d147badf-d0a5-4095-b159-4b904f722d77.png)
 
-	2) For cron uses 
+	2) For Cron Module 
 		those who wanted to use this utility in cron scheduler for that there is only these 5 option.
 ![image](https://user-images.githubusercontent.com/75680603/126996884-934b9c6b-f067-4003-bbd4-7b38134d09bd.png)
 
@@ -90,9 +102,26 @@ AS400_Datamigration,
 ![image](https://user-images.githubusercontent.com/75680603/126998148-ad7f934e-a65d-4f3a-8763-e26c7308a02f.png)	
 
 	so here NIK is library name and after dot "." we have table name. we can any number of input tables in input file.
+	
+## How to use Console Module
+	for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which available in Release Documents Folder. 
+	which will create cmd command for you.
+	
+	Here we are explaing how to use that sheet.
+	
+![image](https://user-images.githubusercontent.com/75680603/127004942-58e65660-78cb-4ea0-864c-4975a3a03fef.png)
+	
+	so in that sheet we have 2 input columns which is in green color. 
+		1) Jar path : put complete jar path with jar name. 
+			#Example : C:/Users/MohitKachhwaha/Desktop/adm_client/ADM-v1.0.jar
+		2) Configuration File path : put configuration file path with jar name.
+			#Example : C:/Users/MohitKachhwaha/Desktop/adm_client/configuration/dev.properties
+	
+	Console command will automaically created in command column.
     
-## How to use this utility in cron scheduler 
-	we create "Command sheet.xlsx" file for creating cron scheduler commands for using different application options.
+## How to use Cron Module
+	for cron module we can use "CRON - Cheat Sheet" from "Command sheet.xlsx" which available in Release Documents Folder.
+	which will create cmd command for you.
 	
 	Here we are explaing how to use that sheet.
 	
