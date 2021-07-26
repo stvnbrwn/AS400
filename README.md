@@ -75,6 +75,40 @@ AS400_Datamigration,
     #Imp Note :- you can use "Command sheet.xlsx" from Release Documents Folder. which will create cmd command for you.
     if you already did these set-up let's continue...
     
+## Options available in utility
+
+	1) For console utility 
+![image](https://user-images.githubusercontent.com/75680603/126996396-d147badf-d0a5-4095-b159-4b904f722d77.png)
+
+	2) For cron uses 
+		those who wanted to use this utility in cron scheduler for that there is only these 5 option.
+![image](https://user-images.githubusercontent.com/75680603/126996884-934b9c6b-f067-4003-bbd4-7b38134d09bd.png)
+
+## Input File Example
+
+	you can create a simple txt file which conatain all table name with library name for migration.		
+![image](https://user-images.githubusercontent.com/75680603/126998148-ad7f934e-a65d-4f3a-8763-e26c7308a02f.png)	
+
+	so here NIK is library name and after dot "." we have table name. we can any number of input tables in input file.
+    
+## How to use this utility in cron scheduler 
+	we create "Command sheet.xlsx" file for creating cron scheduler commands for using different application options.
+	
+	Here we are explaing how to use that sheet.
+	
+![image](https://user-images.githubusercontent.com/75680603/126994041-ccc7ab71-cc89-4b95-8f17-cbda2a28972b.png)
+
+	so in that sheet we have three input columns which is in green color. 
+		1) Jar path : put complete jar path with jar name. 
+			#Example : C:/Users/MohitKachhwaha/Desktop/adm_client/ADM-v1.0.jar
+		2) Configuration File path : put configuration file path with jar name.
+			#Example : C:/Users/MohitKachhwaha/Desktop/adm_client/configuration/dev.properties
+		3) Input File Path : put your text file path which contain your input tables.
+			#Example : C:\Users\MohitKachhwaha\Desktop\adm_client\inputFile.txt
+			##Note : we dont need input File path for help option.
+			
+	cron command will automaically created in command column for specific option as show in screenshot. 
+    
 ## How to check source and destination connection
 	
 	#If both connection established 
