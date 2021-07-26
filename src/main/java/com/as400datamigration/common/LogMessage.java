@@ -48,4 +48,12 @@ public interface LogMessage {
 
 	String PROCESS_COMPLETE_MIGRATION_COMPLETE = "*** Process Complete Migration Finished ***";
 
+	String APP_STARTS_MSG_IN_CRON_MODULE = "*** Application Starts In Cron Module ***";
+
+	String APP_ENDS_MSG_IN_CRON_MODULE = "*** Application Cron Module Ends ***";
+
+	String APP_STARTS_MSG_IN_CONSOLE_MODULE = "*** Application Starts In Console Module ***";
+
+	String APP_ENDS_MSG_IN_CONSOLE_MODULE = "*** Application Console Module Ends ***";
+
 }

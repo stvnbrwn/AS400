@@ -39,7 +39,7 @@ public class PostgresDaoImpl implements PostgresDao {
 	public void createTable(TableMetaData tableMetaData) {
 		postgresTemplate.execute(tableMetaData.getPostgresQueries().getCreateTable());
 	}
-
+	//log table entry
 	@Override
 	public void saveIntoTableProcess(Object[] tableProcess) {
 		postgresTemplate.update(utility.getInsertIntoTableProcess(), tableProcess);
@@ -184,7 +184,7 @@ public class PostgresDaoImpl implements PostgresDao {
 			tableProcess = (TableProcess) postgresTemplate.queryForObject(utility.getTableProcessMetaData(tableName),
 					new BeanPropertyRowMapper<TableProcess>(TableProcess.class));
 		} catch (Exception e) {
-			log.error("Connection error at Destination, or table not found " + tableName);
+			log.error("Connection error at Destination, or table not found " + tableName , e);
 			throw e;
 		}
 		return tableProcess;
@@ -210,7 +210,6 @@ public class PostgresDaoImpl implements PostgresDao {
 
 	@Override
 	public void updateTableDeatil(Object[] tableDetailsObjArray, boolean withCoulmns) {
-
 		if (withCoulmns)
 			postgresTemplate.update(utility.updateTableDeatil(), tableDetailsObjArray);
 		else
@@ -252,8 +251,14 @@ public class PostgresDaoImpl implements PostgresDao {
 
 	@Override
 	public List<AllTableRows> fetchDataFromDes(String selectDesQry) {
-		List<AllTableRows> desTablesRowCuntList = postgresTemplate.query(selectDesQry, 
-				new BeanPropertyRowMapper<AllTableRows>(AllTableRows.class));
+		List<AllTableRows> desTablesRowCuntList = null;
+		try {
+			desTablesRowCuntList = postgresTemplate.query(selectDesQry, 
+					new BeanPropertyRowMapper<AllTableRows>(AllTableRows.class));
+		} catch (Exception e) {
+			log.error("Method fetchDataFromDes Exception !!!",e);
+			throw e;
+		}
 		return desTablesRowCuntList;
 	}
 

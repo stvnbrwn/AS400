@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.as400datamigration.audit.AuditMessage;
 import com.as400datamigration.audit.BatchDetailStatus;
 import com.as400datamigration.audit.TableStatus;
-import com.as400datamigration.common.LogMessage;
 import com.as400datamigration.common.Utility;
 import com.as400datamigration.model.BatchDetail;
 import com.as400datamigration.model.FailedBatchDetails;
@@ -75,12 +74,11 @@ public class As400DataMigrationService {
 				}
 			}
 		} catch (DuplicateKeyException e) {
-			System.out.println(LogMessage.ALIEN_CENTER + tableName + " Table migration is already performed.");
-			System.out.println(LogMessage.ALIEN_CENTER
-					+ "Please select option 2 from main menu for syncing the additional data for this table.");
+			log.error(tableName + " Table migration is already performed.");
+			log.error("Please select option 2 from main menu for syncing the additional data for this table.",e);
+			
 		} catch (Exception e) {
-			System.out.println(
-					LogMessage.ALIEN_CENTER + "Please check connection or " + tableName + " already performed");
+			log.error("Please check connection or " + tableName + " already performed");
 			log.error(AuditMessage.EXECPTION_MSG + " May be columns meta data not found \n"
 					+ "Error at processCompleteMigration method", e);
 		}
@@ -155,7 +153,7 @@ public class As400DataMigrationService {
 			}
 
 		} catch (Exception e) {
-			log.error("Exception At createTable !!! ");
+			log.error("Exception At createTable !!! table Name :" + tableName , e);
 			TableProcess tableProcess = new TableProcess(tableName);
 			tableProcess.setTotalRows(tableMetaData.getTotalRows());
 			tableProcess.setStatus(TableStatus.TABLE_CREATION_FAILED);
@@ -245,7 +243,7 @@ public class As400DataMigrationService {
 								.getSaveObjArray());
 			}
 		} catch (Exception e) {
-			log.error("Exception at createTable while sync !!! ");
+			log.error("Exception at createTable while sync !!! ", e);
 			TableProcess tableProcess = new TableProcess(tableMetaDataSource.getTableName());
 			tableProcess.setTotalRows(tableMetaDataSource.getTotalRows());
 			tableProcess.setStatus(TableStatus.TABLE_CREATION_FAILED);

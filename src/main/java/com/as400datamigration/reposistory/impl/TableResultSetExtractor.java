@@ -35,8 +35,7 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 			log.info("Get all data form table ENDS   , Total Columns " + columns.size() + "Total  fetch  records : "
 					+ tableDataList.size() + "Time : " + LocalDateTime.now());
 		} catch (Exception e) {
-			log.error("getAllData from table fails !!!");
-			e.printStackTrace();
+			log.error("getAllData from table fails !!!",e);
 		}
 		return tableDataList;
 	}
@@ -161,8 +160,7 @@ public class TableResultSetExtractor implements ResultSetExtractor<List<Object[]
 		
 			}
 		} catch (Exception e) {
-			log.error("column Type not available mismatch :" + e.getMessage());
-			e.printStackTrace();
+			log.error("column Type not available mismatch :" + e.getMessage(), e);
 		}
 
 		return null;

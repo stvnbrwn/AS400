@@ -47,7 +47,7 @@ public class As400DaoImpl implements As400Dao {
 			log.info("Get total records for table : " + tableName + " time    : " + LocalDateTime.now());
 			totalRecords = as400Template.queryForObject(utility.getRowCount(tableName), Long.class);
 		} catch (Exception e) {
-			log.error("Exception at gettotalRecords !!!");
+			log.error("Exception at gettotalRecords !!!",e);
 		}
 		return totalRecords;
 	}
@@ -88,7 +88,7 @@ public class As400DaoImpl implements As400Dao {
 			tableMetaData.getTableProcess().setColumnsJson(gson.toJson(columns));
 
 		} catch (Exception e) {
-			log.error("Exception at getTableDesc !!!");
+			log.error("Exception at getTableDesc !!!",e);
 			if (isCreate) {
 				postgresDao.saveIntoTableProcess(
 						new TableProcess(tableMetaData.getTableName(), TableStatus.TABLE_DESC_NOT_FOUND_AT_SOURCE)
@@ -117,7 +117,7 @@ public class As400DaoImpl implements As400Dao {
 			String sqlData = utility.getSelectQueryFor5Records(tableName);
 			tableDataList = as400Template.query(sqlData, new TableResultSetExtractor(columns));
 		} catch (Exception e) {
-			log.error("Exception at fetchFirst5RecordsFromTable !!!");
+			log.error("Exception at fetchFirst5RecordsFromTable !!!",e);
 		}
 
 		return tableDataList;
@@ -141,7 +141,7 @@ public class As400DaoImpl implements As400Dao {
 			tableMetaData.getBatchDetail().setBno(bno);
 			postgresDao.updateBatchDetail(tableMetaData.getBatchDetail().getUpdateObjArray()); // pending
 		} catch (Exception e) {
-
+			log.error("Method readOprationOnTable Exception !!!",e);
 			if (bno == 0)
 				throw e;
 
@@ -170,7 +170,7 @@ public class As400DaoImpl implements As400Dao {
 			tableMetaData.getFailedBatchDetails().setFbno(fbno);
 
 		} catch (Exception e) {
-
+			log.error("Method readOprationOnFailedBatch Exception !!!",e);
 			if (fbno == 0)
 				throw e;
 
@@ -196,7 +196,7 @@ public class As400DaoImpl implements As400Dao {
 			tableProcess.setMaxRrn(tableMetaData.getMaxRrn());
 			tableMetaData.setTableProcess(tableProcess);
 		} catch (Exception e) {
-			log.error("Table not found at source..", e);
+			log.error("Table not found at source..!!!", e);
 			if (fromTableCreate) {
 				postgresDao.saveIntoTableProcess(
 						new TableProcess(tableName, TableStatus.TABLE_NOT_FOUND_AT_SOURCE).getSaveObjArray());
@@ -216,8 +216,14 @@ public class As400DaoImpl implements As400Dao {
 
 	@Override
 	public List<AllTableRows> fetchDataFromSource(String selectSrcQry) {
-		List<AllTableRows> srcRowCountList = as400Template.query(selectSrcQry, 
-				new BeanPropertyRowMapper<AllTableRows>(AllTableRows.class));
+		List<AllTableRows> srcRowCountList = null;
+		try {
+			srcRowCountList = as400Template.query(selectSrcQry, 
+					new BeanPropertyRowMapper<AllTableRows>(AllTableRows.class));
+		} catch (Exception e) {
+			log.error("Method fetchDataFromSource Excetion !!!",e);
+			throw e;
+		}
 		return srcRowCountList;
 	}
 

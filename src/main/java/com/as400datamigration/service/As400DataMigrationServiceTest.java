@@ -106,6 +106,7 @@ public class As400DataMigrationServiceTest {
 			tableSummary.setResult("NOT PERFORMED");
 			tableSummary.setTableStatus(TableStatus.TABLE_NOT_CREATED);
 			tableSummary.setSummary("Table has not performed yet, or may be connection issue.");
+			log.error("Exception at getTableSummary !!!", e);
 		}
 		return tableSummary;
 	}
