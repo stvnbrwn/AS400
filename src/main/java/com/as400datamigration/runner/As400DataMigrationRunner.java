@@ -3,6 +3,7 @@ package com.as400datamigration.runner;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -279,10 +280,14 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			System.out.println(LogMessage.ALIEN_CENTER + LogMessage.RS_START_MSG);
 			log.info(LogMessage.RS_START_MSG);
 			int sno = 1;
-			for (TableSummary tableSummary : outPutList) {
-				System.out.println("S.no. : " + sno++ + " : " + tableSummary);
+			for(TableSummary tableSummary : outPutList)
+			{
 				log.info("S.no. : " + sno++ + " : " + tableSummary);
 			}
+			/*
+			 * for (TableSummary tableSummary : outPutList) { System.out.println("S.no. : "
+			 * + sno++ + " : " + tableSummary); }
+			 */
 
 			getRowSummery(outPutList);
 
@@ -310,17 +315,16 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			if (!outPutListOfFailTables.isEmpty()) {
 				SelectQryDesAndSrc selectQryDesAndSrc = utility
 						.fetchSelectFromDestinationAndSource(outPutListOfFailTables);
-				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_TABLES_SUMMERY_START);
 				log.info(LogMessage.FAILED_TABLES_SUMMERY_START);
+				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_TABLES_SUMMERY_START);
 				System.out.println("Failed tables includs these status :-"
 						+ TableStatus.MIGRATION_PROCESS_IN_RUNNING.toString() + " , "
 						+ TableStatus.MIGRATION_SYNC_FAIL.toString() + " , " + TableStatus.MIGRATION_FAILED.toString());
 				boolean hasMissMatchedRows = as400DataMigrationServiceTest.runSelectDesAndSource(selectQryDesAndSrc,
 						outPutListOfFailTables);
 				if (!hasMissMatchedRows) {
-					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.NO_MISS_MATCH_ROWS_IN_FAILED_TABLES_MSG);
 					log.info(LogMessage.NO_MISS_MATCH_ROWS_IN_FAILED_TABLES_MSG);
-					
+					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.NO_MISS_MATCH_ROWS_IN_FAILED_TABLES_MSG);
 				}
 				log.info(LogMessage.FAILED_TABLES_SUMMERY_END);	
 				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_TABLES_SUMMERY_END);
