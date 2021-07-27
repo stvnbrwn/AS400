@@ -1,28 +1,28 @@
 # ADM
 
 AS400_Datamigration,
- it is spring boot console application for data migration from as400(db2) to postgresql
+ it is spring boot console application for data migration from as400(db2) to PostgreSQL
  
  ## INSTRUCTIONS
   						
 						*** INSTRUCTIONS ***
-	1. Run SQL Script File. (Name : ADM.SQL)
+	1. Run SQL Script File. (Name: ADM.SQL)
 	
-	#NOTE : if you want to change schema name at destination, then open SQL script file and change schema. (**Not Preferable**) 
+	#NOTE: if you want to change schema name at destination, then open SQL script file and change schema. (**Not Preferable**) 
 	
-	#Example : - 
-		Old config : CREATE SCHEMA IF NOT EXISTS ADM_AUDIT;
-		New config : CREATE SCHEMA IF NOT EXISTS <YOUR_AUDIT_SCHEMA_NAME>;
-		Old config : CREATE SCHEMA IF NOT EXISTS ADM;
-		New config : CREATE SCHEMA IF NOT EXISTS <YOUR_DESTINATION_SCHEMA_NAME>;
+	#Example: - 
+		Old config: CREATE SCHEMA IF NOT EXISTS ADM_AUDIT;
+		New config: CREATE SCHEMA IF NOT EXISTS <YOUR_AUDIT_SCHEMA_NAME>;
+		Old config: CREATE SCHEMA IF NOT EXISTS ADM;
+		New config: CREATE SCHEMA IF NOT EXISTS <YOUR_DESTINATION_SCHEMA_NAME>;
 		
-	2. Project Structure. ( preferable project Structure )
+	2. Project Structure. (preferable project Structure)
 	
 ![image](https://user-images.githubusercontent.com/75680603/126644337-f8dea28c-ad89-4eef-9b61-b1d790dcbbb0.png)
 
 	3. Set Application Configuration.	
-		a) Logging Configuration : Log file contains the detailed description of what is going in the application.
-		If any issue is encountered in future then it can be analyzed by checking the logs.
+		a) Logging Configuration: Log file contains the detailed description of what is going in the application.
+		If any issue is encountered in future, then it can be analysed by checking the logs.
 		Below are some configurations we have in the configuration file for proper logging.
 			*	logging.file= This contains the path where log file will be generated.
 			*	logging.level.org.springframework=INFO
@@ -31,26 +31,26 @@ AS400_Datamigration,
 			 	A new log file will be rolled out if size of the current log file exceeds this number.
 			*	logging.file.total-size-cap= You can control the total size of all log files under a specified number.
 			*	logging.file.max-history= You can specify the maximum number of days that the archive log files are kept.
-		b) Database Configuration : 
+		b) Database Configuration: 
 			#AS400 DB config
 			*   as400.datasource.jdbc-url= This refers to the url of the source server used.
-			#Example : - 
+			#Example: - 
 				"jdbc:as400://129.40.95.145;translate binary=true;ccsid=37;"
 			here, we are setting translate property with source server. (required for As400)
 			*   as400.datasource.username= provide the user name of source server you want to use.
 			*   as400.datasource.password =  provide the password of source server.
 			*   as400.datasource.driverClassName = provide the driver  name. 
-			#Example : - 
+			#Example: - 
 				"com.ibm.as400.access.AS400JDBCDriver"
 			*   as400.datasource.hikari.connection-test-query= this will test connection with source server. 
-			#Example : - 
+			#Example: - 
 				"values 1"  
 			*   as400.datasource.hikari.validationTimeout= Provide connection Time out  
-			#Example : - 
+			#Example: - 
 				"3000000" ( 50 * 60 * 1000 = 50 min )
-			#postgres DB config
+			#Postgres DB config
 			*   postgres.datasource.jdbc-url= This refers to the url of the destination server used.
-			#Example : - 
+			#Example: - 
 				"jdbc:postgresql://localhost:5434/postgres?useSSL=false"
 				here, we are setting SSL property with destination server. 
 			*   postgres.datasource.username= provide the user name of destination server you want to use.
@@ -62,30 +62,30 @@ AS400_Datamigration,
 		a) Following are the two different schema name properties: 
 			postgres.schema=ADM
 			postgres.audit.schema=ADM_AUDIT
-			Note : Here these two properties will be set according to ADM.sql script.
-		b) Thread Configuration : pool.size= "5" ,its define thread pool size 
-		c) Batch configuration : batch.size= "2" , its define size of batch, which will processed in one time.
+			Note: Here these two properties will be set according to ADM.sql script.
+		b) Thread Configuration: pool.size= "5" ,its define thread pool size 
+		c) Batch configuration: batch.size= "2" , its define size of batch, which will processed in one time.
     		
-	#Command to run with default configuration :-
+	#Command to run with default configuration:-
     		java -jar -Dspring.config.location=<Directory location>\application.properties 
     			  <Directory location>\ADM-v1.0.jar
-   	#Example : -
+   	#Example: -
     		"java -jar -Dspring.config.location=E:\ADM\configuration\application.properties 
     			  E:\ADM\ADM-v1.0.jar"
     			     
    	##Imp Note 
    		we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which available in Release Documents Folder. 
 		which will create cmd command for you.
-    if you already did these set-up let's continue...
+    if you already did these set-ups let's continue...
     
 ## Application Module
-	this application have 2 modules
+	this application has 2 modules
 	1) Console Module
 		for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which available in 
 		Release Documents Folder. which will create cmd command for you.
 	2) Cron Module
 		for cron module we can use "CRON - Cheat Sheet" from "Command sheet.xlsx" which available in 
-		Release Documents Folder. which will create cmd command for verious application options.
+		Release Documents Folder. which will create cmd command for various application options.
     
 ## Options available in both module
 
@@ -93,12 +93,12 @@ AS400_Datamigration,
 ![image](https://user-images.githubusercontent.com/75680603/126996396-d147badf-d0a5-4095-b159-4b904f722d77.png)
 
 	2) For Cron Module 
-		those who wanted to use this utility in cron scheduler for that there is only these 5 option.
+		those who wanted to use this utility in cron scheduler for that there is only these 5 options.
 ![image](https://user-images.githubusercontent.com/75680603/126996884-934b9c6b-f067-4003-bbd4-7b38134d09bd.png)
 
 ## Input File Example
 
-	you can create a simple txt file which conatain all table name with library name for migration.		
+	you can create a simple txt file which contains all table name with library name for migration.		
 ![image](https://user-images.githubusercontent.com/75680603/126998148-ad7f934e-a65d-4f3a-8763-e26c7308a02f.png)	
 
 	so here NIK is library name and after dot "." we have table name. we can any number of input tables in input file.
@@ -107,40 +107,40 @@ AS400_Datamigration,
 	for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which available in Release Documents Folder. 
 	which will create cmd command for you.
 	
-	Here we are explaing how to use that sheet.
+	Here we are explained how to use that sheet.
 	
 ![image](https://user-images.githubusercontent.com/75680603/127004942-58e65660-78cb-4ea0-864c-4975a3a03fef.png)
 	
-	so in that sheet we have 2 input columns which is in green color. 
-		1) Jar path : put complete jar path with jar name. 
-			#Example : C:/Users/MohitKachhwaha/Desktop/adm_client/ADM-v1.0.jar
-		2) Configuration File path : put configuration file path with jar name.
-			#Example : C:/Users/MohitKachhwaha/Desktop/adm_client/configuration/dev.properties
+	so, in that sheet we have 2 input columns which is in green color. 
+		1) Jar path: put complete jar path with jar name. 
+			#Example: C:/Users/MohitKachhwaha/Desktop/adm_client/ADM-v1.0.jar
+		2) Configuration File path: put configuration file path with jar name.
+			#Example: C:/Users/MohitKachhwaha/Desktop/adm_client/configuration/dev.properties
 	
-	Console command will automaically created in command column.
+	Console command will automatically create in the command column.
     
 ## How to use Cron Module
 	for cron module we can use "CRON - Cheat Sheet" from "Command sheet.xlsx" which available in Release Documents Folder.
 	which will create cmd command for you.
 	
-	Here we are explaing how to use that sheet.
+	Here we are explain how to use that sheet.
 	
 ![image](https://user-images.githubusercontent.com/75680603/126994041-ccc7ab71-cc89-4b95-8f17-cbda2a28972b.png)
 
-	so in that sheet we have three input columns which is in green color. 
-		1) Jar path : put complete jar path with jar name. 
-			#Example : C:/Users/MohitKachhwaha/Desktop/adm_client/ADM-v1.0.jar
-		2) Configuration File path : put configuration file path with jar name.
-			#Example : C:/Users/MohitKachhwaha/Desktop/adm_client/configuration/dev.properties
-		3) Input File Path : put your text file path which contain your input tables.
-			#Example : C:\Users\MohitKachhwaha\Desktop\adm_client\inputFile.txt
-			##Note : we dont need input File path for help option.
+	so, in that sheet we have three input columns which is in green color. 
+		1) Jar path: put complete jar path with jar name. 
+			#Example: C:/Users/MohitKachhwaha/Desktop/adm_client/ADM-v1.0.jar
+		2) Configuration File path: put configuration file path with jar name.
+			#Example: C:/Users/MohitKachhwaha/Desktop/adm_client/configuration/dev.properties
+		3) Input File Path: put your text file path which contain your input tables.
+			#Example: C:\Users\MohitKachhwaha\Desktop\adm_client\inputFile.txt
+			##Note: we dont need input File path for help option.
 			
-	cron command will automaically created in command column for specific option as show in screenshot. 
+	cron command will automatically create in the command column for specific option as show in screenshot. 
     
 ## How to check source and destination connection
 	
-	#If both connection established 
+	#If both connections established 
 ![image](https://user-images.githubusercontent.com/75680603/126661325-f7855d8f-ed4b-4aa9-8d70-7a7e8824cbfc.png)
 	
 	#If source is not connected 
