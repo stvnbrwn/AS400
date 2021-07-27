@@ -63,8 +63,8 @@ AS400_Datamigration,
 			postgres.schema=ADM
 			postgres.audit.schema=ADM_AUDIT
 			Note: Here these two properties will be set according to ADM.sql script.
-		b) Thread Configuration: pool.size= "5" ,its define thread pool size 
-		c) Batch configuration: batch.size= "2" , its define size of batch, which will processed in one time.
+		b) Thread Configuration: pool.size= "5" ,it defines thread pool size. 
+		c) Batch configuration: batch.size= "2" ,  it defines size of the batch, which will be processed in one go.
     		
 	#Command to run with default configuration:-
     		java -jar -Dspring.config.location=<Directory location>\application.properties 
@@ -74,18 +74,18 @@ AS400_Datamigration,
     			  E:\ADM\ADM-v1.0.jar"
     			     
    	##Imp Note 
-   		we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which available in Release Documents Folder. 
-		which will create cmd command for you.
-    if you already did these set-ups let's continue...
+   		we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which is available in 
+		Release Documents Folder which will create cmd command for you. 
+	If you have already done all the set-up let's continue... 
     
 ## Application Module
 	this application has 2 modules
 	1) Console Module
-		for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which available in 
-		Release Documents Folder. which will create cmd command for you.
+		for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which is available in 
+		Release Documents Folder. it will create cmd command for you.
 	2) Cron Module
-		for cron module we can use "CRON - Cheat Sheet" from "Command sheet.xlsx" which available in 
-		Release Documents Folder. which will create cmd command for various application options.
+		for cron module we can use "CRON - Cheat Sheet" from "Command sheet.xlsx" which is available in 
+		Release Documents Folder. it will create cmd command for various application options.
     
 ## Options available in both module
 
@@ -93,7 +93,7 @@ AS400_Datamigration,
 ![image](https://user-images.githubusercontent.com/75680603/126996396-d147badf-d0a5-4095-b159-4b904f722d77.png)
 
 	2) For Cron Module 
-		those who wanted to use this utility in cron scheduler for that there is only these 5 options.
+		For those who want to use this utility in cron scheduler for them the below 5 options are available. 
 ![image](https://user-images.githubusercontent.com/75680603/126996884-934b9c6b-f067-4003-bbd4-7b38134d09bd.png)
 
 ## Input File Example
@@ -101,11 +101,11 @@ AS400_Datamigration,
 	you can create a simple txt file which contains all table name with library name for migration.		
 ![image](https://user-images.githubusercontent.com/75680603/126998148-ad7f934e-a65d-4f3a-8763-e26c7308a02f.png)	
 
-	so here NIK is library name and after dot "." we have table name. we can any number of input tables in input file.
+	so here NIK is library name and after dot "." we have table name, we can have any number of input tables in input file. 
 	
 ## How to use Console Module
-	for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which available in Release Documents Folder. 
-	which will create cmd command for you.
+	for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which is available in Release Documents Folder,
+	it will create cmd command for you. 
 	
 	Here we are explained how to use that sheet.
 	
@@ -117,11 +117,11 @@ AS400_Datamigration,
 		2) Configuration File path: put configuration file path with jar name.
 			#Example: C:/Users/MohitKachhwaha/Desktop/adm_client/configuration/dev.properties
 	
-	Console command will automatically create in the command column.
+	Console command will automatically get created in command column. 
     
 ## How to use Cron Module
-	for cron module we can use "CRON - Cheat Sheet" from "Command sheet.xlsx" which available in Release Documents Folder.
-	which will create cmd command for you.
+	for cron module we can use "CRON - Cheat Sheet" from "Command sheet.xlsx" which is available in Release Documents Folder, 
+	it will create cmd command for you. 
 	
 	Here we are explain how to use that sheet.
 	
@@ -136,7 +136,7 @@ AS400_Datamigration,
 			#Example: C:\Users\MohitKachhwaha\Desktop\adm_client\inputFile.txt
 			##Note: we dont need input File path for help option.
 			
-	cron command will automatically create in the command column for specific option as show in screenshot. 
+	cron command will automatically created in command column for specific option as show in screenshot.  
     
 ## How to check source and destination connection
 	
