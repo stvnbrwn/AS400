@@ -261,7 +261,6 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			tableList = utility.getInputFileData(filePath);
 			ExecutorService executor = Executors.newCachedThreadPool(); // takefrom app pro
 
-			System.out.println(LogMessage.ALIEN_CENTER + "Total tables : " + tableList.size());
 			log.info("Total tables : " + tableList.size());
 			List<TableSummary> outPutList = new ArrayList<TableSummary>(tableList.size());
 
@@ -277,21 +276,15 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 			executor.shutdown();
 			while (!executor.isTerminated()) {
 			}
-			System.out.println(LogMessage.ALIEN_CENTER + LogMessage.RS_START_MSG);
 			log.info(LogMessage.RS_START_MSG);
 			int sno = 1;
 			for(TableSummary tableSummary : outPutList)
 			{
 				log.info("S.no. : " + sno++ + " : " + tableSummary);
 			}
-			/*
-			 * for (TableSummary tableSummary : outPutList) { System.out.println("S.no. : "
-			 * + sno++ + " : " + tableSummary); }
-			 */
-
+			
 			getRowSummery(outPutList);
 
-			System.out.println(LogMessage.ALIEN_CENTER + LogMessage.CURRENT_SUMMARY_COMPLETE);
 			log.info(LogMessage.CURRENT_SUMMARY_COMPLETE);
 
 		} catch (FileNotFoundException e) {
@@ -316,18 +309,15 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 				SelectQryDesAndSrc selectQryDesAndSrc = utility
 						.fetchSelectFromDestinationAndSource(outPutListOfFailTables);
 				log.info(LogMessage.FAILED_TABLES_SUMMERY_START);
-				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_TABLES_SUMMERY_START);
-				System.out.println("Failed tables includs these status :-"
+				log.info("Failed tables includs these status :-"
 						+ TableStatus.MIGRATION_PROCESS_IN_RUNNING.toString() + " , "
 						+ TableStatus.MIGRATION_SYNC_FAIL.toString() + " , " + TableStatus.MIGRATION_FAILED.toString());
 				boolean hasMissMatchedRows = as400DataMigrationServiceTest.runSelectDesAndSource(selectQryDesAndSrc,
 						outPutListOfFailTables);
 				if (!hasMissMatchedRows) {
 					log.info(LogMessage.NO_MISS_MATCH_ROWS_IN_FAILED_TABLES_MSG);
-					System.out.println(LogMessage.ALIEN_CENTER + LogMessage.NO_MISS_MATCH_ROWS_IN_FAILED_TABLES_MSG);
 				}
 				log.info(LogMessage.FAILED_TABLES_SUMMERY_END);	
-				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.FAILED_TABLES_SUMMERY_END);
 			}
 
 			List<String> outPutListOfPassTables = outPutList.stream()
@@ -341,8 +331,7 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 				SelectQryDesAndSrc selectQryDesAndSrc = utility
 						.fetchSelectFromDestinationAndSource(outPutListOfPassTables);
 				log.info(LogMessage.PASSED_TABLES_ROWS_SUMMERY_STARTS);
-				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.PASSED_TABLES_ROWS_SUMMERY_STARTS);
-				System.out.println(
+				log.info(
 						"Passed tables includs these status :-" + TableStatus.TABLE_CREATED_WITH_NO_DATA.toString()
 								+ " , " + TableStatus.MIGRATION_SUCCESSFUL.toString() + " , "
 								+ TableStatus.MIGRATION_SYNC_SUCCESSFUL.toString());
@@ -351,10 +340,8 @@ public class As400DataMigrationRunner implements CommandLineRunner {
 
 				if (!hasMissMatchedRows) {
 						log.info(LogMessage.NO_MISS_MATCH_ROWS_IN_PASSED_TABLES);
-						System.out.println(LogMessage.ALIEN_CENTER + LogMessage.NO_MISS_MATCH_ROWS_IN_PASSED_TABLES);
 				}
 				log.info( LogMessage.PASSED_TABLES_ROWS_SUMMERY_ENDS);	
-				System.out.println(LogMessage.ALIEN_CENTER + LogMessage.PASSED_TABLES_ROWS_SUMMERY_ENDS);
 			}
 		} catch (Exception e) {
 			throw e;
