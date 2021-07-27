@@ -1,45 +1,65 @@
 package com.as400datamigration.reposistory;
 
-import java.time.LocalDateTime;
+import java.sql.SQLException;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
-import lombok.extern.slf4j.Slf4j;
+import com.as400datamigration.model.BatchDetail;
+import com.as400datamigration.model.TableMetaData;
+import com.as400datamigration.model.TableProcess;
+import com.as400datamigration.model.AllTableRows;
 
-@Slf4j
-@Service
-public class PostgresDao {
+@Repository
+public interface PostgresDao {
 
-	@Autowired
-	@Qualifier("PostgresJdbcTemplate")
-	private JdbcTemplate postgresTemplate;
+	public void saveIntoTableProcess(Object[] tableProcess);
 
-	public void createTable(String crtQuery) {
-		try {
-			log.info("Table creation start :" + LocalDateTime.now());
-			postgresTemplate.execute(crtQuery);
-			log.info("Table creation end   :" + LocalDateTime.now());
-		} catch (Exception e) {
-			log.error("Table creation fail !!!");
-			e.printStackTrace();
-		}
+	public void updateTableProcessStatus(Object[] allTableProcess);
 
-	}
+	public void createTable(TableMetaData tableMetaData);
 
-	public void insertBatchInTable(String insertQuery, List<Object[]> tableDataList) {
+	public long saveBatchDetail(Object[] allBatchDetails);
 
-		try {
-			log.info("batch insert start :-" + "batch size : " + tableDataList.size() + LocalDateTime.now());
-			postgresTemplate.batchUpdate(insertQuery, tableDataList);
-			log.info("batch insert end   :-" + "batch size : " + tableDataList.size() + LocalDateTime.now());
-		} catch (Exception e) {
-			log.error("Batch insert fail !!!");
-			e.printStackTrace();
-		}
-	}
+	public void updateBatchDetail(Object[] allBatchDetails);
 
+	public boolean writeOpraionOnTable(TableMetaData tableMetaData, List<Object[]> tableData);
+
+	public List<BatchDetail> getfailedbatch();
+
+	public long saveFailedBatchDetail(Object[] saveObjArray);
+
+	public void updateFailedBatchDetail(Object[] updateObjArray);
+
+	public boolean writeOpraionFailedBatch(TableMetaData tableMetaData, List<Object[]> tableData);
+
+	public TableProcess getTableMetaData(String tableName);
+
+	public BatchDetail getlastBatchDetails(String tableName);
+
+	/**
+	 * @param TableProcessDetail's ObjArray
+	 */
+	public void saveIntoTableProcessDetail(Object[] saveObjArray);
+
+	/**
+	 * @param tableDetailsObjArray
+	 * @param withCoulmns
+	 */
+	public void updateTableDeatil(Object[] tableDetailsObjArray,boolean withCoulmns);
+
+	public List<BatchDetail> getTenBatch(List<Integer> batchNoList) throws SQLException;
+
+	public void updateBatchDetailStatus(Object[] updateStatusObjArry);
+
+	public int getFailedBatchAttempt(BatchDetail batch);
+
+	/**
+	 * @param selectDesQry
+	 * @return list of rows for all table
+	 */
+	public List<AllTableRows> fetchDataFromDes(String selectDesQry);
+
+	
+	
 }
