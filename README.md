@@ -1,7 +1,19 @@
+
+# AS400 CSV Extract (Non-Java)
+
+A utility is written on the AS400 that extracts all the identified 137 tables (most used) and saves it in .csv format in an IFS (AS400 Integrated File System) folder.
+The Release document folder contains 2 files explaining this.
+1. Detail information about the AS400 Tables and fields is provided in file
+- Table_Metadata_Final.xlsx
+2. The steps on how to run the CSV extract is explained in the below Word document.
+- Tylie AS400 CSV Extract (Non-Java).docx
+
+
+
 # ADM
 
 AS400_Datamigration,
- it is spring boot console application for data migration from as400(db2) to PostgreSQL
+ it is spring boot application for data migration from as400(db2) to PostgreSQL
  
  ## PREREQUISITE
  	1. your system should have java 8 installed.
