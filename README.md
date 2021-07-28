@@ -1,7 +1,30 @@
+
+# AS400 CSV Extract (Non-Java)
+
+A utility is written on the AS400 that extracts all the identified 137 tables (most used) and saves it in .csv format in an IFS (AS400 Integrated File System) folder.
+The Release document folder contains 2 files explaining this.
+1. Detail information about the AS400 Tables and fields is provided in file
+- Table_Metadata_Final.xlsx
+2. The steps on how to run the CSV extract is explained in the below Word document.
+- Tylie AS400 CSV Extract (Non-Java).docx
+
+
+
 # ADM
 
 AS400_Datamigration,
- it is spring boot console application for data migration from as400(db2) to PostgreSQL
+ it is spring boot application for data migration from as400(db2) to PostgreSQL
+ 
+ ## PREREQUISITE
+ 	1. your system should have java 8 installed.
+		it is require to run our java code.
+	2. Maven tool should be install
+		maven is building tool which help us to building our application. 
+		we will use "mvn clean install" command to build our application.
+		
+		for details about maven please use the below link ...
+		
+https://maven.apache.org/what-is-maven.html
  
  ## INSTRUCTIONS
   						
@@ -76,9 +99,26 @@ AS400_Datamigration,
    	##Imp Note 
    		we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which is available in 
 		Release Documents Folder which will create cmd command for you. 
-	If you have already done all the set-up let's continue... 
+	If you have already done all the set-up let's continue...
+	
+## How to create jar file
+	once you clone this git project on your local,
+	open terminal/cmd with project folder location and use "mvn clean install" command to create jar.
+	
+![image](https://user-images.githubusercontent.com/75680603/127272043-242288ac-27f3-48bd-aac4-ed6b426dc331.png)
+	
+	in above picture we are showing my project location
+	
+![Untitled](https://user-images.githubusercontent.com/75680603/127298710-99368e6c-19c6-4077-a133-45400f1e7e8a.png)
+	
+	Run "mvn clean install" commnd at there, when it finished it will automatically create jar file in target folder.
+	
+![image](https://user-images.githubusercontent.com/75680603/127272226-c950bf15-b5af-4103-b47f-03d84762a7db.png)
+
+	in above picture we are showing jar file in target folder. which resides in project folder it self.
+
     
-## Application Module
+## Application module
 	this application has 2 modules
 	1) Console Module
 		for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which is available in 
