@@ -84,5 +84,10 @@
    		we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which is available in 
 		Release Documents Folder which will create cmd command for you. 
 		
+	5. How to create jar file
+		once you clone this git project on your local,
+		open terminal/cmd with project folder location and run "mvn package" command to create jar.
+		it will automatically create jar file in target folder, which resides in project folder it self.
+		
 	If you have already done all the set-up let's continue... 
 
