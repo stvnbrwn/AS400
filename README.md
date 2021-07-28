@@ -84,7 +84,7 @@ AS400_Datamigration,
 	
 ![image](https://user-images.githubusercontent.com/75680603/127272043-242288ac-27f3-48bd-aac4-ed6b426dc331.png)
 	
-	My project location
+	in above picture we are showing my project location
 	
 ![image](https://user-images.githubusercontent.com/75680603/127271921-a73e6388-5d77-4a3b-b557-e879c6fb90eb.png)
 	
