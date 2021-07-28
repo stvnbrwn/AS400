@@ -1,0 +1,93 @@
+    										*** INSTRUCTIONS ***
+    						
+	1. Run SQL Script File. (Name: ADM.SQL)
+	
+	#NOTE: if you want to change schema name at destination, then open SQL script file and change schema. (**Not Preferable**) 
+	
+	#Example: - 
+		Old config: CREATE SCHEMA IF NOT EXISTS ADM_AUDIT;
+		New config: CREATE SCHEMA IF NOT EXISTS <YOUR_AUDIT_SCHEMA_NAME>;
+		Old config: CREATE SCHEMA IF NOT EXISTS ADM;
+		New config: CREATE SCHEMA IF NOT EXISTS <YOUR_DESTINATION_SCHEMA_NAME>;
+		
+	2. Project Structure. (preferable project Structure) 
+	
+				ADM 
+  				|
+  				|--> Jar File 
+  				|
+  				|--> configuration folder
+  				|     |
+  				|     |--> property File <Example name : test.properties or production.properties>
+  				|
+  				|--> logs folder
+  				      |
+  				      |--> logFile.log
+  				      
+	3. Set Application Configuration.
+		
+		a) Logging Configuration: Log file contains the detailed description of what is going in the application.
+		If any issue is encountered in future, then it can be analysed by checking the logs.
+		Below are some configurations we have in the configuration file for proper logging.
+			*	logging.file= This contains the path where log file will be generated.
+			*	logging.level.org.springframework=INFO
+			*	logging.level.com.as400DataMigration=INFO
+			*	logging.file.max-size= This keeps the maximum size of each log file.
+			 	A new log file will be rolled out if size of the current log file exceeds this number.
+			*	logging.file.total-size-cap= You can control the total size of all log files under a specified number.
+			*	logging.file.max-history= You can specify the maximum number of days that the archive log files are kept.
+			
+		b) Database Configuration: 
+			#AS400 DB config
+			*   as400.datasource.jdbc-url= This refers to the url of the source server used.
+			#Example: - 
+				"jdbc:as400://129.40.95.145;translate binary=true;ccsid=37;"
+			here, we are setting translate property with source server. (required for As400)
+			*   as400.datasource.username= provide the user name of source server you want to use.
+			*   as400.datasource.password =  provide the password of source server.
+			*   as400.datasource.driverClassName = provide the driver  name. 
+			#Example: - 
+				"com.ibm.as400.access.AS400JDBCDriver"
+			*   as400.datasource.hikari.connection-test-query= this will test connection with source server. 
+			#Example: - 
+				"values 1"  
+			*   as400.datasource.hikari.validationTimeout= Provide connection Time out  
+			#Example: - 
+				"3000000" ( 50 * 60 * 1000 = 50 min )
+			#Postgres DB config
+			*   postgres.datasource.jdbc-url= This refers to the url of the destination server used.
+			#Example: - 
+				"jdbc:postgresql://localhost:5434/postgres?useSSL=false"
+				here, we are setting SSL property with destination server. 
+			*   postgres.datasource.username= provide the user name of destination server you want to use.
+			*   postgres.datasource.password =  provide the password of destination server.
+			*   postgres.datasource.driverClassName = provide the driver  name. 
+			#Example : - 
+				"org.postgresql.Driver"
+				
+	4. Other properties
+		a) Following are the two different schema name properties: 
+			postgres.schema=ADM
+			postgres.audit.schema=ADM_AUDIT
+			Note: Here these two properties will be set according to ADM.sql script.
+		b) Thread Configuration: pool.size= "5" ,it defines thread pool size. 
+		c) Batch configuration: batch.size= "2" ,  it defines size of the batch, which will be processed in one go.
+    		
+	#Command to run with default configuration:-
+    		java -jar -Dspring.config.location=<Directory location>\application.properties 
+    			  <Directory location>\ADM-v1.0.jar
+   	#Example: -
+    		"java -jar -Dspring.config.location=E:\ADM\configuration\application.properties 
+    			  E:\ADM\ADM-v1.0.jar"
+    			     
+   	##Imp Note 
+   		we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which is available in 
+		Release Documents Folder which will create cmd command for you.
+		
+	5. How to create jar file
+		once you clone this git project on your local,
+		open terminal/cmd with project folder location and run "mvn package" command to create jar.
+		it will automatically create jar file in target folder, which resides in project folder it self. 
+		
+	If you have already done all the set-up let's continue... 
+

@@ -1,0 +1,47 @@
+{
+  "TABLE_NOT_FOUND_AT_SOURCE":
+    {
+      "result": "FAIL",
+      "summary": "Table was not found at source."
+    },
+   "TABLE_DESC_NOT_FOUND_AT_SOURCE":
+    {
+      "result": "FAIL",
+      "summary": "Table column details are not found at source."
+    },
+    "TABLE_CREATION_FAILED":
+    {
+      "result": "FAIL",
+      "summary": "Table creation failed, this table was performed previously.  Note:- for more details about failure please check all_table_process_details table"
+    },
+    "TABLE_CREATED_WITH_NO_DATA":
+    {
+      "result": "PASS",
+      "summary": "Table created without data."
+    },
+    "MIGRATION_PROCESS_IN_RUNNING":
+    {
+      "result": "FAIL",
+      "summary": "Migration started but not completed."
+    },
+    "MIGRATION_SUCCESSFUL":
+    {
+      "result": "PASS",
+      "summary": "Migration completed successfully with all data batches."
+    },
+    "MIGRATION_FAILED":
+    {
+      "result": "FAIL",
+      "summary": "Migration completed but failed for some data batches."
+    },
+    "MIGRATION_SYNC_SUCCESSFUL":
+    {
+      "result": "PASS",
+      "summary": "Migration sync completed successfully with all data batches."
+    },
+    "MIGRATION_SYNC_FAIL":
+    {
+      "result": "FAIL",
+      "summary": "Migration completed but failed for some data batches."
+    }
+}

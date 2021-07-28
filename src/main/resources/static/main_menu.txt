@@ -1,0 +1,16 @@
+                                           *** MAIN MENU ***
+                                           
+                                           Choose Any One Option
+                                    
+                                           1) Perform Complete Migration
+                                    
+                                           2) Perform Sync 
+                                    
+                                           3) Re-Execute Failed batches 
+                                    
+                                           4) Current Status Summary
+                                           
+                                           5) Configuration Help
+                                           
+                                           6) Exit
+                                            
