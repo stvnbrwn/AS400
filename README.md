@@ -3,6 +3,17 @@
 AS400_Datamigration,
  it is spring boot console application for data migration from as400(db2) to PostgreSQL
  
+ ## PREREQUISITE
+ 	1. your system should have java 8 installed.
+		it is require to run our java code.
+	2. Maven tool should be install
+		maven is building tool which help us to building our application. 
+		we will use "mvn clean install" command to build our application.
+		
+		for details about maven please use the below link ...
+		
+https://maven.apache.org/what-is-maven.html
+ 
  ## INSTRUCTIONS
   						
 						*** INSTRUCTIONS ***
@@ -80,15 +91,15 @@ AS400_Datamigration,
 	
 ## How to create jar file
 	once you clone this git project on your local,
-	open terminal/cmd with project folder location and use "mvn package" command to create jar.
+	open terminal/cmd with project folder location and use "mvn clean install" command to create jar.
 	
 ![image](https://user-images.githubusercontent.com/75680603/127272043-242288ac-27f3-48bd-aac4-ed6b426dc331.png)
 	
 	in above picture we are showing my project location
 	
-![image](https://user-images.githubusercontent.com/75680603/127271921-a73e6388-5d77-4a3b-b557-e879c6fb90eb.png)
+![Untitled](https://user-images.githubusercontent.com/75680603/127298710-99368e6c-19c6-4077-a133-45400f1e7e8a.png)
 	
-	Run "mvn package" commnd at there, it will automatically create jar file in target folder.
+	Run "mvn clean install" commnd at there, when it finished it will automatically create jar file in target folder.
 	
 ![image](https://user-images.githubusercontent.com/75680603/127272226-c950bf15-b5af-4103-b47f-03d84762a7db.png)
 
