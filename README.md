@@ -76,9 +76,26 @@ AS400_Datamigration,
    	##Imp Note 
    		we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which is available in 
 		Release Documents Folder which will create cmd command for you. 
-	If you have already done all the set-up let's continue... 
+	If you have already done all the set-up let's continue...
+	
+## How to create jar file
+	once you clone this git project on your local,
+	open terminal/cmd with project folder location and use "mvn package" command to create jar.
+	
+![image](https://user-images.githubusercontent.com/75680603/127272043-242288ac-27f3-48bd-aac4-ed6b426dc331.png)
+	
+	My project location
+	
+![image](https://user-images.githubusercontent.com/75680603/127271921-a73e6388-5d77-4a3b-b557-e879c6fb90eb.png)
+	
+	Run "mvn package" commnd at there, it will automatically create jar file in target folder.
+	
+![image](https://user-images.githubusercontent.com/75680603/127272226-c950bf15-b5af-4103-b47f-03d84762a7db.png)
+
+	in above picture we are showing jar file in target folder. which resides in project folder it self.
+
     
-## Application Module
+## Application module
 	this application has 2 modules
 	1) Console Module
 		for console module we can use "CONSOLE - Cheat Sheet" from "Command sheet.xlsx" which is available in 
